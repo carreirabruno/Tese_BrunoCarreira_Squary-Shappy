@@ -57,8 +57,8 @@ class World_Boxes(object):
         #create shappys
         for shappy_var in self.terrain.initial_shappy_list:
 
-            shappy = Shappy_Boxes(shappy_var[0], shappy_var[2] * self.screen_ratio, shappy_var[1] * self.screen_ratio,
-                                self.shappy_speed, self.shappy_speed, self, shappy_var[3],
+            shappy = Shappy_Boxes(shappy_var[0],shappy_var[1], shappy_var[3] * self.screen_ratio, shappy_var[2] * self.screen_ratio,
+                                self.shappy_speed, self.shappy_speed, self, shappy_var[4],
                                 self.terrain.matrix, self.screen_width, self.screen_height, False)
             self.shappy_group.add(shappy)
 

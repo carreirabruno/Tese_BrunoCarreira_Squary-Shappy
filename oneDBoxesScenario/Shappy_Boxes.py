@@ -10,7 +10,7 @@ class Shappy_Boxes(pygame.sprite.Sprite):
     auto = -1
     size = 30
 
-    def __init__(self, name, x_pos, y_pos, x_speed, y_speed, world, color, terrain_matrix, screen_width, screen_height,
+    def __init__(self, ID, name, x_pos, y_pos, x_speed, y_speed, world, color, terrain_matrix, screen_width, screen_height,
                  auto):
 
         pygame.sprite.Sprite.__init__(self)
@@ -48,6 +48,7 @@ class Shappy_Boxes(pygame.sprite.Sprite):
         x_size, y_size = self.image.get_rect().size
         self.rect = pygame.Rect(x_pos, y_pos, x_size, y_size)
         self.mask = pygame.mask.from_surface(self.image)
+        self.ID = ID
         self.name = name
         self.dir = (x_pos, y_pos)
 

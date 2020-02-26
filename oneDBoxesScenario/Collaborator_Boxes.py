@@ -36,8 +36,8 @@ class Collaborator_Boxes(object):
         if not simulation:
             self.max_best_behaviour()
 
-        self.agent1_old_distance = abs(self.best_behaviour[0][1][0] - self.best_behaviour[0][0])
-        self.agent2_old_distance = abs(self.best_behaviour[1][1][0] - self.best_behaviour[1][0])
+        self.agent1_old_distance = abs(self.best_behaviour[0][1][0] - self.best_behaviour[0][0][1])
+        self.agent2_old_distance = abs(self.best_behaviour[1][1][0] - self.best_behaviour[1][0][1])
 
     def update(self):
         if len(self.world.box_group) == 0 and self.write:
@@ -83,19 +83,18 @@ class Collaborator_Boxes(object):
 
         agent_list = []
         for agent in self.world.shappy_group:
-            agent_list.append(agent.x_pos)
+            agent_list.append([agent.ID, agent.x_pos])
 
         if len(self.box_group) == 0:
             print("NO MORE BOXES")
         elif len(self.box_group) == 1:
-            if abs(self.box_group[0] - agent_list[0]) < abs(self.box_group[0] - agent_list[1]):
+            if abs(self.box_group[0] - agent_list[0][1]) < abs(self.box_group[0] - agent_list[1][1]):
                 best_collaborative_behaviour = [[agent_list[0], self.box_group], [agent_list[1], math.inf]]
             else:
                 best_collaborative_behaviour = [[agent_list[0], math.inf], [agent_list[1], self.box_group]]
         else:
             best_possible_path_1 = self.calculate_best_possible_paths(agent_list[0], agent_list[1], self.box_group)
             best_possible_path_2 = self.calculate_best_possible_paths(agent_list[1], agent_list[0], self.box_group)
-
 
             # CRIA-SE AQUI A COMBINAÇÃO AGENTE-BOX PARA ANALISAR OS MOVIMENTOS
             if best_possible_path_1[0] <= best_possible_path_2[0]:
@@ -110,53 +109,54 @@ class Collaborator_Boxes(object):
     def analyse_behaviour(self, behaviour_array):
         if self.agent1_old_distance == math.inf and self.agent2_old_distance == math.inf:
             if behaviour_array[0][1] != math.inf:
-                self.agent1_old_distance = abs(behaviour_array[0][1][0] - behaviour_array[0][0])
+                self.agent1_old_distance = abs(behaviour_array[0][1][0] - behaviour_array[0][0][1])
             else:
-                self.agent1_old_distance = behaviour_array[0][0]
+                self.agent1_old_distance = behaviour_array[0][0][1]
             if behaviour_array[1][1] != math.inf:
-                self.agent2_old_distance = abs(behaviour_array[1][1][0] - behaviour_array[1][0])
+                self.agent2_old_distance = abs(behaviour_array[1][1][0] - behaviour_array[1][0][1])
             else:
-                self.agent2_old_distance = behaviour_array[1][0]
+                self.agent2_old_distance = behaviour_array[1][0][1]
+
         else:
             agent_list = []
             for agent in self.world.shappy_group:
-                agent_list.append(agent.x_pos)
+                agent_list.append([agent.ID, agent.x_pos])
             if behaviour_array[0][1] != math.inf and abs(
-                    behaviour_array[0][1][0] - agent_list[0]) == self.agent1_old_distance:
+                    behaviour_array[0][1][0] - agent_list[0][1]) == self.agent1_old_distance:
                 self.freeze_counter1 += 1
                 if self.freeze_counter1 == 500:
                     self.agent1_points -= 3
                     self.freeze_counter1 = 0
             elif behaviour_array[0][1] != math.inf and abs(
-                    behaviour_array[0][1][0] - agent_list[0]) < self.agent1_old_distance:   #está a aproximar-se do objetivo
-                self.agent1_old_distance = abs(behaviour_array[0][1][0] - agent_list[0])
+                    behaviour_array[0][1][0] - agent_list[0][1]) < self.agent1_old_distance:   #está a aproximar-se do objetivo
+                self.agent1_old_distance = abs(behaviour_array[0][1][0] - agent_list[0][1])
                 self.agent1_points += 3
             elif behaviour_array[0][1] != math.inf and abs(behaviour_array[0][1][0] - agent_list[
-                0]) > self.agent1_old_distance:     #está a afastar-se do objetivo
+                0][1]) > self.agent1_old_distance:     #está a afastar-se do objetivo
                 # self.agent1_old_distance = abs(behaviour_array[0][1][0] - agent_list[0])
                 self.agent1_points -= 9
-            elif behaviour_array[0][1] == math.inf and abs(self.agent1_old_distance - agent_list[0]) < 10:  #não tem objetivo e está quieto
+            elif behaviour_array[0][1] == math.inf and abs(self.agent1_old_distance - agent_list[0][1]) < 10:  #não tem objetivo e está quieto
                 self.agent1_points += 1
-            elif behaviour_array[0][1] == math.inf and abs(self.agent1_old_distance - agent_list[0]) > 10:  #não tem objetivo e está a mover-se (desperdicio de ações e pode estar a ser greedy)
+            elif behaviour_array[0][1] == math.inf and abs(self.agent1_old_distance - agent_list[0][1]) > 10:  #não tem objetivo e está a mover-se (desperdicio de ações e pode estar a ser greedy)
                 self.agent1_points -= 1
 
             if behaviour_array[1][1] != math.inf and abs(
-                    behaviour_array[1][1][0] - agent_list[1]) == self.agent2_old_distance:
+                    behaviour_array[1][1][0] - agent_list[1][1]) == self.agent2_old_distance:
                 self.freeze_counter2 += 1
                 if self.freeze_counter2 == 500:
                     self.agent2_points -= 3
                     self.freeze_counter2 = 0
             elif behaviour_array[1][1] != math.inf and abs(
-                    behaviour_array[1][1][0] - agent_list[1]) < self.agent2_old_distance:
-                self.agent2_old_distance = abs(behaviour_array[1][1][0] - agent_list[1])
+                    behaviour_array[1][1][0] - agent_list[1][1]) < self.agent2_old_distance:
+                self.agent2_old_distance = abs(behaviour_array[1][1][0] - agent_list[1][1])
                 self.agent2_points += 3
             elif behaviour_array[1][1] != math.inf and abs(
-                    behaviour_array[1][1][0] - agent_list[1]) > self.agent2_old_distance:
+                    behaviour_array[1][1][0] - agent_list[1][1]) > self.agent2_old_distance:
                 # self.agent2_old_distance = abs(behaviour_array[1][1][0] - agent_list[1])
                 self.agent2_points -= 9
-            elif behaviour_array[1][1] == math.inf and abs(self.agent2_old_distance - agent_list[1]) < 10:
+            elif behaviour_array[1][1] == math.inf and abs(self.agent2_old_distance - agent_list[1][1]) < 10:
                 self.agent2_points += 1
-            elif behaviour_array[1][1] == math.inf and abs(self.agent2_old_distance - agent_list[1]) > 10:
+            elif behaviour_array[1][1] == math.inf and abs(self.agent2_old_distance - agent_list[1][1]) > 10:
                 self.agent2_points -= 1
 
     # isto só funciona com 2 agentes, não está otimizado para mais
@@ -192,7 +192,7 @@ class Collaborator_Boxes(object):
         return paths_permutations
 
     # isto só funciona com 2 agentes, não está otimizado para mais
-    def calculate_best_possible_paths(self, agent1_pos_x, agent2_pos_x, boxes_group):
+    def calculate_best_possible_paths(self, agent1, agent2, boxes_group):
         best_possible_path = []
         possible_paths = self.calculate_all_possible_paths(boxes_group)
 
@@ -204,7 +204,7 @@ class Collaborator_Boxes(object):
         for path in possible_paths:
             if path[0] == math.inf:
                 distance_agent_1 = 0
-                distance_agent_2 = abs(path[1][0] - agent2_pos_x)
+                distance_agent_2 = abs(path[1][0] - agent2[1])
                 for i in range(1, len(path[1])):
                     distance_agent_2 += abs(path[1][i] - path[1][i - 1])
                 if distance_agent_2 < minimum_distance_agent_2:
@@ -215,8 +215,8 @@ class Collaborator_Boxes(object):
                     minimum_path_agent_2 = path[1]
                     best_possible_path = path
             elif len(path[0]) == 1 and path[0][0] != math.inf:
-                distance_agent_1 = abs(path[0][0] - agent1_pos_x)
-                distance_agent_2 = abs(path[1][0] - agent2_pos_x)
+                distance_agent_1 = abs(path[0][0] - agent1[1])
+                distance_agent_2 = abs(path[1][0] - agent2[1])
                 for i in range(1, len(path[1])):
                     distance_agent_2 += abs(path[1][i] - path[1][i - 1])
                 if distance_agent_2 < minimum_distance_agent_2:
@@ -227,10 +227,10 @@ class Collaborator_Boxes(object):
                     minimum_path_agent_2 = path[1]
                     best_possible_path = path
             else:
-                distance_agent_1 = abs(path[0][0] - agent1_pos_x)
+                distance_agent_1 = abs(path[0][0] - agent1[1])
                 for i in range(1, len(path[0])):
                     distance_agent_1 += abs(path[0][i] - path[0][i - 1])
-                    distance_agent_2 = abs(path[1][0] - agent2_pos_x)
+                    distance_agent_2 = abs(path[1][0] - agent2[1])
                     for j in range(1, len(path[1])):
                         distance_agent_2 += abs(path[1][j] - path[1][j - 1])
                     if (distance_agent_1 + distance_agent_2) < minimum_total_distance:
@@ -253,7 +253,7 @@ class Collaborator_Boxes(object):
             return False
 
     def max_best_behaviour(self):  # aqui o algoritmo determina qual é o melhor score possivel tendo em conta colaboração e execução total para depois ser comparado com os resultados de cada agente
-        n = 5
+        n = 1
         #substituir os A por B e depois o contrário
 
         f = open(self.world.terrain_file, "r")

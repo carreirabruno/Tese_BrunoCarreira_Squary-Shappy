@@ -1,0 +1,1 @@
+# Tese_BrunoCarreira_Squary-Shappy

@@ -56,19 +56,36 @@ class Collaborator_Boxes(object):
         f = open("oneDBoxes_CollaborationResults.txt", "a+")
         agent_list = []
         for agent in self.world.shappy_group:
-            agent_list.append(agent.type)
+            agent_list.append([agent.type, agent.ID])
 
+        total_points = self.agent1_points + self.agent2_points
         datetime_object = datetime.datetime.now()
         datetime_object = datetime_object.strftime("DATE_%d-%m-%Y___TIME_%H-%M-%S")
         f.write("%s \n" % datetime_object)
-        f.write(("AGENT1 -> %s - %d\r") % (agent_list[0], self.agent1_points))
-        f.write(("AGENT2 -> %s - %d\r") % (agent_list[1], self.agent2_points))
-        f.write("TOTAL -> %d\r" % (self.agent1_points + self.agent2_points))
-        f.write("AVG_NON_COLLABORATIVE_SCORE -> %d\r" % self.avg_non_collaborative_total_score)
-        f.write("AVG_COLLABORATIVE_SCORE -> %d\r" % self.avg_collaborative_total_score)
+        f.write(("AGENT1 -> %s - %s -> %d\r") % (agent_list[0][1], agent_list[0][0], self.agent1_points))
+        f.write(("AGENT2 -> %s - %s -> %d\r") % (agent_list[1][1], agent_list[1][0], self.agent2_points))
+        f.write("TOTAL -> %d\r" % total_points)
 
-        if abs((self.agent1_points + self.agent2_points) - self.avg_non_collaborative_total_score) < abs((self.agent1_points + self.agent2_points) - self.avg_collaborative_total_score):
+        # if abs(total_points - self.avg_non_collaborative_total_score) \
+        #         < abs(total_points - self.avg_collaborative_total_score):
+        #     f.write("NON COLLABORATIVE BEHAVIOUR\r")
+        # else:
+        #     f.write("COLLABORATIVE BEHAVIOUR\r")
+
+        scaled_zero_to_ten = int(((total_points - self.avg_non_collaborative_total_score) /
+                (self.avg_collaborative_total_score - self.avg_non_collaborative_total_score)) * 10)
+
+        if scaled_zero_to_ten > 10:
+            scaled_zero_to_ten = 10
+        elif scaled_zero_to_ten < 0:
+            scaled_zero_to_ten = 0
+
+        f.write("SCALED FROM 0 TO 10 -> %d \r" %scaled_zero_to_ten)
+
+        if scaled_zero_to_ten  < 3:
             f.write("NON COLLABORATIVE BEHAVIOUR\r\n")
+        elif scaled_zero_to_ten < 8:
+            f.write("NEUTRAL BEHAVIOUR\r\n")
         else:
             f.write("COLLABORATIVE BEHAVIOUR\r\n")
 
@@ -121,7 +138,8 @@ class Collaborator_Boxes(object):
             agent_list = []
             for agent in self.world.shappy_group:
                 agent_list.append([agent.ID, agent.x_pos])
-            if behaviour_array[0][1] != math.inf and abs(
+
+            if behaviour_array[0][1] != math.inf and abs(                   #tem objetivo mas não se mexe
                     behaviour_array[0][1][0] - agent_list[0][1]) == self.agent1_old_distance:
                 self.freeze_counter1 += 1
                 if self.freeze_counter1 == 500:
@@ -253,42 +271,52 @@ class Collaborator_Boxes(object):
             return False
 
     def max_best_behaviour(self):  # aqui o algoritmo determina qual é o melhor score possivel tendo em conta colaboração e execução total para depois ser comparado com os resultados de cada agente
-        n = 1
-        #substituir os A por B e depois o contrário
+        a = open("oneDBoxes_CollaborationResults.txt", "r+")
+        line1 = a.readline()
+        line2 = a.readline()
+        if "C" not in line1 or "NC" not in line2:
+            n = 5
+            f = open(self.world.terrain_file, "r")
+            filenameAA = open("filenameAA.txt", "w+")
+            filenameBB = open("filenameBB.txt", "w+")
+            lines = f.readlines()
+            for line in lines:
+                for letter in line:
+                    if letter == "B":
+                        filenameAA.write("A")
+                        filenameBB.write("B")
+                    elif letter == "A":
+                        filenameAA.write("A")
+                        filenameBB.write("B")
+                    else:
+                        filenameAA.write(letter)
+                        filenameBB.write(letter)
+            f.close()
+            filenameAA.close()
+            filenameBB.close()
 
-        f = open(self.world.terrain_file, "r")
-        filenameAA = open("filenameAA.txt", "w+")
-        filenameBB = open("filenameBB.txt", "w+")
-        lines = f.readlines()
-        for line in lines:
-            for letter in line:
-                if letter == "B":
-                    filenameAA.write("A")
-                    filenameBB.write("B")
-                elif letter == "A":
-                    filenameAA.write("A")
-                    filenameBB.write("B")
-                else:
-                    filenameAA.write(letter)
-                    filenameBB.write(letter)
-        f.close()
-        filenameAA.close()
-        filenameBB.close()
+            for i in range(n):
+                scoresAA = self.run_simulation("filenameAA.txt")
+                self.avg_non_collaborative_total_score += scoresAA[0] + scoresAA[1]
 
-        for i in range(n):
-            scoresAA = self.run_simulation("filenameAA.txt")
-            self.avg_non_collaborative_total_score += scoresAA[0] + scoresAA[1]
+            for i in range(n):
+                scoresBB = self.run_simulation("filenameBB.txt")
+                self.avg_collaborative_total_score += scoresBB[0] + scoresBB[1]
 
-        for i in range(n):
-            scoresBB = self.run_simulation("filenameBB.txt")
-            self.avg_collaborative_total_score += scoresBB[0] + scoresBB[1]
+            os.remove("filenameAA.txt")
+            os.remove("filenameBB.txt")
 
-        os.remove("filenameAA.txt")
-        os.remove("filenameBB.txt")
+            self.avg_collaborative_total_score = self.avg_collaborative_total_score / n
+            self.avg_non_collaborative_total_score = self.avg_non_collaborative_total_score / n
 
-        self.avg_collaborative_total_score = self.avg_collaborative_total_score / n
-        self.avg_non_collaborative_total_score = self.avg_non_collaborative_total_score / n
+            a.write("C %d\r" % self.avg_collaborative_total_score)
+            a.write("NC %d\r\n" % self.avg_non_collaborative_total_score)
+            a.close()
 
+        else:
+            self.avg_collaborative_total_score = int(line1.replace("C ", ""))
+            self.avg_non_collaborative_total_score = int(line2.replace("NC ", ""))
+            a.close()
         self.write = True
 
     def run_simulation(self, filename):

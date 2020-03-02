@@ -16,7 +16,9 @@ class Collaborator_Boxes(object):
         self.agent2_old_distance = math.inf
 
         self.agent1_points = 0
+        # self.agent1_ID = 0
         self.agent2_points = 0
+        # self.agent2_ID = 0
         self.max_agent1_points = 0
         self.max_agent2_points = 0
 
@@ -32,6 +34,7 @@ class Collaborator_Boxes(object):
             self.box_group.append(box.x_pos)
 
         self.best_behaviour = self.get_best_collaboration_behaviour()
+        print(self.best_behaviour)
 
         if not simulation:
             self.max_best_behaviour()
@@ -49,7 +52,7 @@ class Collaborator_Boxes(object):
                 self.best_behaviour = self.get_best_collaboration_behaviour()
                 self.agent1_old_distance = math.inf
                 self.agent2_old_distance = math.inf
-
+                print(self.best_behaviour)
             self.analyse_behaviour(self.best_behaviour)
 
     def write_in_txt(self):
@@ -104,6 +107,7 @@ class Collaborator_Boxes(object):
 
         if len(self.box_group) == 0:
             print("NO MORE BOXES")
+
         elif len(self.box_group) == 1:
             if abs(self.box_group[0] - agent_list[0][1]) < abs(self.box_group[0] - agent_list[1][1]):
                 best_collaborative_behaviour = [[agent_list[0], self.box_group], [agent_list[1], math.inf]]
@@ -142,39 +146,39 @@ class Collaborator_Boxes(object):
             if behaviour_array[0][1] != math.inf and abs(                   #tem objetivo mas não se mexe
                     behaviour_array[0][1][0] - agent_list[0][1]) == self.agent1_old_distance:
                 self.freeze_counter1 += 1
-                if self.freeze_counter1 == 500:
-                    self.agent1_points -= 3
-                    self.freeze_counter1 = 0
+                # if self.freeze_counter1 == 500:
+                #     self.agent1_points -= 3
+                #     self.freeze_counter1 = 0
             elif behaviour_array[0][1] != math.inf and abs(
                     behaviour_array[0][1][0] - agent_list[0][1]) < self.agent1_old_distance:   #está a aproximar-se do objetivo
                 self.agent1_old_distance = abs(behaviour_array[0][1][0] - agent_list[0][1])
-                self.agent1_points += 3
-            elif behaviour_array[0][1] != math.inf and abs(behaviour_array[0][1][0] - agent_list[
-                0][1]) > self.agent1_old_distance:     #está a afastar-se do objetivo
-                # self.agent1_old_distance = abs(behaviour_array[0][1][0] - agent_list[0])
-                self.agent1_points -= 9
-            elif behaviour_array[0][1] == math.inf and abs(self.agent1_old_distance - agent_list[0][1]) < 10:  #não tem objetivo e está quieto
                 self.agent1_points += 1
-            elif behaviour_array[0][1] == math.inf and abs(self.agent1_old_distance - agent_list[0][1]) > 10:  #não tem objetivo e está a mover-se (desperdicio de ações e pode estar a ser greedy)
+            elif behaviour_array[0][1] != math.inf and abs(behaviour_array[0][1][0] - agent_list[
+                0][1]) > self.agent1_old_distance:                                                  #está a afastar-se do objetivo
+                # self.agent1_old_distance = abs(behaviour_array[0][1][0] - agent_list[0])
+                self.agent1_points -= 1
+            elif behaviour_array[0][1] == math.inf and abs(self.agent1_old_distance - agent_list[0][1]) < 50:  #não tem objetivo e está quieto
+                self.agent1_points += 1
+            elif behaviour_array[0][1] == math.inf and abs(self.agent1_old_distance - agent_list[0][1]) > 50:  #não tem objetivo e está a mover-se (desperdicio de ações e pode estar a ser greedy)
                 self.agent1_points -= 1
 
             if behaviour_array[1][1] != math.inf and abs(
                     behaviour_array[1][1][0] - agent_list[1][1]) == self.agent2_old_distance:
                 self.freeze_counter2 += 1
-                if self.freeze_counter2 == 500:
-                    self.agent2_points -= 3
-                    self.freeze_counter2 = 0
+                # if self.freeze_counter2 == 500:
+                #     self.agent2_points -= 3
+                #     self.freeze_counter2 = 0
             elif behaviour_array[1][1] != math.inf and abs(
                     behaviour_array[1][1][0] - agent_list[1][1]) < self.agent2_old_distance:
                 self.agent2_old_distance = abs(behaviour_array[1][1][0] - agent_list[1][1])
-                self.agent2_points += 3
+                self.agent2_points += 1
             elif behaviour_array[1][1] != math.inf and abs(
                     behaviour_array[1][1][0] - agent_list[1][1]) > self.agent2_old_distance:
                 # self.agent2_old_distance = abs(behaviour_array[1][1][0] - agent_list[1])
-                self.agent2_points -= 9
-            elif behaviour_array[1][1] == math.inf and abs(self.agent2_old_distance - agent_list[1][1]) < 10:
+                self.agent2_points -= 1
+            elif behaviour_array[1][1] == math.inf and abs(self.agent2_old_distance - agent_list[1][1]) < 50:
                 self.agent2_points += 1
-            elif behaviour_array[1][1] == math.inf and abs(self.agent2_old_distance - agent_list[1][1]) > 10:
+            elif behaviour_array[1][1] == math.inf and abs(self.agent2_old_distance - agent_list[1][1]) > 50:
                 self.agent2_points -= 1
 
     # isto só funciona com 2 agentes, não está otimizado para mais

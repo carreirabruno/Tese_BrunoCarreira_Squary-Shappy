@@ -26,7 +26,7 @@ class World_Boxes(object):
 
         self.score = 0
 
-        self.shappy_speed = 600     #não faz nada, eles mexem-se sempre 1 casa
+        self.shappy_speed = 100     #não faz nada, eles mexem-se sempre 1 casa
 
         self.shappy_group = pygame.sprite.Group()
         self.box_group = pygame.sprite.Group()

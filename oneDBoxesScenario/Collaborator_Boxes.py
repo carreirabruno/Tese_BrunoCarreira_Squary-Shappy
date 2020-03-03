@@ -15,10 +15,15 @@ class Collaborator_Boxes(object):
         self.agent1_old_distance = math.inf
         self.agent2_old_distance = math.inf
 
+        self.agent1_old_position = math.inf
+        self.agent2_old_position = math.inf
+
+        self.behaviour_with_distances = []
+
         self.agent1_points = 0
-        # self.agent1_ID = 0
+        self.agent1_ID = 0
         self.agent2_points = 0
-        # self.agent2_ID = 0
+        self.agent2_ID = 0
         self.max_agent1_points = 0
         self.max_agent2_points = 0
 
@@ -33,8 +38,15 @@ class Collaborator_Boxes(object):
         for box in self.world.box_group:
             self.box_group.append(box.x_pos)
 
+        self.agents_current_positions = []
+        for agent in self.world.shappy_group:
+            self.agents_current_positions.append([agent.ID, agent.x_pos])
+
         self.best_behaviour = self.get_best_collaboration_behaviour()
-        print(self.best_behaviour)
+        self.agent1_ID = self.best_behaviour[0][0][0]
+        self.agent2_ID = self.best_behaviour[1][0][0]
+        for item in self.best_behaviour:
+            self.agents_current_positions.append(item[0][0])
 
         if not simulation:
             self.max_best_behaviour()
@@ -47,13 +59,23 @@ class Collaborator_Boxes(object):
             self.write_in_txt()
             quit()
         else:
+            self.agents_current_positions = []
+            for agent in self.world.shappy_group:
+                self.agents_current_positions.append([agent.ID, agent.x_pos])
             changed = self.check_boxes_changes()
+
             if changed:
                 self.best_behaviour = self.get_best_collaboration_behaviour()
                 self.agent1_old_distance = math.inf
                 self.agent2_old_distance = math.inf
-                print(self.best_behaviour)
-            self.analyse_behaviour(self.best_behaviour)
+                self.agent1_old_position = self.best_behaviour[0][0][1]
+                self.agent2_old_position = self.best_behaviour[1][0][1]
+
+           # self.analyse_behaviour1(self.best_behaviour)
+            self.analyse_behaviour2()
+
+            if changed:
+                print(self.behaviour_with_distances)
 
     def write_in_txt(self):
         f = open("oneDBoxes_CollaborationResults.txt", "a+")
@@ -109,25 +131,25 @@ class Collaborator_Boxes(object):
             print("NO MORE BOXES")
 
         elif len(self.box_group) == 1:
-            if abs(self.box_group[0] - agent_list[0][1]) < abs(self.box_group[0] - agent_list[1][1]):
-                best_collaborative_behaviour = [[agent_list[0], self.box_group], [agent_list[1], math.inf]]
+            if abs(self.box_group[0] - self.agents_current_positions[0][1]) < abs(self.box_group[0] - self.agents_current_positions[1][1]):
+                best_collaborative_behaviour = [[self.agents_current_positions[0], self.box_group], [self.agents_current_positions[1], math.inf]]
             else:
-                best_collaborative_behaviour = [[agent_list[0], math.inf], [agent_list[1], self.box_group]]
+                best_collaborative_behaviour = [[self.agents_current_positions[0], math.inf], [self.agents_current_positions[1], self.box_group]]
         else:
-            best_possible_path_1 = self.calculate_best_possible_paths(agent_list[0], agent_list[1], self.box_group)
-            best_possible_path_2 = self.calculate_best_possible_paths(agent_list[1], agent_list[0], self.box_group)
+            best_possible_path_1 = self.calculate_best_possible_paths(self.agents_current_positions[0], self.agents_current_positions[1], self.box_group)
+            best_possible_path_2 = self.calculate_best_possible_paths(self.agents_current_positions[1], self.agents_current_positions[0], self.box_group)
 
             # CRIA-SE AQUI A COMBINAÇÃO AGENTE-BOX PARA ANALISAR OS MOVIMENTOS
             if best_possible_path_1[0] <= best_possible_path_2[0]:
-                best_collaborative_behaviour = [[agent_list[0], best_possible_path_1[1][0]],
-                                                [agent_list[1], best_possible_path_1[1][1]]]
+                best_collaborative_behaviour = [[self.agents_current_positions[0], best_possible_path_1[1][0]],
+                                                [self.agents_current_positions[1], best_possible_path_1[1][1]]]
             else:
-                best_collaborative_behaviour = [[agent_list[0], best_possible_path_1[1][1]],
-                                                [agent_list[1], best_possible_path_1[1][0]]]
+                best_collaborative_behaviour = [[self.agents_current_positions[0], best_possible_path_1[1][1]],
+                                                [self.agents_current_positions[1], best_possible_path_1[1][0]]]
 
         return best_collaborative_behaviour
 
-    def analyse_behaviour(self, behaviour_array):
+    def analyse_behaviour1(self, behaviour_array):
         if self.agent1_old_distance == math.inf and self.agent2_old_distance == math.inf:
             if behaviour_array[0][1] != math.inf:
                 self.agent1_old_distance = abs(behaviour_array[0][1][0] - behaviour_array[0][0][1])
@@ -180,6 +202,93 @@ class Collaborator_Boxes(object):
                 self.agent2_points += 1
             elif behaviour_array[1][1] == math.inf and abs(self.agent2_old_distance - agent_list[1][1]) > 50:
                 self.agent2_points -= 1
+
+    def analyse_behaviour2(self):
+
+        #create the list else update the agents positions
+        if len(self.behaviour_with_distances) == 0:
+            for item in self.best_behaviour:
+                temp_array = []
+                for agent in self.agents_current_positions:
+                    if agent[0] == item[0][0]:
+                        temp_array.append(agent)
+                if item[1] != math.inf:
+                    for local in item[1]:
+                        distance = abs(local - item[0][1])
+                        temp_array.append([local, distance])
+                else:
+                    temp_array.append(math.inf)
+                self.behaviour_with_distances.append(temp_array)
+        else:
+            for item in self.behaviour_with_distances:
+                for agent in self.agents_current_positions:
+                    if item[0][0] == agent[0]:
+                        item[0] = agent
+
+
+        #give points
+        agent1_closer = False
+        agent1_further = False
+        agent2_closer = False
+        agent2_further = False
+
+        for item in self.behaviour_with_distances:
+            if item[1] != math.inf:
+                for object in item:
+                    if isinstance(object[0], str):
+                        pass
+                    else:
+                        if abs(object[0] - item[0][1]) < object[1]:
+                            if item[0][0] == self.agent1_ID:
+                                agent1_closer = True
+                            elif item[0][0] == self.agent2_ID:
+                                agent2_closer = True
+                            object[1] = abs(object[0] - item[0][1])
+                        elif abs(object[0] - item[0][1]) > (object[1] + 30):
+                            if item[0][0] == self.agent1_ID:
+                                agent1_further = True
+                            elif item[0][0] == self.agent2_ID:
+                                agent2_further = True
+            else:
+
+                if item[0][0] == self.agent1_ID:
+                    if abs(item[0][1] - self.agent1_old_position) > 20:
+                        print("11")
+                        self.agent1_points -= 5
+                        self.agent1_old_position = item[0][1]
+                elif item[0][0] == self.agent2_ID:
+
+                    if abs(item[0][1] - self.agent2_old_position) > 20:
+                        print("22")
+                        self.agent2_points -= 5
+                        self.agent2_old_position = item[0][1]
+
+
+        if agent1_closer:
+            self.agent1_points += 1
+        elif not agent1_closer and agent1_further:
+            self.agent1_points -= 1
+
+        if agent2_closer:
+            self.agent2_points += 1
+        elif not agent2_closer and agent2_further:
+            self.agent2_points -= 1
+
+
+        #update the list with the correct distances
+        self.behaviour_with_distances = []
+        for item in self.best_behaviour:
+            temp_array = []
+            for agent in self.agents_current_positions:
+                if agent[0] == item[0][0]:
+                    temp_array.append(agent)
+            if item[1] != math.inf:
+                for local in item[1]:
+                    distance = abs(local - item[0][1])
+                    temp_array.append([local, distance])
+            else:
+                temp_array.append(math.inf)
+            self.behaviour_with_distances.append(temp_array)
 
     # isto só funciona com 2 agentes, não está otimizado para mais
     def calculate_all_possible_paths(self, boxes_group):

@@ -54,28 +54,31 @@ class Collaborator_Boxes(object):
         self.agent1_old_distance = abs(self.best_behaviour[0][1][0] - self.best_behaviour[0][0][1])
         self.agent2_old_distance = abs(self.best_behaviour[1][1][0] - self.best_behaviour[1][0][1])
 
+        self.time_interval = time.time()
+
     def update(self):
-        if len(self.world.box_group) == 0 and self.write:
-            self.write_in_txt()
-            quit()
-        else:
-            self.agents_current_positions = []
-            for agent in self.world.shappy_group:
-                self.agents_current_positions.append([agent.ID, agent.x_pos])
-            changed = self.check_boxes_changes()
 
-            if changed:
-                self.best_behaviour = self.get_best_collaboration_behaviour()
-                self.agent1_old_distance = math.inf
-                self.agent2_old_distance = math.inf
-                self.agent1_old_position = self.best_behaviour[0][0][1]
-                self.agent2_old_position = self.best_behaviour[1][0][1]
 
-           # self.analyse_behaviour1(self.best_behaviour)
-            self.analyse_behaviour2()
+        if time.time() - self.time_interval > 0.05:
+            if len(self.world.box_group) == 0 and self.write:
+                self.write_in_txt()
+                quit()
+            else:
+                self.agents_current_positions = []
+                for agent in self.world.shappy_group:
+                    self.agents_current_positions.append([agent.ID, agent.x_pos])
+                changed = self.check_boxes_changes()
 
-            if changed:
-                print(self.behaviour_with_distances)
+                if changed:
+                    self.best_behaviour = self.get_best_collaboration_behaviour()
+                    self.agent1_old_distance = math.inf
+                    self.agent2_old_distance = math.inf
+                    self.agent1_old_position = self.best_behaviour[0][0][1]
+                    self.agent2_old_position = self.best_behaviour[1][0][1]
+
+            # self.analyse_behaviour1(self.best_behaviour)
+                self.analyse_behaviour2()
+            self.time_interval = time.time()
 
     def write_in_txt(self):
         f = open("oneDBoxes_CollaborationResults.txt", "a+")
@@ -225,8 +228,7 @@ class Collaborator_Boxes(object):
                     if item[0][0] == agent[0]:
                         item[0] = agent
 
-
-        #give points
+        #---------------------------------Give points according to the movement----------------------------------------
         agent1_closer = False
         agent1_further = False
         agent2_closer = False
@@ -250,19 +252,15 @@ class Collaborator_Boxes(object):
                             elif item[0][0] == self.agent2_ID:
                                 agent2_further = True
             else:
-
                 if item[0][0] == self.agent1_ID:
                     if abs(item[0][1] - self.agent1_old_position) > 20:
-                        print("11")
-                        self.agent1_points -= 5
+                        self.agent1_points -= 3
                         self.agent1_old_position = item[0][1]
                 elif item[0][0] == self.agent2_ID:
 
                     if abs(item[0][1] - self.agent2_old_position) > 20:
-                        print("22")
-                        self.agent2_points -= 5
+                        self.agent2_points -= 3
                         self.agent2_old_position = item[0][1]
-
 
         if agent1_closer:
             self.agent1_points += 1

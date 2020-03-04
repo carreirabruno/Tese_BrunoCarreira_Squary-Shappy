@@ -54,36 +54,40 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
 
         self.collided = False
 
-    def update(self, delta_t):
-        if not self.auto:
-            self.calculate = False
-            keys = pygame.key.get_pressed()
-            if self.color == 0:
-                if keys[pygame.K_LEFT]:
-                    #self.x_pos -= self.x_speed * delta_t
-                    self.x_pos -= 1
-                if keys[pygame.K_RIGHT]:
-                    #self.x_pos += self.x_speed * delta_t
-                    self.x_pos += 1
-                if keys[pygame.K_UP]:
-                    self.y_pos -= 1
-                if keys[pygame.K_DOWN]:
-                    self.y_pos += 1
-            elif self.color == 1:
-                if keys[pygame.K_a]:
-                    #self.x_pos -= self.x_speed * delta_t
-                    self.x_pos -= 1
-                if keys[pygame.K_d]:
-                    #self.x_pos += self.x_speed * delta_t
-                    self.x_pos += 1
-                if keys[pygame.K_w]:
-                    self.y_pos -= 1
-                if keys[pygame.K_s]:
-                    self.y_pos += 1
-        elif self.auto:
-            self.auto_movement(delta_t)
+        self.time_interval = time.time()
 
-        self.wall_collision_check()
+    def update(self, delta_t):
+        if time.time() - self.time_interval > 0.001:
+            if not self.auto:
+                self.calculate = False
+                keys = pygame.key.get_pressed()
+                if self.color == 0:
+                    if keys[pygame.K_LEFT]:
+                        # self.x_pos -= self.x_speed * delta_t
+                        self.x_pos -= 1
+                    if keys[pygame.K_RIGHT]:
+                        # self.x_pos += self.x_speed * delta_t
+                        self.x_pos += 1
+                    if keys[pygame.K_UP]:
+                        self.y_pos -= 1
+                    if keys[pygame.K_DOWN]:
+                        self.y_pos += 1
+                elif self.color == 1:
+                    if keys[pygame.K_a]:
+                        # self.x_pos -= self.x_speed * delta_t
+                        self.x_pos -= 1
+                    if keys[pygame.K_d]:
+                        # self.x_pos += self.x_speed * delta_t
+                        self.x_pos += 1
+                    if keys[pygame.K_w]:
+                        self.y_pos -= 1
+                    if keys[pygame.K_s]:
+                        self.y_pos += 1
+            elif self.auto:
+                self.auto_movement(delta_t)
+
+            self.wall_collision_check()
+            self.time_interval = time.time()
 
         if self.collided:
             self.x_pos = self.old_x_pos
@@ -113,13 +117,15 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
             self.collided = False
 
     def check_closest_box(self):
-        closest_box_x = math.inf
+        closest_box = []
         minimum_distance = math.inf
         for box in self.world.box_group:
-            if abs(box.x_pos - self.x_pos) < minimum_distance:
-                minimum_distance = abs(box.x_pos - self.x_pos)
-                closest_box_x = box.x_pos
-        return closest_box_x
+            if abs(math.sqrt(math.pow(box.x_pos - self.x_pos, 2) +
+                             math.pow(box.y_pos - self.y_pos, 2))) < minimum_distance:
+                minimum_distance = abs(math.sqrt(math.pow(box.x_pos - self.x_pos, 2) +
+                                                 math.pow(box.y_pos - self.y_pos, 2)))
+                closest_box = [box.x_pos, box.y_pos]
+        return closest_box
 
     # isto só funciona com 2 agentes, não está otimizado para mais
     def calculate_all_possible_paths(self, boxes_group):
@@ -241,18 +247,17 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
                 self.next_box_x = self.next_boxes[0]
                 if abs(self.next_box_x - self.x_pos) < 20:
                     self.next_boxes = self.next_boxes[1: len(self.next_boxes)]
-
                     self.calculate = True  # PARA O AGENTE RECALCULAR CADA VEZ QUE APANHA UMA CAIXA, PODE-SE MUDAR PARA ELE TOMAR A DECISAO DAS CAIXAS APENAS NO INICIO
             except IndexError:
                 pass
 
         return self.next_box_x
 
-    def box_exists_in_world(self, next_box_x):
-        if next_box_x == math.inf:
+    def box_exists_in_world(self, next_box):
+        if len(next_box) == 0:
             return True
         for box in self.world.box_group:
-            if box.x_pos == next_box_x:
+            if box.x_pos == next_box[0] and box.y_pos == next_box[1]:
                 return True
         return False
 
@@ -260,27 +265,36 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
         direction_vector = [self.y_pos, self.x_pos]
         if self.type == "NonCollaborative":
             exists = False
-            closest_box_x = math.inf
+            closest_box = []
             while not exists and len(self.world.box_group) > 0:
-                closest_box_x = self.check_closest_box()
-                exists = self.box_exists_in_world(closest_box_x)
-            if closest_box_x != math.inf and exists:
-                direction_vector[1] = closest_box_x - self.x_pos
+                closest_box = self.check_closest_box()
+                exists = self.box_exists_in_world(closest_box)
+            if len(closest_box) != 0 and exists:
+                direction_vector[0] = closest_box[1] - self.y_pos
+                direction_vector[1] = closest_box[0] - self.x_pos
         elif self.type == "Collaborative":
             exists = False
-            next_box_x = math.inf
+            next_box = []
             while not exists and len(self.world.box_group) > 0:
-                next_box_x = self.next_box()
-                exists = self.box_exists_in_world(next_box_x)
+                next_box = self.next_box()
+                exists = self.box_exists_in_world(next_box)
                 if not exists:
                     self.calculate = True
-            if next_box_x != math.inf and exists:
-                direction_vector[1] = next_box_x - self.x_pos
+            if len(next_box) != 0 and exists:
+                direction_vector[0] = next_box[1] - self.x_pos
+                direction_vector[1] = next_box[0] - self.x_pos
 
-        if direction_vector[1] != self.x_pos:
-           # self.x_pos += direction_vector[1] / abs(direction_vector[1]) * self.x_speed * delta_t
-            if (direction_vector[1] / abs(direction_vector[1]) * self.x_speed * delta_t) > 0:
+            # move
+        #if direction_vector[0] != self.y_pos:
+        if direction_vector[0] != 0:
+            if (direction_vector[0] / abs(direction_vector[0]) * self.y_speed * delta_t) > 0:
+                self.y_pos += 1
+            else:
+                self.y_pos -= 1
+
+#        if direction_vector[1] != self.x_pos:
+        if direction_vector[1] != 0:
+            if (direction_vector[1] / abs(direction_vector[1]) * self.x_speed * delta_t) > 0:          # self.x_pos += direction_vector[1] / abs(direction_vector[1]) * self.x_speed * delta_t
                 self.x_pos += 1
             else:
                 self.x_pos -= 1
-

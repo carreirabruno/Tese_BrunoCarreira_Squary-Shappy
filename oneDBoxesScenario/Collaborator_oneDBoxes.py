@@ -58,7 +58,7 @@ class Collaborator_oneDBoxes(object):
 
     def update(self):
 
-        if time.time() - self.time_interval > 0.05:
+        if time.time() - self.time_interval > 0.001:
             if len(self.world.box_group) == 0 and self.write:
                 self.write_in_txt()
                 quit()

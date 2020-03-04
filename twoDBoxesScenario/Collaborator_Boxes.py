@@ -4,7 +4,7 @@ from itertools import *
 import datetime
 import os
 import time
-from oneDBoxesScenario.World_Boxes import *
+from twoDBoxesScenario.World_Boxes import *
 
 
 class Collaborator_Boxes(object):

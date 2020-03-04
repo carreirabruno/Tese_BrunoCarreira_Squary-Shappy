@@ -1,7 +1,7 @@
 import pygame
 import os
-from oneDBoxesScenario.Collaborator_Boxes import *
-from oneDBoxesScenario.World_Boxes import *
+from twoDBoxesScenario.Collaborator_Boxes import *
+from twoDBoxesScenario.World_Boxes import *
 
 
 def main():

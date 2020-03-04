@@ -53,32 +53,29 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
         self.dir = (x_pos, y_pos)
 
         self.collided = False
-        self.time_interval = time.time()
 
     def update(self, delta_t):
-        if time.time() - self.time_interval > 0.001:
-            if not self.auto:
-                self.calculate = False
-                keys = pygame.key.get_pressed()
-                if self.color == 0:
-                    if keys[pygame.K_LEFT]:
-                        # self.x_pos -= self.x_speed * delta_t
-                        self.x_pos -= 1
-                    if keys[pygame.K_RIGHT]:
-                        # self.x_pos += self.x_speed * delta_t
-                        self.x_pos += 1
-                elif self.color == 1:
-                    if keys[pygame.K_a]:
-                        # self.x_pos -= self.x_speed * delta_t
-                        self.x_pos -= 1
-                    if keys[pygame.K_d]:
-                        # self.x_pos += self.x_speed * delta_t
-                        self.x_pos += 1
-            elif self.auto:
-                self.auto_movement(delta_t)
+        if not self.auto:
+            self.calculate = False
+            keys = pygame.key.get_pressed()
+            if self.color == 0:
+                if keys[pygame.K_LEFT]:
+                    #self.x_pos -= self.x_speed * delta_t
+                    self.x_pos -= 1
+                if keys[pygame.K_RIGHT]:
+                    #self.x_pos += self.x_speed * delta_t
+                    self.x_pos += 1
+            elif self.color == 1:
+                if keys[pygame.K_a]:
+                    #self.x_pos -= self.x_speed * delta_t
+                    self.x_pos -= 1
+                if keys[pygame.K_d]:
+                    #self.x_pos += self.x_speed * delta_t
+                    self.x_pos += 1
+        elif self.auto:
+            self.auto_movement(delta_t)
 
-            self.wall_collision_check()
-            self.time_interval = time.time()
+        self.wall_collision_check()
 
         if self.collided:
             self.x_pos = self.old_x_pos

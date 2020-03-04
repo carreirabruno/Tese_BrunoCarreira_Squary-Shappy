@@ -22,7 +22,7 @@ def main():
     #create world
     world = World_twoDBoxes("twoDBoxes_map1.txt")
     #create the collaboration analyser
-    #collaborator = Collaborator_twoDBoxes(world, False)
+    collaborator = Collaborator_twoDBoxes(world, False)
     world.render()
 
     #createNewLogFile(world)
@@ -38,14 +38,14 @@ def main():
         world.update()
         world.render()
 
-        #collaborator.update()
+        collaborator.update()
 
         # event handling, gets all event from the event queue
         for event in pygame.event.get():
             # only do something if the event is of type QUIT
             if event.type == pygame.QUIT:
                 # change the value to False, to exit the main loop
-                #collaborator.write_in_txt()
+                collaborator.write_in_txt()
                 running = False
             # handle MOUSEBUTTONUP
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -54,11 +54,9 @@ def main():
                 if event.key == pygame.K_1:
                     world.show_automatic = not world.show_automatic
                     for shappy in world.shappy_group:
-                        if shappy.type == "NonCollaborative":
-                            shappy.auto = not shappy.auto
-                            shappy.calculate = True
-        if len(world.box_group) == 0:
-            running = False
+                       # if shappy.type == "Coolaborative":
+                        shappy.auto = not shappy.auto
+                        shappy.calculate = True
 
 if __name__ == "__main__":
     # call the main function

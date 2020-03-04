@@ -85,33 +85,7 @@ class World_twoDBoxes(object):
             normalized_x_pos = round((shappy.x_pos * len(self.terrain.matrix[0])) / self.screen_width)
             normalized_y_pos = round((shappy.y_pos * len(self.terrain.matrix)) / self.screen_height)
 
-            if self.terrain.matrix[normalized_y_pos][normalized_x_pos] == 2:
-                self.terrain.matrix[normalized_y_pos][normalized_x_pos] = 0
-                self.box_group_remove(normalized_x_pos * self.screen_ratio,
-                                      normalized_y_pos * self.screen_ratio)
-                self.score += 1
-            elif self.terrain.matrix[normalized_y_pos][normalized_x_pos + 1] == 2:
-                self.terrain.matrix[normalized_y_pos][normalized_x_pos + 1] = 0
-                self.box_group_remove((normalized_x_pos + 1) * self.screen_ratio,
-                                      normalized_y_pos * self.screen_ratio)
-                self.score += 1
-            # elif self.terrain.matrix[normalized_y_pos][normalized_x_pos + 2] == 2:
-            #     self.terrain.matrix[normalized_y_pos][normalized_x_pos + 2] = 0
-            #     self.box_group_remove((normalized_x_pos + 2) * self.screen_ratio,
-            #                           normalized_y_pos * self.screen_ratio)
-                self.score += 1
-            elif self.terrain.matrix[normalized_y_pos][normalized_x_pos - 1] == 2:
-                self.terrain.matrix[normalized_y_pos][normalized_x_pos - 1] = 0
-                self.box_group_remove((normalized_x_pos - 1) * self.screen_ratio,
-                                      normalized_y_pos * self.screen_ratio)
-                self.score += 1
-            # elif self.terrain.matrix[normalized_y_pos][normalized_x_pos - 2] == 2:
-            #     self.terrain.matrix[normalized_y_pos][normalized_x_pos - 2] = 0
-            #     self.box_group_remove((normalized_x_pos - 2) * self.screen_ratio,
-            #                           normalized_y_pos * self.screen_ratio)
-            #     self.score += 1
-
-            elif self.terrain.matrix[normalized_y_pos + 1][normalized_x_pos] == 2:
+            if self.terrain.matrix[normalized_y_pos + 1][normalized_x_pos] == 2:
                 self.terrain.matrix[normalized_y_pos + 1][normalized_x_pos] = 0
                 self.box_group_remove(normalized_x_pos * self.screen_ratio,
                                       (normalized_y_pos + 1) * self.screen_ratio)
@@ -121,51 +95,26 @@ class World_twoDBoxes(object):
                 self.box_group_remove((normalized_x_pos + 1) * self.screen_ratio,
                                       (normalized_y_pos + 1) * self.screen_ratio)
                 self.score += 1
-            # elif self.terrain.matrix[normalized_y_pos + 1][normalized_x_pos + 2] == 2:
-            #     self.terrain.matrix[normalized_y_pos + 1][normalized_x_pos + 2] = 0
-            #     self.box_group_remove((normalized_x_pos + 2) * self.screen_ratio,
-            #                           (normalized_y_pos + 1) * self.screen_ratio)
-            #     self.score += 1
+            elif self.terrain.matrix[normalized_y_pos + 1][normalized_x_pos + 2] == 2:
+                self.terrain.matrix[normalized_y_pos + 1][normalized_x_pos + 2] = 0
+                self.box_group_remove((normalized_x_pos + 2) * self.screen_ratio,
+                                      (normalized_y_pos + 1) * self.screen_ratio)
+                self.score += 1
             elif self.terrain.matrix[normalized_y_pos + 1][normalized_x_pos - 1] == 2:
                 self.terrain.matrix[normalized_y_pos + 1][normalized_x_pos - 1] = 0
                 self.box_group_remove((normalized_x_pos - 1) * self.screen_ratio,
                                       (normalized_y_pos + 1) * self.screen_ratio)
                 self.score += 1
-            # elif self.terrain.matrix[normalized_y_pos + 1][normalized_x_pos - 2] == 2:
-            #     self.terrain.matrix[normalized_y_pos + 1][normalized_x_pos - 2] = 0
-            #     self.box_group_remove((normalized_x_pos - 2) * self.screen_ratio,
-            #                           (normalized_y_pos + 1) * self.screen_ratio)
-            #     self.score += 1
-
-            elif self.terrain.matrix[normalized_y_pos - 1][normalized_x_pos] == 2:
-                self.terrain.matrix[normalized_y_pos - 1][normalized_x_pos] = 0
-                self.box_group_remove(normalized_x_pos * self.screen_ratio,
-                                      (normalized_y_pos - 1) * self.screen_ratio)
+            elif self.terrain.matrix[normalized_y_pos + 1][normalized_x_pos - 2] == 2:
+                self.terrain.matrix[normalized_y_pos + 1][normalized_x_pos - 2] = 0
+                self.box_group_remove((normalized_x_pos - 2) * self.screen_ratio,
+                                      (normalized_y_pos + 1) * self.screen_ratio)
                 self.score += 1
-            elif self.terrain.matrix[normalized_y_pos - 1][normalized_x_pos + 1] == 2:
-                self.terrain.matrix[normalized_y_pos - 1][normalized_x_pos + 1] = 0
-                self.box_group_remove((normalized_x_pos + 1) * self.screen_ratio,
-                                      (normalized_y_pos - 1) * self.screen_ratio)
-                self.score += 1
-            # elif self.terrain.matrix[normalized_y_pos - 1][normalized_x_pos + 2] == 2:
-            #     self.terrain.matrix[normalized_y_pos - 1][normalized_x_pos + 2] = 0
-            #     self.box_group_remove((normalized_x_pos + 2) * self.screen_ratio,
-            #                           (normalized_y_pos - 1) * self.screen_ratio)
-            #     self.score += 1
-            elif self.terrain.matrix[normalized_y_pos - 1][normalized_x_pos - 1] == 2:
-                self.terrain.matrix[normalized_y_pos - 1][normalized_x_pos - 1] = 0
-                self.box_group_remove((normalized_x_pos - 1) * self.screen_ratio,
-                                      (normalized_y_pos - 1) * self.screen_ratio)
-                self.score += 1
-            # elif self.terrain.matrix[normalized_y_pos - 1][normalized_x_pos - 2] == 2:
-            #     self.terrain.matrix[normalized_y_pos - 1][normalized_x_pos - 2] = 0
-            #     self.box_group_remove((normalized_x_pos - 2) * self.screen_ratio,
-            #                           (normalized_y_pos - 1) * self.screen_ratio)
-            #     self.score += 1
 
     def box_group_remove(self, x_pos, y_pos):
         for box in self.box_group:
             if box.x_pos == x_pos and box.y_pos == y_pos:
+                print("add")
                 self.box_group.remove(box)
 
     def update(self):

@@ -6,7 +6,7 @@ def get_center(sprite):
     return sprite.rect.x + sprite.rect.width / 2, sprite.rect.y + sprite.rect.height / 2
 
 
-class Shappy_Boxes(pygame.sprite.Sprite):
+class Shappy_twoDBoxes(pygame.sprite.Sprite):
     auto = -1
     size = 30
 
@@ -65,6 +65,10 @@ class Shappy_Boxes(pygame.sprite.Sprite):
                 if keys[pygame.K_RIGHT]:
                     #self.x_pos += self.x_speed * delta_t
                     self.x_pos += 1
+                if keys[pygame.K_UP]:
+                    self.y_pos -= 1
+                if keys[pygame.K_DOWN]:
+                    self.y_pos += 1
             elif self.color == 1:
                 if keys[pygame.K_a]:
                     #self.x_pos -= self.x_speed * delta_t
@@ -72,6 +76,10 @@ class Shappy_Boxes(pygame.sprite.Sprite):
                 if keys[pygame.K_d]:
                     #self.x_pos += self.x_speed * delta_t
                     self.x_pos += 1
+                if keys[pygame.K_w]:
+                    self.y_pos -= 1
+                if keys[pygame.K_s]:
+                    self.y_pos += 1
         elif self.auto:
             self.auto_movement(delta_t)
 
@@ -97,7 +105,9 @@ class Shappy_Boxes(pygame.sprite.Sprite):
         # Verifica se a nova posiçao está livre
         if self.terrain_matrix[normalized_new_y_pos][normalized_new_x_pos] == 1 \
                 or self.terrain_matrix[normalized_new_y_pos][normalized_new_x_pos + 1] == 1 \
-                or self.terrain_matrix[normalized_new_y_pos][normalized_new_x_pos + 2] == 1:
+                or self.terrain_matrix[normalized_new_y_pos][normalized_new_x_pos + 2] == 1 \
+                or self.terrain_matrix[normalized_new_y_pos + 1][normalized_new_x_pos] == 1 \
+                or self.terrain_matrix[normalized_new_y_pos + 2][normalized_new_x_pos] == 1:
             self.collided = True
         else:
             self.collided = False

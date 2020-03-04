@@ -1,9 +1,9 @@
 import pygame
-from twoDBoxesScenario.Terrain_Boxes import *
-from twoDBoxesScenario.Box import *
-from twoDBoxesScenario.Shappy_Boxes import *
+from oneDBoxesScenario.Terrain_oneDBoxes import *
+from oneDBoxesScenario.oneDBox import *
+from oneDBoxesScenario.Shappy_oneDBoxes import *
 
-class World_Boxes(object):
+class World_oneDBoxes(object):
 
     def __init__(self, terrain_file):
 
@@ -13,7 +13,7 @@ class World_Boxes(object):
 
         self.terrain_file = terrain_file
 
-        self.terrain = Terrain_Boxes(terrain_file)
+        self.terrain = Terrain_oneDBoxes(terrain_file)
 
         self.screen_width = len(self.terrain.matrix[0]) * self.screen_ratio
         self.screen_height = len(self.terrain.matrix) * self.screen_ratio
@@ -51,13 +51,13 @@ class World_Boxes(object):
         for column in range(len(self.terrain.matrix[0])):
             for line in range(len(self.terrain.matrix)):
                 if self.terrain.matrix[line][column] == 2:
-                    box = Box(column * self.screen_ratio, line * self.screen_ratio)
+                    box = oneDBox(column * self.screen_ratio, line * self.screen_ratio)
                     self.box_group.add(box)
 
         #create shappys
         for shappy_var in self.terrain.initial_shappy_list:
 
-            shappy = Shappy_Boxes(shappy_var[0],shappy_var[1], shappy_var[3] * self.screen_ratio, shappy_var[2] * self.screen_ratio,
+            shappy = Shappy_oneDBoxes(shappy_var[0],shappy_var[1], shappy_var[3] * self.screen_ratio, shappy_var[2] * self.screen_ratio,
                                 self.shappy_speed, self.shappy_speed, self, shappy_var[4],
                                 self.terrain.matrix, self.screen_width, self.screen_height, False)
             self.shappy_group.add(shappy)

@@ -6,7 +6,7 @@ import random
 import string
 
 
-class Terrain_Boxes(object):
+class Terrain_oneDBoxes(object):
     shappy_letters = list(string.ascii_uppercase)
     shappy_colours = range(0, 26)
 

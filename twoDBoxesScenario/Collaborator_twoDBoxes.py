@@ -4,10 +4,10 @@ from itertools import *
 import datetime
 import os
 import time
-from twoDBoxesScenario.World_Boxes import *
+from twoDBoxesScenario.World_twoDBoxes import *
 
 
-class Collaborator_Boxes(object):
+class Collaborator_twoDBoxes(object):
 
     def __init__(self, world, simulation):
         self.world = world
@@ -48,8 +48,8 @@ class Collaborator_Boxes(object):
         for item in self.best_behaviour:
             self.agents_current_positions.append(item[0][0])
 
-        if not simulation:
-            self.minimum_behaviours()
+        #if not simulation:
+         #   self.minimum_behaviours()
 
         self.agent1_old_distance = abs(self.best_behaviour[0][1][0] - self.best_behaviour[0][0][1])
         self.agent2_old_distance = abs(self.best_behaviour[1][1][0] - self.best_behaviour[1][0][1])

@@ -1,7 +1,7 @@
 import pygame
 import os
-from twoDBoxesScenario.Collaborator_Boxes import *
-from twoDBoxesScenario.World_Boxes import *
+from twoDBoxesScenario.Collaborator_twoDBoxes import *
+from twoDBoxesScenario.World_twoDBoxes import *
 
 
 def main():
@@ -20,9 +20,9 @@ def main():
     update_time = 0.1
 
     #create world
-    world = World_Boxes("boxes2.txt")
+    world = World_twoDBoxes("twoDBoxes_map1.txt")
     #create the collaboration analyser
-    collaborator = Collaborator_Boxes(world, False)
+    collaborator = Collaborator_twoDBoxes(world, False)
     world.render()
 
     #createNewLogFile(world)

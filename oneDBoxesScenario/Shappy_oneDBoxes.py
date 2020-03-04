@@ -6,7 +6,7 @@ def get_center(sprite):
     return sprite.rect.x + sprite.rect.width / 2, sprite.rect.y + sprite.rect.height / 2
 
 
-class Shappy_Boxes(pygame.sprite.Sprite):
+class Shappy_oneDBoxes(pygame.sprite.Sprite):
     auto = -1
     size = 30
 

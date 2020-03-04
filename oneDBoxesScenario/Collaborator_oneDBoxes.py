@@ -4,10 +4,10 @@ from itertools import *
 import datetime
 import os
 import time
-from oneDBoxesScenario.World_Boxes import *
+from oneDBoxesScenario.World_oneDBoxes import *
 
 
-class Collaborator_Boxes(object):
+class Collaborator_oneDBoxes(object):
 
     def __init__(self, world, simulation):
         self.world = world
@@ -80,7 +80,7 @@ class Collaborator_Boxes(object):
             self.time_interval = time.time()
 
     def write_in_txt(self):
-        f = open("twoDBoxes_CollaborationResults.txt", "a+")
+        f = open("oneDBoxes_CollaborationResults.txt", "a+")
         agent_list = []
         for agent in self.world.shappy_group:
             agent_list.append([agent.type, agent.ID])
@@ -381,7 +381,7 @@ class Collaborator_Boxes(object):
             return False
 
     def minimum_behaviours(self):  # aqui o algoritmo determina qual é o melhor score possivel tendo em conta colaboração e execução total para depois ser comparado com os resultados de cada agente
-        a = open("twoDBoxes_CollaborationResults.txt", "r+")
+        a = open("oneDBoxes_CollaborationResults.txt", "r+")
         line1 = a.readline()
         line2 = a.readline()
         if "C" not in line1 or "NC" not in line2:
@@ -445,9 +445,9 @@ class Collaborator_Boxes(object):
         update_time = 0.1
 
         # create world
-        world_temp = World_Boxes(filename)
+        world_temp = World_oneDBoxes(filename)
         # create the collaboration analyser
-        collaborator = Collaborator_Boxes(world_temp, True)
+        collaborator = Collaborator_oneDBoxes(world_temp, True)
         world_temp.render()
 
         world_temp.show_automatic = True

@@ -2,7 +2,7 @@ import pygame
 from World import *
 
 
-class Box(pygame.sprite.Sprite):
+class twoDBox(pygame.sprite.Sprite):
     score_provided = 10
     size = 20
 

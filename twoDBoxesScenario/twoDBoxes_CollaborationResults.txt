@@ -1,6 +1,0 @@
-DATE_04-03-2020___TIME_15-14-18 
-AGENT1 -> Z3C7U - Collaborative -> 67AGENT2 -> RHVEV - NonCollaborative -> 0TOTAL -> 67DATE_04-03-2020___TIME_15-15-00 
-AGENT1 -> VXKIK - Collaborative -> -234AGENT2 -> WWFCV - NonCollaborative -> 0TOTAL -> -234DATE_04-03-2020___TIME_15-15-19 
-AGENT1 -> JH68U - Collaborative -> 127AGENT2 -> 543OY - NonCollaborative -> 0TOTAL -> 127DATE_04-03-2020___TIME_15-38-42 
-AGENT1 -> 1Q8HQ - Collaborative -> -9AGENT2 -> R3C86 - NonCollaborative -> 0TOTAL -> -9DATE_04-03-2020___TIME_15-40-05 
-AGENT1 -> 1WWJ6 - Collaborative -> 0AGENT2 -> JO2EO - NonCollaborative -> 176TOTAL -> 176

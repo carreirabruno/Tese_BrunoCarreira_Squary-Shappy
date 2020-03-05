@@ -2,6 +2,7 @@ from World import *
 import math
 from itertools import *
 
+
 def get_center(sprite):
     return sprite.rect.x + sprite.rect.width / 2, sprite.rect.y + sprite.rect.height / 2
 
@@ -10,7 +11,8 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
     auto = -1
     size = 30
 
-    def __init__(self, ID, name, x_pos, y_pos, x_speed, y_speed, world, color, terrain_matrix, screen_width, screen_height,
+    def __init__(self, ID, name, x_pos, y_pos, x_speed, y_speed, world, color, terrain_matrix, screen_width,
+                 screen_height,
                  auto):
 
         pygame.sprite.Sprite.__init__(self)
@@ -34,7 +36,7 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
         self.calculate = False
         self.next_boxes = []
         self.current_box = math.inf
-        self.next_box_x = math.inf
+        self.next_box = []
 
         if self.color == 0:
             self.image = pygame.image.load("../Images/30_30_Red_Square.png")
@@ -133,10 +135,9 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
         paths_permutations = list()
         paths_combinations.append([math.inf, boxes_group])
 
-        if len(boxes_group) >= 2:
-            for i in range(1, int(len(boxes_group)/2)+1):
+        if len(boxes_group) > 1:
+            for i in range(1, int(len(boxes_group) / 2) + 1):
                 combinations_list = list(combinations(boxes_group, i))
-
                 for ind_combination in combinations_list:
                     temp_boxes_group_list = list(boxes_group)
                     for a in ind_combination:
@@ -144,12 +145,12 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
                     paths_combinations.append([ind_combination, temp_boxes_group_list])
 
             for path_comb in paths_combinations:
-                if path_comb[0] == math.inf or len(path_comb[0]) == 1:          #aqui faz se o primeiro for inf ou 1 só numero
+                if path_comb[0] == math.inf or len(path_comb[0]) == 1:  # aqui faz se o primeiro for inf ou só 1 posição
                     ind_path_1 = path_comb[0]
                     temp_ind_list = list(permutations(path_comb[1], len(path_comb[1])))
                     for ind_path_2 in temp_ind_list:
                         paths_permutations.append([ind_path_1, ind_path_2])
-                else:                                                           #aqui faz se derem os dois para serem permutaveis
+                else:  # aqui faz se derem os dois para serem permutaveis
                     temp_ind_list_1 = list(permutations(path_comb[0], len(path_comb[0])))
                     temp_ind_list_2 = list(permutations(path_comb[1], len(path_comb[1])))
 
@@ -159,7 +160,7 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
 
         return paths_permutations
 
-    def calculate_best_possible_paths(self, agent1_pos_x, agent2_pos_x, my_box_group):
+    def calculate_best_possible_paths(self, agent1_pos, agent2_pos, my_box_group):
         best_possible_path = []
         possible_paths = self.calculate_all_possible_paths(my_box_group)
 
@@ -171,9 +172,11 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
         for path in possible_paths:
             if path[0] == math.inf:
                 distance_agent_1 = 0
-                distance_agent_2 = abs(path[1][0] - agent2_pos_x)
+                distance_agent_2 = abs(math.sqrt(math.pow(path[1][0][0] - agent2_pos[0], 2) +
+                                                 math.pow(path[1][0][1] - agent2_pos[1], 2)))
                 for i in range(1, len(path[1])):
-                    distance_agent_2 += abs(path[1][i] - path[1][i - 1])
+                    distance_agent_2 += abs(math.sqrt(math.pow(path[1][i][0] - path[1][i - 1][0], 2) +
+                                                      math.pow(path[1][i][1] - path[1][i - 1][1], 2)))
                 if distance_agent_2 < minimum_distance_agent_2:
                     minimum_total_distance = distance_agent_1 + distance_agent_2
                     minimum_distance_agent_1 = distance_agent_1
@@ -182,10 +185,13 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
                     minimum_path_agent_2 = path[1]
                     best_possible_path = path
             elif len(path[0]) == 1 and path[0][0] != math.inf:
-                distance_agent_1 = abs(path[0][0] - agent1_pos_x)
-                distance_agent_2 = abs(path[1][0] - agent2_pos_x)
+                distance_agent_1 = abs(math.sqrt(math.pow(path[0][0][0] - agent1_pos[0], 2) +
+                                                 math.pow(path[0][0][1] - agent1_pos[1], 2)))
+                distance_agent_2 = abs(math.sqrt(math.pow(path[1][0][0] - agent2_pos[0], 2) +
+                                                 math.pow(path[1][0][1] - agent2_pos[1], 2)))
                 for i in range(1, len(path[1])):
-                    distance_agent_2 += abs(path[1][i] - path[1][i - 1])
+                    distance_agent_2 += abs(math.sqrt(math.pow(path[1][i][0] - path[1][i - 1][0], 2) +
+                                                      math.pow(path[1][i][1] - path[1][i - 1][1], 2)))
                 if distance_agent_2 < minimum_distance_agent_2:
                     minimum_total_distance = distance_agent_1 + distance_agent_2
                     minimum_distance_agent_1 = distance_agent_1
@@ -194,12 +200,16 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
                     minimum_path_agent_2 = path[1]
                     best_possible_path = path
             else:
-                distance_agent_1 = abs(path[0][0] - agent1_pos_x)
+                distance_agent_1 = abs(math.sqrt(math.pow(path[0][0][0] - agent1_pos[0], 2) +
+                                                 math.pow(path[0][0][1] - agent1_pos[1], 2)))
                 for i in range(1, len(path[0])):
-                    distance_agent_1 += abs(path[0][i] - path[0][i - 1])
-                    distance_agent_2 = abs(path[1][0] - agent2_pos_x)
+                    distance_agent_1 += abs(math.sqrt(math.pow(path[0][i][0] - path[0][i - 1][0], 2) +
+                                                      math.pow(path[0][i][1] - path[0][i - 1][1], 2)))
+                    distance_agent_2 = abs(math.sqrt(math.pow(path[1][0][0] - agent2_pos[0], 2) +
+                                                     math.pow(path[1][0][1] - agent2_pos[1], 2)))
                     for j in range(1, len(path[1])):
-                        distance_agent_2 += abs(path[1][j] - path[1][j - 1])
+                        distance_agent_2 += abs(math.sqrt(math.pow(path[1][j][0] - path[1][j - 1][0], 2) +
+                                                          math.pow(path[1][j][1] - path[1][j - 1][1], 2)))
                     if (distance_agent_1 + distance_agent_2) < minimum_total_distance:
                         minimum_total_distance = distance_agent_1 + distance_agent_2
                         minimum_distance_agent_1 = distance_agent_1
@@ -210,26 +220,29 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
 
         return [minimum_total_distance, best_possible_path]
 
-    def next_box(self):
+    def next_box_pos(self):
         if self.calculate:
             self.next_boxes = []
             my_box_group = []
             for box in self.world.box_group:
-                my_box_group.append(box.x_pos)
+                my_box_group.append([box.x_pos, box.y_pos])
 
-            agent2_x_pos = 0
+            agent2_pos = []
             for agent in self.world.shappy_group:
-                if agent.x_pos != self.x_pos:
-                    agent2_x_pos = agent.x_pos
+                if agent.x_pos != self.x_pos and agent.y_pos != self.y_pos:
+                    agent2_pos = [agent.x_pos, agent.y_pos]
 
             if len(my_box_group) == 1:
-                if abs(my_box_group[0] - self.x_pos) < abs(my_box_group[0] - agent2_x_pos):
-                    self.next_box_x = my_box_group[0]
+                if abs(math.sqrt(math.pow(my_box_group[0][0] - self.x_pos, 2) +
+                                 math.pow(my_box_group[0][1] - self.y_pos, 2))) \
+                        < abs(math.sqrt(math.pow(my_box_group[0][0] - agent2_pos[0], 2) +
+                                        math.pow(my_box_group[0][1] - agent2_pos[1], 2))):
+                    self.next_box = my_box_group[0]
                 else:
-                    self.next_box_x = math.inf
+                    self.next_box = []
             else:
-                best_possible_path_1 = self.calculate_best_possible_paths(self.x_pos, agent2_x_pos, my_box_group)
-                best_possible_path_2 = self.calculate_best_possible_paths(agent2_x_pos, self.x_pos, my_box_group)
+                best_possible_path_1 = self.calculate_best_possible_paths([self.x_pos, self.y_pos], agent2_pos, my_box_group)
+                best_possible_path_2 = self.calculate_best_possible_paths(agent2_pos, [self.x_pos, self.y_pos], my_box_group)
 
                 if best_possible_path_1[0] < best_possible_path_2[0]:
                     if len(best_possible_path_1[1]) == 0:
@@ -244,14 +257,15 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
 
                 self.calculate = False
             try:
-                self.next_box_x = self.next_boxes[0]
-                if abs(self.next_box_x - self.x_pos) < 20:
+                self.next_box = self.next_boxes[0]
+                if abs(math.sqrt(math.pow(self.next_box[0] - self.x_pos, 2) +
+                                 math.pow(self.next_box[1] - self.y_pos, 2))) < 20:
                     self.next_boxes = self.next_boxes[1: len(self.next_boxes)]
                     self.calculate = True  # PARA O AGENTE RECALCULAR CADA VEZ QUE APANHA UMA CAIXA, PODE-SE MUDAR PARA ELE TOMAR A DECISAO DAS CAIXAS APENAS NO INICIO
             except IndexError:
                 pass
 
-        return self.next_box_x
+        return self.next_box
 
     def box_exists_in_world(self, next_box):
         if len(next_box) == 0:
@@ -276,25 +290,26 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
             exists = False
             next_box = []
             while not exists and len(self.world.box_group) > 0:
-                next_box = self.next_box()
+                next_box = self.next_box_pos()
                 exists = self.box_exists_in_world(next_box)
                 if not exists:
                     self.calculate = True
             if len(next_box) != 0 and exists:
-                direction_vector[0] = next_box[1] - self.x_pos
+                direction_vector[0] = next_box[1] - self.y_pos
                 direction_vector[1] = next_box[0] - self.x_pos
 
             # move
-        #if direction_vector[0] != self.y_pos:
+        # if direction_vector[0] != self.y_pos:
         if direction_vector[0] != 0:
             if (direction_vector[0] / abs(direction_vector[0]) * self.y_speed * delta_t) > 0:
                 self.y_pos += 1
             else:
                 self.y_pos -= 1
 
-#        if direction_vector[1] != self.x_pos:
+        #        if direction_vector[1] != self.x_pos:
         if direction_vector[1] != 0:
-            if (direction_vector[1] / abs(direction_vector[1]) * self.x_speed * delta_t) > 0:          # self.x_pos += direction_vector[1] / abs(direction_vector[1]) * self.x_speed * delta_t
+            if (direction_vector[1] / abs(direction_vector[
+                                              1]) * self.x_speed * delta_t) > 0:  # self.x_pos += direction_vector[1] / abs(direction_vector[1]) * self.x_speed * delta_t
                 self.x_pos += 1
             else:
                 self.x_pos -= 1

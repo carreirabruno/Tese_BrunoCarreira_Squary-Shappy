@@ -54,9 +54,9 @@ def main():
                 if event.key == pygame.K_1:
                     world.show_automatic = not world.show_automatic
                     for shappy in world.shappy_group:
-                        if shappy.type == "NonCollaborative":
-                            shappy.auto = not shappy.auto
-                            shappy.calculate = True
+                        # if shappy.type == "Collaborative":
+                        shappy.auto = not shappy.auto
+                        shappy.calculate = True
         if len(world.box_group) == 0:
             running = False
 

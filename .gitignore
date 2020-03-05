@@ -1,0 +1,12 @@
+
+*.pyc
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/modules.xml
+.idea/Tese_BrunoCarreira_Squary-Shappy.iml
+.idea/misc.xml
+.idea/vcs.xml
+oneDBoxesScenario/__pycache__/Collaborator_Boxes.cpython-37.pyc
+oneDBoxesScenario/__pycache__/Collaborator_Boxes.cpython-37.pyc
+oneDBoxesScenario/__pycache__/Box.cpython-37.pyc
+oneDBoxesScenario/__pycache__/Collaborator_Boxes.cpython-37.pyc
+oneDBoxesScenario/__pycache__/Shappy_Boxes.cpython-37.pyc

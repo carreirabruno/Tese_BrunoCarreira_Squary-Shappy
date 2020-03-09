@@ -21,7 +21,6 @@ class Terrain_oneDBoxes(object):
         self.width = len(lines)
 
         self.matrix = np.zeros((self.width, self.height))
-        # a = np.array([[1,2,3], [4,5,6]])
 
         y = 0
         for line in lines:
@@ -31,12 +30,16 @@ class Terrain_oneDBoxes(object):
                     pass
                 if letter == '1':
                     self.matrix[y][x] = 1
-                if letter in self.shappy_letters:
-                    newID = self.get_random_ID()
-                    self.initial_shappy_list.append(
-                        [newID, letter, y, x, self.shappy_colours[self.shappy_letters.index(letter)]])
+                # if letter in self.shappy_letters:
+                #     newID = self.get_random_ID()
+                #     self.initial_shappy_list.append(
+                #         [newID, letter, y, x, self.shappy_colours[self.shappy_letters.index(letter)]])
                 if letter == '2':
                     self.matrix[y][x] = 2
+                if letter == '3':
+                    self.matrix[y][x] = 3
+                if letter == '4':
+                    self.matrix[y][x] = 4
                 # if letter == 'x':
                 # 	self.initial_boxes_list.append([j, i])
                 x += 1

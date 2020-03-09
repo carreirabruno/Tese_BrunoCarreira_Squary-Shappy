@@ -22,7 +22,7 @@ def main():
     #create world
     world = World_oneDBoxes("oneDBoxes_map1.txt")
     #create the collaboration analyser
-    collaborator = Collaborator_oneDBoxes(world, False)
+   # collaborator = Collaborator_oneDBoxes(world, False)
     world.render()
 
     #createNewLogFile(world)
@@ -38,14 +38,17 @@ def main():
         world.update()
         world.render()
 
-        collaborator.update()
+    #    collaborator.update()
+
+        if len(world.box_group) == 0:
+            running = False
 
         # event handling, gets all event from the event queue
         for event in pygame.event.get():
             # only do something if the event is of type QUIT
             if event.type == pygame.QUIT:
                 # change the value to False, to exit the main loop
-                collaborator.write_in_txt()
+         #       collaborator.write_in_txt()
                 running = False
             # handle MOUSEBUTTONUP
             if event.type == pygame.MOUSEBUTTONDOWN:

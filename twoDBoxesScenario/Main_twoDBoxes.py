@@ -22,7 +22,8 @@ def main():
     #create world
     world = World_twoDBoxes("twoDBoxes_map1.txt")
     #create the collaboration analyser
-    #collaborator = Collaborator_twoDBoxes(world, False)
+    collaborator = Collaborator_twoDBoxes(world, False)
+
     world.render()
 
     #createNewLogFile(world)
@@ -38,7 +39,7 @@ def main():
         world.update()
         world.render()
 
-        #collaborator.update()
+        collaborator.update()
 
         # event handling, gets all event from the event queue
         for event in pygame.event.get():

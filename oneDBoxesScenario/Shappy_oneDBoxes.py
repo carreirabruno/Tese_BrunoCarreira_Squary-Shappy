@@ -1,6 +1,11 @@
 from World import *
 import math
 from itertools import *
+import sys
+import numpy
+
+numpy.set_printoptions(threshold=sys.maxsize)
+
 
 def get_center(sprite):
     return sprite.rect.x + sprite.rect.width / 2, sprite.rect.y + sprite.rect.height / 2
@@ -10,7 +15,7 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
     auto = -1
     size = 30
 
-    def __init__(self, ID, name, x_pos, y_pos, x_speed, y_speed, world, color, terrain_matrix, screen_width, screen_height,
+    def __init__(self, ID, name, x_pos, y_pos, world, color, terrain_matrix, screen_width, screen_height,
                  auto):
 
         pygame.sprite.Sprite.__init__(self)
@@ -18,8 +23,8 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
         self.y_pos = y_pos
         self.old_x_pos = x_pos
         self.old_y_pos = y_pos
-        self.x_speed = x_speed
-        self.y_speed = y_speed
+        # self.x_speed = x_speed
+        # self.y_speed = y_speed
         self.world = world
         self.terrain_matrix = terrain_matrix
         self.screen_width = screen_width
@@ -36,10 +41,10 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
         self.current_box = math.inf
         self.next_box_x = math.inf
 
-        if self.color == 0:
+        if self.color == 3:
             self.image = pygame.image.load("../Images/30_30_Red_Square.png")
             self.type = "NonCollaborative"
-        elif self.color == 1:
+        elif self.color == 4:
             self.image = pygame.image.load("../Images/30_30_Blue_Square.png")
             self.type = "Collaborative"
         else:
@@ -52,58 +57,102 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
         self.name = name
         self.dir = (x_pos, y_pos)
 
-        self.collided = False
+        # self.collided = False
         self.time_interval = time.time()
 
     def update(self, delta_t):
-        if time.time() - self.time_interval > 0.001:
+        if time.time() - self.time_interval > 0.01:
             if not self.auto:
                 self.calculate = False
                 keys = pygame.key.get_pressed()
-                if self.color == 0:
+                if self.color == 3:
                     if keys[pygame.K_LEFT]:
                         # self.x_pos -= self.x_speed * delta_t
-                        self.x_pos -= 1
+                        # self.x_pos -= 1
+                        self.move_left(3, 4)
                     if keys[pygame.K_RIGHT]:
                         # self.x_pos += self.x_speed * delta_t
-                        self.x_pos += 1
-                elif self.color == 1:
+                        self.move_right(3, 4)
+                elif self.color == 4:
                     if keys[pygame.K_a]:
                         # self.x_pos -= self.x_speed * delta_t
-                        self.x_pos -= 1
+                        # self.x_pos -= 1 * self.world.screen_ratio
+                        self.move_left(4, 3)
                     if keys[pygame.K_d]:
                         # self.x_pos += self.x_speed * delta_t
-                        self.x_pos += 1
+                        # self.x_pos += 1 * self.world.screen_ratio
+                        self.move_right(4, 3)
             elif self.auto:
                 self.auto_movement(delta_t)
 
-            self.wall_collision_check()
+            # self.wall_collision_check()
             self.time_interval = time.time()
 
-        if self.collided:
-            self.x_pos = self.old_x_pos
-            self.y_pos = self.old_y_pos
-        else:
-            self.rect.x = self.x_pos
-            self.rect.y = self.y_pos
+        # if self.collided:
+        #     self.x_pos = self.old_x_pos
+        #     self.y_pos = self.old_y_pos
+        # else:
+        self.rect.x = self.x_pos
+        self.rect.y = self.y_pos
 
-            self.dir = (self.x_pos - self.old_x_pos, self.y_pos - self.old_y_pos)
+        self.dir = (self.x_pos - self.old_x_pos, self.y_pos - self.old_y_pos)
 
-            self.old_x_pos = self.x_pos
-            self.old_y_pos = self.y_pos
+        self.old_x_pos = self.x_pos
+        self.old_y_pos = self.y_pos
 
-    def wall_collision_check(self):
+    def move_left(self, my_number, other_number):
+        if not self.wall_collision_check(int(self.y_pos / self.world.screen_ratio),
+                                         int(self.x_pos / self.world.screen_ratio) - 1):
 
-        normalized_new_x_pos = round((self.x_pos * len(self.terrain_matrix[0])) / self.screen_width)
-        normalized_new_y_pos = round((self.y_pos * len(self.terrain_matrix)) / self.screen_height)
+            if self.terrain_matrix[int(self.y_pos / self.world.screen_ratio)] \
+                    [int(self.x_pos / self.world.screen_ratio) - 1] == 2:
+                self.world.box_group_remove(int(self.y_pos / self.world.screen_ratio),
+                                            int(self.x_pos / self.world.screen_ratio) - 1)
+                self.world.score += 1
+
+            if self.terrain_matrix[int(self.y_pos / self.world.screen_ratio)] \
+                    [int(self.x_pos / self.world.screen_ratio)] != other_number:
+                self.terrain_matrix[int(self.y_pos / self.world.screen_ratio)] \
+                    [int(self.x_pos / self.world.screen_ratio)] = 0
+
+            self.x_pos -= 1 * self.world.screen_ratio
+
+            if self.terrain_matrix[int(self.y_pos / self.world.screen_ratio)] \
+                    [int(self.x_pos / self.world.screen_ratio)] != other_number:
+                self.terrain_matrix[int(self.y_pos / self.world.screen_ratio)] \
+                    [int(self.x_pos / self.world.screen_ratio)] = my_number
+
+    def move_right(self, my_number, other_number):
+        if not self.wall_collision_check(int(self.y_pos / self.world.screen_ratio),
+                                         int(self.x_pos / self.world.screen_ratio) + 1):
+
+            if self.terrain_matrix[int(self.y_pos / self.world.screen_ratio)] \
+                    [int(self.x_pos / self.world.screen_ratio) + 1] == 2:
+                self.world.box_group_remove(int(self.y_pos / self.world.screen_ratio),
+                                            int(self.x_pos / self.world.screen_ratio) + 1)
+                self.world.score += 1
+
+            if self.terrain_matrix[int(self.y_pos / self.world.screen_ratio)] \
+                    [int(self.x_pos / self.world.screen_ratio)] != other_number:
+                self.terrain_matrix[int(self.y_pos / self.world.screen_ratio)] \
+                    [int(self.x_pos / self.world.screen_ratio)] = 0
+
+            self.x_pos += 1 * self.world.screen_ratio
+
+            if self.terrain_matrix[int(self.y_pos / self.world.screen_ratio)] \
+                    [int(self.x_pos / self.world.screen_ratio)] != other_number:
+                self.terrain_matrix[int(self.y_pos / self.world.screen_ratio)] \
+                    [int(self.x_pos / self.world.screen_ratio)] = my_number
+
+    def wall_collision_check(self, pos_x, pos_y):
 
         # Verifica se a nova posiçao está livre
-        if self.terrain_matrix[normalized_new_y_pos][normalized_new_x_pos] == 1 \
-                or self.terrain_matrix[normalized_new_y_pos][normalized_new_x_pos + 1] == 1 \
-                or self.terrain_matrix[normalized_new_y_pos][normalized_new_x_pos + 2] == 1:
-            self.collided = True
+        if self.terrain_matrix[pos_x][pos_y] == 1:
+            # or self.terrain_matrix[normalized_new_y_pos][normalized_new_x_pos + 1] == 1 \
+            # or self.terrain_matrix[normalized_new_y_pos][normalized_new_x_pos + 2] == 1:
+            return True
         else:
-            self.collided = False
+            return False
 
     def check_closest_box(self):
         closest_box_x = math.inf
@@ -121,7 +170,7 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
         paths_combinations.append([math.inf, boxes_group])
 
         if len(boxes_group) >= 2:
-            for i in range(1, int(len(boxes_group)/2)+1):
+            for i in range(1, int(len(boxes_group) / 2) + 1):
                 combinations_list = list(combinations(boxes_group, i))
 
                 for ind_combination in combinations_list:
@@ -131,12 +180,12 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
                     paths_combinations.append([ind_combination, temp_boxes_group_list])
 
             for path_comb in paths_combinations:
-                if path_comb[0] == math.inf or len(path_comb[0]) == 1:          #aqui faz se o primeiro for inf ou 1 só numero
+                if path_comb[0] == math.inf or len(path_comb[0]) == 1:  # aqui faz se o primeiro for inf ou 1 só numero
                     ind_path_1 = path_comb[0]
                     temp_ind_list = list(permutations(path_comb[1], len(path_comb[1])))
                     for ind_path_2 in temp_ind_list:
                         paths_permutations.append([ind_path_1, ind_path_2])
-                else:                                                           #aqui faz se derem os dois para serem permutaveis
+                else:  # aqui faz se derem os dois para serem permutaveis
                     temp_ind_list_1 = list(permutations(path_comb[0], len(path_comb[0])))
                     temp_ind_list_2 = list(permutations(path_comb[1], len(path_comb[1])))
 
@@ -271,9 +320,14 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
                 direction_vector[1] = next_box_x - self.x_pos
 
         if direction_vector[1] != self.x_pos:
-           # self.x_pos += direction_vector[1] / abs(direction_vector[1]) * self.x_speed * delta_t
-            if (direction_vector[1] / abs(direction_vector[1]) * self.x_speed * delta_t) > 0:
-                self.x_pos += 1
+            # self.x_pos += direction_vector[1] / abs(direction_vector[1]) * self.x_speed * delta_t
+            if (direction_vector[1] / abs(direction_vector[1]) * delta_t) > 0:
+                if self.type == "NonCollaborative":
+                    self.move_right(3, 4)
+                else:
+                    self.move_right(4, 3)
             else:
-                self.x_pos -= 1
-
+                if self.type == "NonCollaborative":
+                    self.move_left(3, 4)
+                else:
+                    self.move_left(4, 3)

@@ -21,11 +21,11 @@ class State:
 random.seed(42)
 
 # Environment
-WALL = "w"
-BOX = "b"
-COL_SHAPPY = "c"
-NON_COL_SHAPPY = "n"
-EMPTY = "*"
+WALL = 1
+BOX = 2
+COL_SHAPPY = 4
+NON_COL_SHAPPY = 3
+EMPTY = "."
 
 map = [WALL, BOX, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, BOX, EMPTY, BOX, COL_SHAPPY, EMPTY, BOX, WALL]
 
@@ -38,7 +38,7 @@ n_actions = len(ACTIONS)
 
 pos = -1
 for i in range(len(map)):
-    if map[i] == "c":
+    if map[i] == 4:
         pos = i
 
 start_state = State(map=map, shappy_pos=pos)
@@ -122,7 +122,7 @@ def learn(state, action, reward, new_state):
     # R[si] = r
 
 
-total_episodes = 10000
+total_episodes = 100
 total_test_episodes = 10
 
 
@@ -134,12 +134,10 @@ for episode in range(total_episodes):
     episode_rewards = []
 
     while True:
-
-        if "b" not in state.map:
+        if 2 not in state.map:
             break
 
         action = choose_action(state)
-
         new_state, reward = take_action(state, action)
 
         learn(state, action, reward, new_state)
@@ -154,16 +152,17 @@ for result in rewards:
     print(result)
 
 #RESULTS
-f = open("oneDBoxes_MDP_policy.txt", "a+")
+# f = open("oneDBoxes_MDP_policy.txt", "a+")
 for state in Q_table:
-    if np.argmax(Q(state)) == 0:
-        action = "LEFT"
-    elif np.argmax(Q(state)) == 1:
-        action = "STAY"
-    else:
-        action = "RIGHT"
+    print(state, " ", np.argmax(Q(state)))
+    # if np.argmax(Q(state)) == 0:
+    #     action = "LEFT"
+    # elif np.argmax(Q(state)) == 1:
+    #     action = "STAY"
+    # else:
+    #     action = "RIGHT"
 
-    f.write("%s     %s \r" % (state, action))
-f.close()
+#     f.write("%s     %s \r" % (state, action))
+# f.close()
 
 print("done")

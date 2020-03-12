@@ -15,7 +15,7 @@ class State:
         return hash(str(self.map) + str(self.shappy_pos))
 
     def __str__(self):
-        return f"State(grid={self.map}, shappy_x_pos={self.shappy_pos})"
+        return f"State(map={self.map}, shappy_pos={self.shappy_pos})"
 
 
 random.seed(42)
@@ -51,14 +51,21 @@ n_states = len(map)  # * n_actions * 4       #4 é o numero de boxes
 #Q_table = np.zeros((n_states, n_actions))
 Q_table = dict()
 
-def choose_action(state):
+def Q(state, action=None):
     if state not in Q_table:
         Q_table[state] = np.zeros(len(ACTIONS))
 
+    if action is None:
+        return Q_table[state]
+
+    return Q_table[state][action]
+
+
+def choose_action(state):
     if random.random() < 0.1:  # exploration
-        return random.choices(ACTIONS)
+        return random.randint(0, len(ACTIONS) - 1)
     else:  # exploitation
-        return np.argmax(Q_table[state])
+        return np.argmax(Q(state))
 
 
 def take_action(state, action):
@@ -85,7 +92,7 @@ def take_action(state, action):
 
     new_map = copy.deepcopy(state.map)
     if map_item == BOX:
-        reward = 10
+        reward = 100
         old_pos = state.shappy_pos
         new_map[old_pos] = EMPTY
         new_map[new_pos] = COL_SHAPPY
@@ -99,15 +106,13 @@ def take_action(state, action):
     else:
         raise ValueError(f"Unknown grid item {map_item}")
 
-    return State(map=new_map, shappy_pos=pos), reward
+    return State(map=new_map, shappy_pos=new_pos), reward
 
 
 def learn(state, action, reward, new_state):
     # Update Q(s,a):= Q(s,a) + lr [R(s,a) + gamma * max Q(s',a') - Q(s,a)]
-    print(state, action, reward, new_state)
-    print(Q_table[state])
-    Q_table(state)[action] = Q_table[state, action] + learning_rate * \
-                             (reward + gamma * np.max(Q_table[new_state]) - Q_table[state, action])
+    Q(state)[action] = Q(state, action) + learning_rate * \
+                             (reward + gamma * np.max(Q(new_state)) - Q(state, action))
 
     # Devia aqui alterar a tabela das transições P(state, action, new state)
     # Devia aqui alterar a tabela das rewards para cada estado R[state]
@@ -117,10 +122,12 @@ def learn(state, action, reward, new_state):
     # R[si] = r
 
 
-total_episodes = 10
+total_episodes = 10000
 total_test_episodes = 10
-rewards = []
 
+
+#TRAIN
+rewards = []
 for episode in range(total_episodes):
 
     state = start_state
@@ -143,5 +150,17 @@ for episode in range(total_episodes):
 
     rewards.append(np.mean(episode_rewards))
 
+#RESULTS
+f = open("oneDBoxes_MDP_policy.txt", "a+")
+for state in Q_table:
+    if np.argmax(Q(state)) == 0:
+        action = "LEFT"
+    elif np.argmax(Q(state)) == 1:
+        action = "STAY"
+    else:
+        action = "RIGHT"
+
+    f.write("%s     %s \r" % (state, action))
+f.close()
 
 print("done")

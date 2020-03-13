@@ -1,6 +1,7 @@
 import pygame
 import os
 from oneDBoxesScenario.Collaborator_oneDBoxes import *
+from oneDBoxesScenario.MDP_Collaborator_oneDBoxes import *
 from oneDBoxesScenario.World_oneDBoxes import *
 
 
@@ -20,9 +21,13 @@ def main():
     update_time = 0.1
 
     #create world
-    world = World_oneDBoxes("oneDBoxes_map1.txt")
+    world = World_oneDBoxes("oneDBoxes_map2.txt")
+
     #create the collaboration analyser
    # collaborator = Collaborator_oneDBoxes(world, False)
+    collaborator = MDP_Collaborator_oneDBoxes(world)
+
+
     world.render()
 
     #createNewLogFile(world)

@@ -6,7 +6,7 @@ from oneDBoxesScenario.Shappy_oneDBoxes import *
 
 class World_oneDBoxes(object):
 
-    def __init__(self, terrain_file):
+    def __init__(self, terrain_file, policy_file):
 
         self.last_update = None
 
@@ -15,6 +15,8 @@ class World_oneDBoxes(object):
         self.terrain_file = terrain_file
 
         self.terrain = Terrain_oneDBoxes(terrain_file)
+
+        self.policy = self.get_policy(policy_file)
 
         self.screen_width = len(self.terrain.matrix[0]) * self.screen_ratio
         self.screen_height = len(self.terrain.matrix) * self.screen_ratio
@@ -60,11 +62,13 @@ class World_oneDBoxes(object):
             for line in range(len(self.terrain.matrix)):
                 if self.terrain.matrix[line][column] == 3:
                     shappy = Shappy_oneDBoxes('3', 'A', column * self.screen_ratio, line * self.screen_ratio, self, 3,
-                                              self.terrain.matrix, self.screen_width, self.screen_height, False)
+                                              self.terrain.matrix, self.screen_width, self.screen_height,
+                                              False, self.policy)
                     self.shappy_group.add(shappy)
                 if self.terrain.matrix[line][column] == 4:
                     shappy = Shappy_oneDBoxes('4', 'B', column * self.screen_ratio, line * self.screen_ratio, self,
-                                              4, self.terrain.matrix, self.screen_width, self.screen_height, False)
+                                              4, self.terrain.matrix, self.screen_width, self.screen_height,
+                                              False, self.policy)
                     self.shappy_group.add(shappy)
 
         # #create shappys
@@ -85,7 +89,6 @@ class World_oneDBoxes(object):
         self.shappy_group.draw(self.screen)
         self.box_group.draw(self.screen)
         self.wall_group.draw(self.screen)
-
 
         if self.show_automatic:
             automatic_rend = self.font.render("Automatic", 1, (255, 0, 0))
@@ -131,6 +134,65 @@ class World_oneDBoxes(object):
 
         self.shappy_group.update(delta_t)
 
-       # self.check_collisions()
+        # self.check_collisions()
 
         self.last_update = time.time()
+
+    def get_policy(self, policy_file):
+        policy = []
+
+        f = open(policy_file, "r")
+        save = True
+        appended_line = ""
+
+        lines = f.readlines()
+
+        for line in lines:
+            if line == lines[-1]:
+                phrase = ""
+                for letter in line:
+                    phrase += letter
+                appended_line += phrase
+
+            if "State" in line or line == lines[-1]:
+                state = []
+                pos = []
+                save = True
+                if len(appended_line) > 0:
+                    temp_appended_line = str(appended_line).replace('\'', '')
+                    temp_appended_line = str(temp_appended_line).replace(',', '')
+                    temp_appended_line = str(temp_appended_line).replace('[S t a t e ( m a p = [', '')
+                    temp_appended_line = str(temp_appended_line).replace('\\n', '')
+                    temp_appended_line = str(temp_appended_line).replace(')', '')
+                    temp_appended_line = str(temp_appended_line).replace('   ]', '')
+
+                    #Criar o state
+                    split1 = str(temp_appended_line).split("]")
+                    state_string = split1[0].replace(' ', '')
+                    state_string = state_string.replace('.', '')
+                    for letter in state_string:
+                        state.append(int(letter))
+
+                    split2 = str(split1[1]).split("[")
+                    split3 = str(split2[0]).split('        ')
+
+                    pos_string = str(split3[0]).replace(' ', '')
+                    pos_string = str(pos_string).replace('first_shappy_pos=', '')
+                    pos_string = str(pos_string).split('second_shappy_pos=')
+                    pos.append(int(pos_string[0]))
+                    pos.append(int(pos_string[1]))
+
+                    action = int(split3[1])
+
+                    policy.append([state, pos, action])
+                appended_line = []
+
+            if save:
+                phrase = ""
+                for letter in line:
+                    phrase += letter
+                appended_line += phrase
+
+        f.close()
+
+        return policy

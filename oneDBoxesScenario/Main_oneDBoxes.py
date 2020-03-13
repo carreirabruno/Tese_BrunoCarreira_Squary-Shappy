@@ -21,11 +21,14 @@ def main():
     update_time = 0.1
 
     #create world
-    world = World_oneDBoxes("oneDBoxes_map2.txt")
+    world = World_oneDBoxes("oneDBoxes_map2.txt", "oneDBoxes_MDP_policy_1000.txt")
 
     #create the collaboration analyser
-   # collaborator = Collaborator_oneDBoxes(world, False)
-    collaborator = MDP_Collaborator_oneDBoxes(world)
+    #collaborator = Collaborator_oneDBoxes(world, False)
+
+    #create the policy
+    #collaborator = MDP_Collaborator_oneDBoxes(world)
+
 
 
     world.render()

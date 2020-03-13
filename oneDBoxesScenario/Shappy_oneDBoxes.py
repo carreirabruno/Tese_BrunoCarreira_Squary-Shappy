@@ -16,7 +16,7 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
     size = 30
 
     def __init__(self, ID, name, x_pos, y_pos, world, color, terrain_matrix, screen_width, screen_height,
-                 auto):
+                 auto, policy):
 
         pygame.sprite.Sprite.__init__(self)
         self.x_pos = x_pos
@@ -31,6 +31,7 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
         self.screen_height = screen_height
         self.type = None
         self.auto = auto
+        self.policy = policy
 
         self.color = color
 
@@ -83,7 +84,8 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
                         # self.x_pos += 1 * self.world.screen_ratio
                         self.move_right(4, 3)
             elif self.auto:
-                self.auto_movement(delta_t)
+                #self.auto_movement(delta_t)
+                self.auto_movement2()
 
             # self.wall_collision_check()
             self.time_interval = time.time()
@@ -331,3 +333,73 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
                     self.move_left(3, 4)
                 else:
                     self.move_left(4, 3)
+
+    def auto_movement2(self):
+        current_state = []
+        for line in self.world.terrain.matrix:
+            if 3 in line:  # para a politica centralizada, trata ambos os shappys como collaborative
+                line = np.where(line == 3, 4, line)
+            if 2 in line:
+                for letter in line:
+                    current_state.append(int(letter))
+                break
+        policy_state = []
+        for state in self.policy:
+            if current_state == state[0]:
+                policy_state = state
+
+        # Actions
+        STAY_STAY = 0
+        STAY_LEFT = 1
+        STAY_RIGHT = 2
+        LEFT_STAY = 3
+        LEFT_LEFT = 4
+        LEFT_RIGHT = 5
+        RIGHT_STAY = 6
+        RIGHT_LEFT = 7
+        RIGHT_RIGHT = 8
+
+        print(state[2])
+
+        #estou a ver a posição ne ecra e naõ na matriz
+
+        if self.x_pos/self.world.screen_ratio == policy_state[1][0]:
+            if policy_state[2] == STAY_STAY or policy_state[2] == STAY_LEFT or policy_state[2] == STAY_RIGHT:
+                pass
+            elif policy_state[2] == LEFT_STAY or policy_state[2] == LEFT_LEFT or policy_state[2] == LEFT_RIGHT:
+                if self.type == "NonCollaborative":
+                    self.move_left(3, 4)
+                else:
+                    self.move_left(4, 3)
+            elif policy_state[2] == RIGHT_STAY or policy_state[2] == RIGHT_LEFT or policy_state[2] == RIGHT_RIGHT:
+                if self.type == "NonCollaborative":
+                    self.move_right(3, 4)
+                else:
+                    self.move_right(4, 3)
+        if self.x_pos/self.world.screen_ratio == policy_state[1][1]:
+            if policy_state[2] == STAY_STAY or policy_state[2] == LEFT_STAY or policy_state[2] == RIGHT_STAY:
+                pass
+            elif policy_state[2] == STAY_LEFT or policy_state[2] == LEFT_LEFT or policy_state[2] == RIGHT_LEFT:
+                if self.type == "NonCollaborative":
+                    self.move_left(3, 4)
+                else:
+                    self.move_left(4, 3)
+            elif policy_state[2] == STAY_RIGHT or policy_state[2] == LEFT_RIGHT or policy_state[2] == RIGHT_RIGHT:
+                if self.type == "NonCollaborative":
+                    self.move_right(3, 4)
+                else:
+                    self.move_right(4, 3)
+
+
+        # if direction_vector[1] != self.x_pos:
+        #     # self.x_pos += direction_vector[1] / abs(direction_vector[1]) * self.x_speed * delta_t
+        #     if (direction_vector[1] / abs(direction_vector[1]) * delta_t) > 0:
+        #         if self.type == "NonCollaborative":
+        #             self.move_right(3, 4)
+        #         else:
+        #             self.move_right(4, 3)
+        #     else:
+        #         if self.type == "NonCollaborative":
+        #             self.move_left(3, 4)
+        #         else:
+        #             self.move_left(4, 3)

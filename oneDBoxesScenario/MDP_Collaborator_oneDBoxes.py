@@ -26,11 +26,9 @@ class State:
 
 class MDP_Collaborator_oneDBoxes(object):
 
-    def __init__(self, world):
-        self.world = world
-
+    def __init__(self, terrain_matrix, policy_file):
         self.map = []
-        for line in self.world.terrain.matrix:
+        for line in terrain_matrix:
             if 3 in line:                               #para criar a politica centralizada, trata ambos os shappys como collaborative
                 line = np.where(line==3, 4, line)
             if 2 in line:
@@ -81,6 +79,7 @@ class MDP_Collaborator_oneDBoxes(object):
         self.Q_table = dict()
 
         self.create_policy()
+        self.write_in_txt(policy_file)
 
     def detect_shappys_pos(self, non_col_shappys, col_shappys):
 
@@ -244,7 +243,7 @@ class MDP_Collaborator_oneDBoxes(object):
 
     def create_policy(self):
 
-        total_episodes = 10000
+        total_episodes = 100  #tenho que aumentar isto para 100000 :(
         #total_test_episodes = 10
 
         # TRAIN
@@ -285,8 +284,9 @@ class MDP_Collaborator_oneDBoxes(object):
         # for result in rewards:
         #     print(result)
 
+    def write_in_txt(self, policy_file):
         # RESULTS
-        f = open("oneDBoxes_MDP_policy_10000.txt", "w+")
+        f = open(policy_file, "w+")
         for line in self.Q_table:
             #print(line, "   ", np.argmax(self.Q(line)), "   ", self.Q(line))
             f.write("%s   %s    %s \r" % (line, np.argmax(self.Q(line)), self.Q(line)))

@@ -7,15 +7,13 @@ from copy import *
 
 class World_oneDBoxes(object):
 
-    def __init__(self, terrain_file, policy_file):
+    def __init__(self, terrain, policy_file):
 
         self.last_update = None
 
         self.screen_ratio = 10
 
-        self.terrain_file = terrain_file
-
-        self.terrain = Terrain_oneDBoxes(terrain_file)
+        self.terrain = terrain
 
         self.policy = self.get_policy(policy_file)
 
@@ -185,6 +183,9 @@ class World_oneDBoxes(object):
 
                     action = int(split3[1])
 
+                    # if 2 in state and action == 0:
+                    #     print(appended_line)
+
                     policy.append([state, pos, action])
                 appended_line = []
 
@@ -195,7 +196,6 @@ class World_oneDBoxes(object):
                 appended_line += phrase
 
         f.close()
-
         # print("before ", len(policy))
         #
         # temp_policy = []

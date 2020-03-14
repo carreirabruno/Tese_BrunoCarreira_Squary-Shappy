@@ -43,10 +43,10 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
         self.next_box_x = math.inf
 
         if self.color == 3:
-            self.image = pygame.image.load("../Images/30_30_Red_Square.png")
+            self.image = pygame.image.load("../Images/20_20_Red_Square.png")
             self.type = "NonCollaborative"
         elif self.color == 4:
-            self.image = pygame.image.load("../Images/30_30_Blue_Square.png")
+            self.image = pygame.image.load("../Images/20_20_Blue_Square.png")
             self.type = "Collaborative"
         else:
             print("Unknown colour number: ", self.color)
@@ -61,12 +61,19 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
         # self.collided = False
         self.time_interval = time.time()
 
-    def update(self, delta_t):
-        if time.time() - self.time_interval > 0.01:
+        self.go_ahead = False
+        self.current_state = []
+
+    def update(self, current_state):
+
+        self.current_state = current_state
+
+        if time.time() - self.time_interval > 0.1:
+        #if self.go_ahead:
             if not self.auto:
                 self.calculate = False
                 keys = pygame.key.get_pressed()
-                if self.color == 3:
+                if self.type == "NonCollaborative":
                     if keys[pygame.K_LEFT]:
                         # self.x_pos -= self.x_speed * delta_t
                         # self.x_pos -= 1
@@ -74,7 +81,7 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
                     if keys[pygame.K_RIGHT]:
                         # self.x_pos += self.x_speed * delta_t
                         self.move_right(3, 4)
-                elif self.color == 4:
+                elif self.type == "Collaborative":
                     if keys[pygame.K_a]:
                         # self.x_pos -= self.x_speed * delta_t
                         # self.x_pos -= 1 * self.world.screen_ratio
@@ -89,6 +96,8 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
 
             # self.wall_collision_check()
             self.time_interval = time.time()
+
+            self.go_ahead = False
 
         # if self.collided:
         #     self.x_pos = self.old_x_pos
@@ -335,18 +344,6 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
                     self.move_left(4, 3)
 
     def auto_movement2(self):
-        current_state = []
-        for line in self.world.terrain.matrix:
-            if 3 in line:  # para a politica centralizada, trata ambos os shappys como collaborative
-                line = np.where(line == 3, 4, line)
-            if 2 in line:
-                for letter in line:
-                    current_state.append(int(letter))
-                break
-        policy_state = []
-        for state in self.policy:
-            if current_state == state[0]:
-                policy_state = state
 
         # Actions
         STAY_STAY = 0
@@ -359,9 +356,33 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
         RIGHT_LEFT = 7
         RIGHT_RIGHT = 8
 
-        print(state[2])
+        # current_state = []
+        # for line in self.world.terrain.matrix:
+        #     if 3 in line:  # para a politica centralizada, trata ambos os shappys como collaborative
+        #         line = np.where(line == 3, 4, line)
+        #     if 2 in line:
+        #         for letter in line:
+        #             current_state.append(int(letter))
+        #         break
 
-        #estou a ver a posição ne ecra e naõ na matriz
+        other_agent_pos = -1
+        for i in range(len(self.current_state)):
+            if self.current_state[i] == 4 and i != self.x_pos/self.world.screen_ratio:
+                other_agent_pos = i
+
+        policy_state = []
+        for state in self.policy:
+            if self.current_state == state[0] and (self.x_pos / self.world.screen_ratio) == state[1][0] \
+                    and other_agent_pos == state[1][1]:
+                policy_state = state
+                break
+            elif self.current_state == state[0] and  other_agent_pos == state[1][0] \
+                    and (self.x_pos / self.world.screen_ratio) == state[1][1]:
+                policy_state = state
+                break
+
+        if policy_state[2] == STAY_STAY:
+            print(self.type, self.x_pos/self.world.screen_ratio, policy_state)
 
         if self.x_pos/self.world.screen_ratio == policy_state[1][0]:
             if policy_state[2] == STAY_STAY or policy_state[2] == STAY_LEFT or policy_state[2] == STAY_RIGHT:
@@ -376,7 +397,7 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
                     self.move_right(3, 4)
                 else:
                     self.move_right(4, 3)
-        if self.x_pos/self.world.screen_ratio == policy_state[1][1]:
+        elif self.x_pos/self.world.screen_ratio == policy_state[1][1]:
             if policy_state[2] == STAY_STAY or policy_state[2] == LEFT_STAY or policy_state[2] == RIGHT_STAY:
                 pass
             elif policy_state[2] == STAY_LEFT or policy_state[2] == LEFT_LEFT or policy_state[2] == RIGHT_LEFT:
@@ -389,17 +410,3 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
                     self.move_right(3, 4)
                 else:
                     self.move_right(4, 3)
-
-
-        # if direction_vector[1] != self.x_pos:
-        #     # self.x_pos += direction_vector[1] / abs(direction_vector[1]) * self.x_speed * delta_t
-        #     if (direction_vector[1] / abs(direction_vector[1]) * delta_t) > 0:
-        #         if self.type == "NonCollaborative":
-        #             self.move_right(3, 4)
-        #         else:
-        #             self.move_right(4, 3)
-        #     else:
-        #         if self.type == "NonCollaborative":
-        #             self.move_left(3, 4)
-        #         else:
-        #             self.move_left(4, 3)

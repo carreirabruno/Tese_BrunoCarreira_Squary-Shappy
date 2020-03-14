@@ -2,6 +2,7 @@ import pygame
 from oneDBoxesScenario.Terrain_oneDBoxes import *
 from oneDBoxesScenario.oneDBox import *
 from oneDBoxesScenario.Shappy_oneDBoxes import *
+from copy import *
 
 
 class World_oneDBoxes(object):
@@ -132,7 +133,7 @@ class World_oneDBoxes(object):
 
         delta_t = time.time() - self.last_update
 
-        self.shappy_group.update(delta_t)
+        self.shappy_group.update(self.get_current_state())
 
         # self.check_collisions()
 
@@ -166,7 +167,7 @@ class World_oneDBoxes(object):
                     temp_appended_line = str(temp_appended_line).replace(')', '')
                     temp_appended_line = str(temp_appended_line).replace('   ]', '')
 
-                    #Criar o state
+                    # Criar o state
                     split1 = str(temp_appended_line).split("]")
                     state_string = split1[0].replace(' ', '')
                     state_string = state_string.replace('.', '')
@@ -195,4 +196,35 @@ class World_oneDBoxes(object):
 
         f.close()
 
+        # print("before ", len(policy))
+        #
+        # temp_policy = []
+        # trash_policy = []
+        # for line in policy:
+        #     temp_policy.append(line[0])
+        #
+        # #for line in temp_policy:
+        # for i in range(len(temp_policy)):
+        #     if temp_policy[i] in trash_policy:
+        #         for line in policy:
+        #             if line[0] == temp_policy[i]:
+        #                 policy.remove(line)
+        #     else:
+        #         trash_policy.append(temp_policy[i])
+        #
+        #
+        # print("after ", len(policy))
+
         return policy
+
+    def get_current_state(self):
+        current_state = []
+        for line in self.terrain.matrix:
+            if 3 in line:  # para a politica centralizada, trata ambos os shappys como collaborative
+                line = np.where(line == 3, 4, line)
+            if 2 in line:
+                for letter in line:
+                    current_state.append(int(letter))
+                break
+
+        return current_state

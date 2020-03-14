@@ -68,6 +68,9 @@ def main():
                        # if shappy.type == "Coolaborative":
                         shappy.auto = not shappy.auto
                         shappy.calculate = True
+                if event.key == pygame.K_2:
+                    for shappy in world.shappy_group:
+                        shappy.go_ahead = True
 
 if __name__ == "__main__":
     # call the main function

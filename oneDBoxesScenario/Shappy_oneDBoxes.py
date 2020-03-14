@@ -345,16 +345,26 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
 
     def auto_movement2(self):
 
-        # Actions
-        STAY_STAY = 0
-        STAY_LEFT = 1
-        STAY_RIGHT = 2
-        LEFT_STAY = 3
-        LEFT_LEFT = 4
-        LEFT_RIGHT = 5
-        RIGHT_STAY = 6
-        RIGHT_LEFT = 7
-        RIGHT_RIGHT = 8
+        # # Actions
+        # STAY_STAY = 0
+        # STAY_LEFT = 1
+        # STAY_RIGHT = 2
+        # LEFT_STAY = 3
+        # LEFT_LEFT = 4
+        # LEFT_RIGHT = 5
+        # RIGHT_STAY = 6
+        # RIGHT_LEFT = 7
+        # RIGHT_RIGHT = 8
+
+
+        STAY_LEFT = 0
+        STAY_RIGHT = 1
+        LEFT_STAY = 2
+        LEFT_LEFT = 3
+        LEFT_RIGHT = 4
+        RIGHT_STAY = 5
+        RIGHT_LEFT = 6
+        RIGHT_RIGHT = 7
 
         # current_state = []
         # for line in self.world.terrain.matrix:
@@ -381,11 +391,12 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
                 policy_state = state
                 break
 
-        if policy_state[2] == STAY_STAY:
-            print(self.type, self.x_pos/self.world.screen_ratio, policy_state)
+        # if policy_state[2] == STAY_STAY:
+        #     print(self.type, self.x_pos/self.world.screen_ratio, policy_state)
 
         if self.x_pos/self.world.screen_ratio == policy_state[1][0]:
-            if policy_state[2] == STAY_STAY or policy_state[2] == STAY_LEFT or policy_state[2] == STAY_RIGHT:
+            if policy_state[2] == STAY_LEFT or policy_state[2] == STAY_RIGHT:
+#            if policy_state[2] == STAY_STAY or policy_state[2] == STAY_LEFT or policy_state[2] == STAY_RIGHT:
                 pass
             elif policy_state[2] == LEFT_STAY or policy_state[2] == LEFT_LEFT or policy_state[2] == LEFT_RIGHT:
                 if self.type == "NonCollaborative":
@@ -398,7 +409,8 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
                 else:
                     self.move_right(4, 3)
         elif self.x_pos/self.world.screen_ratio == policy_state[1][1]:
-            if policy_state[2] == STAY_STAY or policy_state[2] == LEFT_STAY or policy_state[2] == RIGHT_STAY:
+            if policy_state[2] == LEFT_STAY or policy_state[2] == RIGHT_STAY:
+#            if policy_state[2] == STAY_STAY or policy_state[2] == LEFT_STAY or policy_state[2] == RIGHT_STAY:
                 pass
             elif policy_state[2] == STAY_LEFT or policy_state[2] == LEFT_LEFT or policy_state[2] == RIGHT_LEFT:
                 if self.type == "NonCollaborative":

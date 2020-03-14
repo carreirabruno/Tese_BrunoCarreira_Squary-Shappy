@@ -12,7 +12,7 @@ def main():
     terrain = Terrain_oneDBoxes("oneDBoxes_map2.txt")
 
     #create the policy
-    collaborator = MDP_Collaborator_oneDBoxes(terrain.matrix, policy_file)
+    #collaborator = MDP_Collaborator_oneDBoxes(terrain.matrix, policy_file)
 
     # define a variable to control the main loop
     running = True

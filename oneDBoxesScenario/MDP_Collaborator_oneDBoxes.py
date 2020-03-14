@@ -48,17 +48,17 @@ class MDP_Collaborator_oneDBoxes(object):
             #[self.WALL, self.BOX, self.EMPTY, self.EMPTY, self.EMPTY, self.SHAPPY, self.EMPTY, self.EMPTY, self.BOX, self.EMPTY, self.BOX, self.SHAPPY, self.EMPTY, self.BOX, self.WALL])
 
         # Actions
-        self.STAY_STAY = 0
-        self.STAY_LEFT = 1
-        self.STAY_RIGHT = 2
-        self.LEFT_STAY = 3
-        self.LEFT_LEFT = 4
-        self.LEFT_RIGHT = 5
-        self.RIGHT_STAY = 6
-        self.RIGHT_LEFT = 7
-        self.RIGHT_RIGHT = 8
+       # self.STAY_STAY = 0
+        self.STAY_LEFT = 0
+        self.STAY_RIGHT = 1
+        self.LEFT_STAY = 2
+        self.LEFT_LEFT = 3
+        self.LEFT_RIGHT = 4
+        self.RIGHT_STAY = 5
+        self.RIGHT_LEFT = 6
+        self.RIGHT_RIGHT = 7
 
-        self.ACTIONS = [self.STAY_STAY, self.STAY_LEFT, self.STAY_RIGHT,
+        self.ACTIONS = [self.STAY_LEFT, self.STAY_RIGHT,
                         self.LEFT_STAY, self.LEFT_LEFT, self.LEFT_RIGHT,
                         self.RIGHT_STAY, self.RIGHT_LEFT, self.RIGHT_RIGHT]
         n_actions = len(self.ACTIONS)
@@ -122,10 +122,10 @@ class MDP_Collaborator_oneDBoxes(object):
             new_first_shappy_pos = copy.deepcopy(state.first_shappy_pos)
             new_second_shappy_pos = copy.deepcopy(state.second_shappy_pos)
 
-            if action == self.STAY_STAY:
-                new_first_shappy_pos = new_first_shappy_pos
-                new_second_shappy_pos = new_second_shappy_pos
-            elif action == self.STAY_LEFT:
+            #if action == self.STAY_STAY:
+            #    new_first_shappy_pos = new_first_shappy_pos
+            #    new_second_shappy_pos = new_second_shappy_pos
+            if action == self.STAY_LEFT:
                 new_first_shappy_pos = new_first_shappy_pos
                 if state.map[new_second_shappy_pos - 1] == self.WALL:  # colidiu com uma self.WALL
                     new_second_shappy_pos = new_second_shappy_pos
@@ -243,7 +243,7 @@ class MDP_Collaborator_oneDBoxes(object):
 
     def create_policy(self):
 
-        total_episodes = 100  #tenho que aumentar isto para 100000 :(
+        total_episodes = 500  #tenho que aumentar isto para 100000 :(
         #total_test_episodes = 10
 
         # TRAIN

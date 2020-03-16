@@ -296,4 +296,9 @@ class World_oneDBoxes(object):
                     current_state.append(int(letter))
                 break
 
+        current_state = np.array(current_state)
+        if 3 not in current_state:
+            current_state = np.where(current_state == 4, 7, current_state)
+        if 4 not in current_state:
+            current_state = np.where(current_state == 3, 7, current_state)
         return current_state

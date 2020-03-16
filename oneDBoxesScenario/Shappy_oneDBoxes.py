@@ -361,7 +361,8 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
 
         policy_state = []
         for state in self.policy:
-            if self.current_state == state[0]:
+            comparison = self.current_state == state[0]
+            if comparison.all():
                 policy_state = state
                 break
             # elif self.current_state == state[0] and other_agent_pos == state[1][0] \

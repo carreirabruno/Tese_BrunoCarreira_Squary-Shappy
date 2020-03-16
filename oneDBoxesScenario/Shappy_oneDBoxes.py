@@ -14,7 +14,7 @@ def get_center(sprite):
 class Shappy_oneDBoxes(pygame.sprite.Sprite):
 
 
-    def __init__(self, ID, name, x_pos, y_pos, world, color, terrain_matrix, screen_width, screen_height,
+    def __init__(self, name, x_pos, y_pos, world, color, terrain_matrix, screen_width, screen_height,
                  auto, policy):
 
         pygame.sprite.Sprite.__init__(self)
@@ -43,17 +43,14 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
 
         if self.color == 3:
             self.image = pygame.image.load("../Images/20_20_Blue_Square.png")
-            self.type = "Collaborative"
         elif self.color == 4:
             self.image = pygame.image.load("../Images/20_20_Red_Square.png")
-            self.type = "NonCollaborative"
         else:
             print("Unknown colour number: ", self.color)
 
         x_size, y_size = self.image.get_rect().size
         self.rect = pygame.Rect(x_pos, y_pos, x_size, y_size)
         self.mask = pygame.mask.from_surface(self.image)
-        self.ID = ID
         self.name = name
         self.dir = (x_pos, y_pos)
 
@@ -72,20 +69,20 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
         if not self.auto:
             self.calculate = False
             keys = pygame.key.get_pressed()
-            if self.type == "NonCollaborative":
-                if keys[pygame.K_LEFT]:
+            if self.color == 3:
+                if keys[pygame.K_a]:
                     # self.x_pos -= self.x_speed * delta_t
                     # self.x_pos -= 1
                     self.move_left(3, 4)
-                if keys[pygame.K_RIGHT]:
+                if keys[pygame.K_d]:
                     # self.x_pos += self.x_speed * delta_t
                     self.move_right(3, 4)
-            elif self.type == "Collaborative":
-                if keys[pygame.K_a]:
+            elif self.color == 4:
+                if keys[pygame.K_LEFT]:
                     # self.x_pos -= self.x_speed * delta_t
                     # self.x_pos -= 1 * self.world.screen_ratio
                     self.move_left(4, 3)
-                if keys[pygame.K_d]:
+                if keys[pygame.K_RIGHT]:
                     # self.x_pos += self.x_speed * delta_t
                     # self.x_pos += 1 * self.world.screen_ratio
                     self.move_right(4, 3)
@@ -132,8 +129,6 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
                 self.terrain_matrix[int(self.y_pos / self.world.screen_ratio)] \
                     [int(self.x_pos / self.world.screen_ratio)] = my_number
 
-            if self.type == "Collaborative":
-                print("left ", self.x_pos / self.world.screen_ratio)
 
     def move_right(self, my_number, other_number):
         if not self.wall_collision_check(int(self.y_pos / self.world.screen_ratio),
@@ -157,8 +152,6 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
                 self.terrain_matrix[int(self.y_pos / self.world.screen_ratio)] \
                     [int(self.x_pos / self.world.screen_ratio)] = my_number
 
-            if self.type == "Collaborative":
-                print("right ", self.x_pos/self.world.screen_ratio)
 
     def wall_collision_check(self, pos_x, pos_y):
 
@@ -362,50 +355,62 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
 
         other_agent_pos = int(self.x_pos/self.world.screen_ratio)
         for i in range(len(self.current_state)):
-            if self.current_state[i] == 4 and i != self.x_pos/self.world.screen_ratio:
+            if self.current_state[i] == 3 and i != self.x_pos/self.world.screen_ratio \
+                    or self.current_state[i] == 4 and i != self.x_pos/self.world.screen_ratio:
                 other_agent_pos = i
 
         policy_state = []
         for state in self.policy:
-            if self.current_state == state[0] and int((self.x_pos / self.world.screen_ratio)) == state[1][0] \
-                    and int(other_agent_pos) == state[1][1]:
+            if self.current_state == state[0]:
                 policy_state = state
                 break
-            elif self.current_state == state[0] and  other_agent_pos == state[1][0] \
-                    and (self.x_pos / self.world.screen_ratio) == state[1][1]:
-                policy_state = state
-                break
+            # elif self.current_state == state[0] and other_agent_pos == state[1][0] \
+            #         and (self.x_pos / self.world.screen_ratio) == state[1][1]:
+            #     policy_state = state
+            #     break
 
-        if self.type == "Collaborative":
-            print("___", self.current_state)
-            print("myself ", self.x_pos, " other ", other_agent_pos)
-            print(self.current_state, " ", int(self.x_pos/self.world.screen_ratio), " ", other_agent_pos)
+        if self.color == 3:
+            if policy_state[1] == STAY_LEFT or policy_state[1] == STAY_RIGHT:
+                pass
+            elif policy_state[1] == LEFT_STAY or policy_state[1] == LEFT_LEFT or policy_state[1] == LEFT_RIGHT:
+                self.move_left(3, 4)
+            elif policy_state[1] == RIGHT_STAY or policy_state[1] == RIGHT_LEFT or policy_state[1] == RIGHT_RIGHT:
+                self.move_right(3, 4)
+        elif self.color == 4:
+            if policy_state[1] == LEFT_STAY or policy_state[1] == RIGHT_STAY:
+                pass
+            elif policy_state[1] == STAY_LEFT or policy_state[1] == LEFT_LEFT or policy_state[1] == RIGHT_LEFT:
+                self.move_left(4, 3)
+            elif policy_state[1] == STAY_RIGHT or policy_state[1] == LEFT_RIGHT or policy_state[1] == RIGHT_RIGHT:
+                self.move_right(4, 3)
+            
+            
 
-        if self.x_pos/self.world.screen_ratio == policy_state[1][0]:
-            if policy_state[2] == STAY_LEFT or policy_state[2] == STAY_RIGHT:
-#            if policy_state[2] == STAY_STAY or policy_state[2] == STAY_LEFT or policy_state[2] == STAY_RIGHT:
-                pass
-            elif policy_state[2] == LEFT_STAY or policy_state[2] == LEFT_LEFT or policy_state[2] == LEFT_RIGHT:
-                if self.type == "NonCollaborative":
-                    self.move_left(3, 4)
-                else:
-                    self.move_left(4, 3)
-            elif policy_state[2] == RIGHT_STAY or policy_state[2] == RIGHT_LEFT or policy_state[2] == RIGHT_RIGHT:
-                if self.type == "NonCollaborative":
-                    self.move_right(3, 4)
-                else:
-                    self.move_right(4, 3)
-        elif self.x_pos/self.world.screen_ratio == policy_state[1][1]:
-            if policy_state[2] == LEFT_STAY or policy_state[2] == RIGHT_STAY:
-#            if policy_state[2] == STAY_STAY or policy_state[2] == LEFT_STAY or policy_state[2] == RIGHT_STAY:
-                pass
-            elif policy_state[2] == STAY_LEFT or policy_state[2] == LEFT_LEFT or policy_state[2] == RIGHT_LEFT:
-                if self.type == "NonCollaborative":
-                    self.move_left(3, 4)
-                else:
-                    self.move_left(4, 3)
-            elif policy_state[2] == STAY_RIGHT or policy_state[2] == LEFT_RIGHT or policy_state[2] == RIGHT_RIGHT:
-                if self.type == "NonCollaborative":
-                    self.move_right(3, 4)
-                else:
-                    self.move_right(4, 3)
+#         if self.x_pos/self.world.screen_ratio == policy_state[1][0]:
+#             if policy_state[2] == STAY_LEFT or policy_state[2] == STAY_RIGHT:
+# #            if policy_state[2] == STAY_STAY or policy_state[2] == STAY_LEFT or policy_state[2] == STAY_RIGHT:
+#                 pass
+#             elif policy_state[2] == LEFT_STAY or policy_state[2] == LEFT_LEFT or policy_state[2] == LEFT_RIGHT:
+#                 if self.type == "NonCollaborative":
+#                     self.move_left(3, 4)
+#                 else:
+#                     self.move_left(4, 3)
+#             elif policy_state[2] == RIGHT_STAY or policy_state[2] == RIGHT_LEFT or policy_state[2] == RIGHT_RIGHT:
+#                 if self.type == "NonCollaborative":
+#                     self.move_right(3, 4)
+#                 else:
+#                     self.move_right(4, 3)
+#         elif self.x_pos/self.world.screen_ratio == policy_state[1][1]:
+#             if policy_state[2] == LEFT_STAY or policy_state[2] == RIGHT_STAY:
+# #            if policy_state[2] == STAY_STAY or policy_state[2] == LEFT_STAY or policy_state[2] == RIGHT_STAY:
+#                 pass
+#             elif policy_state[2] == STAY_LEFT or policy_state[2] == LEFT_LEFT or policy_state[2] == RIGHT_LEFT:
+#                 if self.type == "NonCollaborative":
+#                     self.move_left(3, 4)
+#                 else:
+#                     self.move_left(4, 3)
+#             elif policy_state[2] == STAY_RIGHT or policy_state[2] == LEFT_RIGHT or policy_state[2] == RIGHT_RIGHT:
+#                 if self.type == "NonCollaborative":
+#                     self.move_right(3, 4)
+#                 else:
+#                     self.move_right(4, 3)

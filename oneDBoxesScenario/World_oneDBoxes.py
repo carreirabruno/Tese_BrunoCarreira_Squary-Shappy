@@ -62,12 +62,12 @@ class World_oneDBoxes(object):
         for column in range(len(self.terrain.matrix[0])):
             for line in range(len(self.terrain.matrix)):
                 if self.terrain.matrix[line][column] == 3:
-                    shappy = Shappy_oneDBoxes('3', 'A', column * self.screen_ratio, line * self.screen_ratio, self, 3,
+                    shappy = Shappy_oneDBoxes('A', column * self.screen_ratio, line * self.screen_ratio, self, 3,
                                               self.terrain.matrix, self.screen_width, self.screen_height,
                                               False, self.policy)
                     self.shappy_group.add(shappy)
                 if self.terrain.matrix[line][column] == 4:
-                    shappy = Shappy_oneDBoxes('4', 'B', column * self.screen_ratio, line * self.screen_ratio, self,
+                    shappy = Shappy_oneDBoxes('B', column * self.screen_ratio, line * self.screen_ratio, self,
                                               4, self.terrain.matrix, self.screen_width, self.screen_height,
                                               False, self.policy)
                     self.shappy_group.add(shappy)
@@ -129,7 +129,7 @@ class World_oneDBoxes(object):
 
     def update(self):
 
-        if time.time() - self.time_interval > 0.3:
+        if time.time() - self.time_interval > 1:
             self.blink = not self.blink
             self.time_interval = time.time()
         # if self.last_update is None:
@@ -139,8 +139,6 @@ class World_oneDBoxes(object):
         # delta_t = time.time() - self.last_update
 
             current_state = self.get_current_state()
-            print()
-            print("------------ ", current_state)
             self.shappy_group.update(current_state)
 
         # self.check_collisions()
@@ -252,7 +250,6 @@ class World_oneDBoxes(object):
                 save = True
                 if len(appended_line) > 0:
 
-
                     temp_appended_line = str(appended_line).replace('\'', '')
 
                     temp_appended_line = str(temp_appended_line).replace(',', '')
@@ -263,8 +260,6 @@ class World_oneDBoxes(object):
                     state_appended_line = state_appended_line.replace(' ', '')
                     state_appended_line = state_appended_line.replace('[State(map=[', '')
                     state_appended_line = state_appended_line.replace('.', '')
-                    state_appended_line = state_appended_line.replace('first_shappy_pos=', '')
-                    state_appended_line = state_appended_line.replace('second_shappy_pos=', '')
                     state_appended_line = state_appended_line.replace(')', '')
                     state_appended_line = state_appended_line.replace(']', '')
 
@@ -274,14 +269,13 @@ class World_oneDBoxes(object):
                     for letter in state_items[0]:
                         map.append(int(letter))
 
-                    pos = [int(state_items[1]), int(state_items[2])]
-
                     #Criar a action
                     action_appended_line = split_appendedline[1]
                     action_appended_line = action_appended_line.replace(' ', '')
                     action = int(action_appended_line)
 
-                    policy.append([map, pos, action])
+                    policy.append([map, action])
+
                 appended_line = []
 
             if save:
@@ -297,8 +291,6 @@ class World_oneDBoxes(object):
     def get_current_state(self):
         current_state = []
         for line in self.terrain.matrix:
-            if 3 in line:  # para a politica centralizada, trata ambos os shappys como collaborative
-                line = np.where(line == 3, 4, line)
             if 2 in line:
                 for letter in line:
                     current_state.append(int(letter))

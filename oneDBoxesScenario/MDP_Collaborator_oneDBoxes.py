@@ -343,7 +343,7 @@ class MDP_Collaborator_oneDBoxes(object):
                            (reward + self.gamma * np.max(self.Q(new_state)) - self.Q(state, action))
 
     def create_stating_states(self):
-        starting_states = [self.start_state]
+        existing_starting_states = [self.start_state]
 
         map_copy = copy.deepcopy(self.map)
         if 3 in map_copy or 4 in map_copy:
@@ -356,38 +356,42 @@ class MDP_Collaborator_oneDBoxes(object):
                 filled_positions.append(i)
 
         for a in range(100):
-
+            random.seed()
             temp_map = copy.deepcopy(map_copy)
             pos1 = random.randint(1, len(temp_map)-1)
             while pos1 in filled_positions:
                 pos1 = random.randint(1, len(temp_map) - 1)
-            filled_positions.append(pos1)
+            filled_positions.append(pos1)               #Os shappys começam sempre em sitios diferentes
             pos2 = random.randint(1, len(temp_map)-1)
             while pos2 in filled_positions:
                 pos2 = random.randint(1, len(temp_map) - 1)
             filled_positions.remove(pos1)
-            temp_map[pos1] = 3
-            temp_map[pos2] = 4
 
-            shappys = np.where(temp_map == 4)
-            temp_state = State(map=temp_map, first_shappy_pos=shappys[0][0], second_shappy_pos=shappys[0][1])
+            if pos1 < pos2:
+                temp_map[pos1] = 3
+                temp_map[pos2] = 4
+            else:
+                temp_map[pos2] = 3
+                temp_map[pos1] = 4
+
+            temp_state = State(map=temp_map)
             already_exists = False
-            for state in starting_states:
-                if temp_state.first_shappy_pos == state.first_shappy_pos and temp_state.second_shappy_pos == state.second_shappy_pos:
+            for state in existing_starting_states:
+                comparison = state.map == temp_state.map
+                if comparison.all():
                     already_exists = True
 
             if not already_exists:
-                starting_states.append(temp_state)
+                existing_starting_states.append(temp_state)
 
-
-        return starting_states
+        return existing_starting_states
 
     def create_policy(self):
 
-        total_episodes = 10  #tenho que aumentar isto para 100000 :(
+        total_episodes = 1000  #tenho que aumentar isto para 100000 :(
 
-        #starting_states = self.create_stating_states()
-        starting_states = [self.start_state]
+        starting_states = self.create_stating_states()
+        #starting_states = [self.start_state]
         # TRAIN
         rewards = []
         for i_state in range(len(starting_states)):

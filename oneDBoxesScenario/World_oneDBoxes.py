@@ -11,7 +11,7 @@ class World_oneDBoxes(object):
 
         self.last_update = None
 
-        self.screen_ratio = 10
+        self.screen_ratio = 30
 
         self.terrain = terrain
 
@@ -24,7 +24,7 @@ class World_oneDBoxes(object):
 
         self.fov_radius = 100
 
-        self.font = pygame.font.SysFont("Times New Roman", 18)
+        self.font = pygame.font.SysFont("Times New Roman", 20)
 
         self.score = 0
 
@@ -35,6 +35,8 @@ class World_oneDBoxes(object):
         self.wall_group = pygame.sprite.Group()
 
         self.show_automatic = False
+        self.blink = True
+        self.time_interval = time.time()
 
         # create walls
         for column in range(len(self.terrain.matrix[0])):
@@ -82,16 +84,17 @@ class World_oneDBoxes(object):
         # add background over all past images
         self.screen.fill((255, 255, 255))
 
-        score_rend = self.font.render("Score: " + str(self.score), 1, (0, 0, 0))
-        self.screen.blit(score_rend, (20, 20))
-
         self.shappy_group.draw(self.screen)
         self.box_group.draw(self.screen)
         self.wall_group.draw(self.screen)
 
+        score_rend = self.font.render("Score: " + str(self.score), 1, (255, 255, 255))
+        self.screen.blit(score_rend, (30, 5))
+
         if self.show_automatic:
-            automatic_rend = self.font.render("Automatic", 1, (255, 0, 0))
-            self.screen.blit(automatic_rend, (20, 40))
+            if self.blink:
+                automatic_rend = self.font.render("Automatic", 1, (255, 255, 255))
+                self.screen.blit(automatic_rend, (self.screen_width/2 - 30, 5))
 
         pygame.display.flip()
 
@@ -125,17 +128,107 @@ class World_oneDBoxes(object):
                 self.box_group.remove(box)
 
     def update(self):
-        if self.last_update is None:
-            self.last_update = time.time()
-            return
 
-        delta_t = time.time() - self.last_update
+        if time.time() - self.time_interval > 0.3:
+            self.blink = not self.blink
+            self.time_interval = time.time()
+        # if self.last_update is None:
+        #     self.last_update = time.time()
+        #     return
 
-        self.shappy_group.update(self.get_current_state())
+        # delta_t = time.time() - self.last_update
+
+            current_state = self.get_current_state()
+            print()
+            print("------------ ", current_state)
+            self.shappy_group.update(current_state)
 
         # self.check_collisions()
 
-        self.last_update = time.time()
+            self.last_update = time.time()
+
+    # def get_policy(self, policy_file):
+    #     policy = []
+    #
+    #     f = open(policy_file, "r")
+    #     save = True
+    #     appended_line = ""
+    #
+    #     lines = f.readlines()
+    #     print(len(lines))
+    #
+    #     for line in lines:
+    #         if line == lines[-1]:
+    #             phrase = ""
+    #             for letter in line:
+    #                 phrase += letter
+    #             appended_line += phrase
+    #
+    #         if "State" in line or line == lines[-1]:
+    #             state = []
+    #             pos = []
+    #             save = True
+    #             if len(appended_line) > 0:
+    #                 temp_appended_line = str(appended_line).replace('\'', '')
+    #                 temp_appended_line = str(temp_appended_line).replace(',', '')
+    #                 temp_appended_line = str(temp_appended_line).replace('[S t a t e ( m a p = [', '')
+    #                 temp_appended_line = str(temp_appended_line).replace('\\n', '')
+    #                 temp_appended_line = str(temp_appended_line).replace(')', '')
+    #                 temp_appended_line = str(temp_appended_line).replace('   ]', '')
+    #
+    #                 # Criar o state
+    #                 split1 = str(temp_appended_line).split("]")
+    #                 state_string = split1[0].replace(' ', '')
+    #                 state_string = state_string.replace('.', '')
+    #                 print(line)
+    #                 print(state_string)
+    #                 for letter in state_string:
+    #                     state.append(int(letter))
+    #
+    #                 split2 = str(split1[1]).split("[")
+    #                 split3 = str(split2[0]).split('        ')
+    #
+    #                 pos_string = str(split3[0]).replace(' ', '')
+    #                 pos_string = str(pos_string).replace('first_shappy_pos=', '')
+    #                 pos_string = str(pos_string).split('second_shappy_pos=')
+    #                 pos.append(int(pos_string[0]))
+    #                 pos.append(int(pos_string[1]))
+    #
+    #                 action = int(split3[1])
+    #
+    #                 # if 2 in state and action == 0:
+    #                 #     print(appended_line)
+    #
+    #                 policy.append([state, pos, action])
+    #             appended_line = []
+    #
+    #         if save:
+    #             phrase = ""
+    #             for letter in line:
+    #                 phrase += letter
+    #             appended_line += phrase
+    #
+    #     f.close()
+    #     # print("before ", len(policy))
+    #     #
+    #     # temp_policy = []
+    #     # trash_policy = []
+    #     # for line in policy:
+    #     #     temp_policy.append(line[0])
+    #     #
+    #     # #for line in temp_policy:
+    #     # for i in range(len(temp_policy)):
+    #     #     if temp_policy[i] in trash_policy:
+    #     #         for line in policy:
+    #     #             if line[0] == temp_policy[i]:
+    #     #                 policy.remove(line)
+    #     #     else:
+    #     #         trash_policy.append(temp_policy[i])
+    #     #
+    #     #
+    #     # print("after ", len(policy))
+    #
+    #     return policy
 
     def get_policy(self, policy_file):
         policy = []
@@ -158,35 +251,37 @@ class World_oneDBoxes(object):
                 pos = []
                 save = True
                 if len(appended_line) > 0:
+
+
                     temp_appended_line = str(appended_line).replace('\'', '')
+
                     temp_appended_line = str(temp_appended_line).replace(',', '')
-                    temp_appended_line = str(temp_appended_line).replace('[S t a t e ( m a p = [', '')
-                    temp_appended_line = str(temp_appended_line).replace('\\n', '')
-                    temp_appended_line = str(temp_appended_line).replace(')', '')
-                    temp_appended_line = str(temp_appended_line).replace('   ]', '')
+                    split_appendedline = str(temp_appended_line).split('& &')
 
-                    # Criar o state
-                    split1 = str(temp_appended_line).split("]")
-                    state_string = split1[0].replace(' ', '')
-                    state_string = state_string.replace('.', '')
-                    for letter in state_string:
-                        state.append(int(letter))
+                    #Criar o state
+                    state_appended_line = split_appendedline[0]
+                    state_appended_line = state_appended_line.replace(' ', '')
+                    state_appended_line = state_appended_line.replace('[State(map=[', '')
+                    state_appended_line = state_appended_line.replace('.', '')
+                    state_appended_line = state_appended_line.replace('first_shappy_pos=', '')
+                    state_appended_line = state_appended_line.replace('second_shappy_pos=', '')
+                    state_appended_line = state_appended_line.replace(')', '')
+                    state_appended_line = state_appended_line.replace(']', '')
 
-                    split2 = str(split1[1]).split("[")
-                    split3 = str(split2[0]).split('        ')
+                    state_items = state_appended_line.split('&')
 
-                    pos_string = str(split3[0]).replace(' ', '')
-                    pos_string = str(pos_string).replace('first_shappy_pos=', '')
-                    pos_string = str(pos_string).split('second_shappy_pos=')
-                    pos.append(int(pos_string[0]))
-                    pos.append(int(pos_string[1]))
+                    map = []
+                    for letter in state_items[0]:
+                        map.append(int(letter))
 
-                    action = int(split3[1])
+                    pos = [int(state_items[1]), int(state_items[2])]
 
-                    # if 2 in state and action == 0:
-                    #     print(appended_line)
+                    #Criar a action
+                    action_appended_line = split_appendedline[1]
+                    action_appended_line = action_appended_line.replace(' ', '')
+                    action = int(action_appended_line)
 
-                    policy.append([state, pos, action])
+                    policy.append([map, pos, action])
                 appended_line = []
 
             if save:
@@ -196,24 +291,6 @@ class World_oneDBoxes(object):
                 appended_line += phrase
 
         f.close()
-        # print("before ", len(policy))
-        #
-        # temp_policy = []
-        # trash_policy = []
-        # for line in policy:
-        #     temp_policy.append(line[0])
-        #
-        # #for line in temp_policy:
-        # for i in range(len(temp_policy)):
-        #     if temp_policy[i] in trash_policy:
-        #         for line in policy:
-        #             if line[0] == temp_policy[i]:
-        #                 policy.remove(line)
-        #     else:
-        #         trash_policy.append(temp_policy[i])
-        #
-        #
-        # print("after ", len(policy))
 
         return policy
 

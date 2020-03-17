@@ -152,7 +152,7 @@ for result in rewards:
     print(result)
 
 #RESULTS
-# f = open("oneDBoxes_MDP_policy.txt", "a+")
+# f = open("oneDBoxes_MDP_base_policy.txt", "a+")
 for state in Q_table:
     print(state, " ", np.argmax(Q(state)))
     # if np.argmax(Q(state)) == 0:

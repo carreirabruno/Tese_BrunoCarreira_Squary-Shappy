@@ -4,15 +4,19 @@ from oneDBoxesScenario.Collaborator_oneDBoxes import *
 from oneDBoxesScenario.MDP_Collaborator_oneDBoxes import *
 from oneDBoxesScenario.World_oneDBoxes import *
 from oneDBoxesScenario.Terrain_oneDBoxes import *
-
+import winsound
 
 def main():
-    policy_file = "oneDBoxes_MDP_policy.txt"
+    base_policy_file = "oneDBoxes_MDP_base_policy.txt"
+    collaborative_policy_file = "oneDBoxes_MDP_collaborative_policy.txt"
+    non_collaborative_policy_file = "oneDBoxes_MDP_non_collaborative_policy.txt"
 
     terrain = Terrain_oneDBoxes("oneDBoxes_map2.txt")
 
     #create the policy
-    #collaborator = MDP_Collaborator_oneDBoxes(terrain.matrix, policy_file)
+    collaborator = MDP_Collaborator_oneDBoxes(terrain.matrix, non_collaborative_policy_file)
+    #winsound.Beep(600, 500)
+    #winsound.Beep(600, 1000)
 
     # define a variable to control the main loop
     running = True
@@ -29,7 +33,7 @@ def main():
     update_time = 0.1
 
     #create world
-    world = World_oneDBoxes(terrain, policy_file)
+    world = World_oneDBoxes(terrain, non_collaborative_policy_file)
 
     #create the collaboration analyser
     #collaborator = Collaborator_oneDBoxes(world, False)

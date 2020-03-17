@@ -35,7 +35,6 @@ class World_oneDBoxes(object):
         self.wall_group = pygame.sprite.Group()
 
         self.show_automatic = False
-        self.blink = True
         self.time_interval = time.time()
 
         # create walls
@@ -80,6 +79,15 @@ class World_oneDBoxes(object):
         #                         self.terrain.matrix, self.screen_width, self.screen_height, False)
         #     self.shappy_group.add(shappy)
 
+        self.current_state = []
+        for line in self.terrain.matrix:
+            # if 2 in line:
+            for i in range(len(line)):
+                if line[i] == 2:
+                    for letter in line:
+                        self.current_state.append(int(letter))
+                    break
+
     def render(self):
         # add background over all past images
         self.screen.fill((255, 255, 255))
@@ -92,9 +100,8 @@ class World_oneDBoxes(object):
         self.screen.blit(score_rend, (30, 5))
 
         if self.show_automatic:
-            if self.blink:
-                automatic_rend = self.font.render("Automatic", 1, (255, 255, 255))
-                self.screen.blit(automatic_rend, (self.screen_width/2 - 30, 5))
+            automatic_rend = self.font.render("Automatic", 1, (255, 255, 255))
+            self.screen.blit(automatic_rend, (self.screen_width / 2 - 30, 5))
 
         pygame.display.flip()
 
@@ -121,8 +128,8 @@ class World_oneDBoxes(object):
     #         #     self.score += 1
 
     def box_group_remove(self, input_x_pos, input_y_pos):
-        x_pos = input_y_pos * self.screen_ratio
-        y_pos = input_x_pos * self.screen_ratio
+        x_pos = input_x_pos * self.screen_ratio
+        y_pos = input_y_pos * self.screen_ratio
         for box in self.box_group:
             if box.x_pos == x_pos and box.y_pos == y_pos:
                 self.box_group.remove(box)
@@ -130,18 +137,27 @@ class World_oneDBoxes(object):
     def update(self):
 
         if time.time() - self.time_interval > 1:
-            self.blink = not self.blink
             self.time_interval = time.time()
-        # if self.last_update is None:
-        #     self.last_update = time.time()
-        #     return
+            # if self.last_update is None:
+            #     self.last_update = time.time()
+            #     return
 
-        # delta_t = time.time() - self.last_update
+            # delta_t = time.time() - self.last_update
 
-            current_state = self.get_current_state()
-            self.shappy_group.update(current_state)
+            actions = self.get_current_action_to_do()
 
-        # self.check_collisions()
+            print("ola", self.current_state, actions)
+
+            shappy3_state = []
+            shappy4_state = []
+            for shappy in self.shappy_group:
+                if shappy.color == 3:
+                    shappy3_state = shappy.update(self.current_state, actions[0])
+                if shappy.color == 4:
+                    shappy4_state = shappy.update(self.current_state, actions[1])
+            self.set_new_terrain_matrix(shappy3_state, shappy4_state)
+
+            # self.check_collisions()
 
             self.last_update = time.time()
 
@@ -238,13 +254,13 @@ class World_oneDBoxes(object):
         lines = f.readlines()
 
         for line in lines:
-            if line == lines[-1]:
-                phrase = ""
-                for letter in line:
-                    phrase += letter
-                appended_line += phrase
+            # if line is lines[-1]:
+            #     phrase = ""
+            #     for letter in line:
+            #         phrase += letter
+            #     appended_line += phrase
 
-            if "State" in line or line == lines[-1]:
+            if "State" in line or "final" in line:  # line == lines[-1]:
                 state = []
                 pos = []
                 save = True
@@ -253,24 +269,30 @@ class World_oneDBoxes(object):
                     temp_appended_line = str(appended_line).replace('\'', '')
 
                     temp_appended_line = str(temp_appended_line).replace(',', '')
-                    split_appendedline = str(temp_appended_line).split('& &')
+                    split_appended_line = str(temp_appended_line).split('& &')
 
-                    #Criar o state
-                    state_appended_line = split_appendedline[0]
+                    # Criar o state
+                    state_appended_line = split_appended_line[0]
                     state_appended_line = state_appended_line.replace(' ', '')
                     state_appended_line = state_appended_line.replace('[State(map=[', '')
                     state_appended_line = state_appended_line.replace('.', '')
                     state_appended_line = state_appended_line.replace(')', '')
                     state_appended_line = state_appended_line.replace(']', '')
+                    state_appended_line = state_appended_line.replace('[', '')
+                    state_appended_line = state_appended_line.replace('\\n', '')
 
                     state_items = state_appended_line.split('&')
 
                     map = []
-                    for letter in state_items[0]:
-                        map.append(int(letter))
 
-                    #Criar a action
-                    action_appended_line = split_appendedline[1]
+                    for item in state_items[0]:
+                        if item == "[":
+                            pass
+                        else:
+                            map.append(int(item))
+
+                    # Criar a action
+                    action_appended_line = split_appended_line[1]
                     action_appended_line = action_appended_line.replace(' ', '')
                     action = int(action_appended_line)
 
@@ -288,17 +310,56 @@ class World_oneDBoxes(object):
 
         return policy
 
-    def get_current_state(self):
-        current_state = []
-        for line in self.terrain.matrix:
-            if 2 in line:
-                for letter in line:
-                    current_state.append(int(letter))
+    def get_current_action_to_do(self):
+
+        # current_state = np.array(current_state)
+        # if 3 not in current_state:
+        #     current_state = np.where(current_state == 4, 7, current_state)
+        # if 4 not in current_state:
+        #     current_state = np.where(current_state == 3, 7, current_state)
+
+        actions = -1
+        for state in self.policy:
+            equal = True
+            # comparison = current_state == state[0]
+            for i in range(len(state[0])):
+                if self.current_state[i] != state[0][i]:
+                    equal = False
+            # if comparison.all():
+            if equal:
+                actions = state[1]
                 break
 
-        current_state = np.array(current_state)
-        if 3 not in current_state:
-            current_state = np.where(current_state == 4, 7, current_state)
-        if 4 not in current_state:
-            current_state = np.where(current_state == 3, 7, current_state)
-        return current_state
+        if actions == 0:
+            actions = "STAY_LEFT"
+        elif actions == 1:
+            actions = "STAY_RIGHT"
+        elif actions == 2:
+            actions = "LEFT_STAY"
+        elif actions == 3:
+            actions = "LEFT_LEFT"
+        elif actions == 4:
+            actions = "LEFT_RIGHT"
+        elif actions == 5:
+            actions = "RIGHT_STAY"
+        elif actions == 6:
+            actions = "RIGHT_LEFT"
+        elif actions == 7:
+            actions = "RIGHT_RIGHT"
+
+        actions = str(actions).split("_")
+
+        return actions
+
+    def set_new_terrain_matrix(self, shappy3_state, shappy4_state):
+        self.current_state= []
+        for i in range(len(shappy3_state)):
+            if shappy3_state[i] == shappy4_state[i]:
+                self.current_state.append(shappy3_state[i])
+            elif shappy3_state[i] == 2 and shappy4_state[i] != 2 or shappy3_state[i] == 0 and shappy4_state[i] == 4:
+                self.current_state.append(shappy4_state[i])
+            elif shappy3_state[i] != 2 and shappy4_state[i] == 2 or shappy3_state[i] == 3 and shappy4_state[i] == 0:
+                self.current_state.append(shappy3_state[i])
+            elif shappy3_state[i] == 3 and shappy4_state[i] == 4:
+                self.current_state.append(7)
+

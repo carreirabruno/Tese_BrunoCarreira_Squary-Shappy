@@ -42,11 +42,11 @@ class MDP_Collaborator_oneDBoxes(object):
         self.BOTH_SHAPPYS = 7
         self.EMPTY = 0
 
-        #map = np.array(
-            #[self.WALL, self.BOX, self.EMPTY, self.EMPTY, self.EMPTY, self.SHAPPY, self.EMPTY, self.EMPTY, self.BOX, self.EMPTY, self.BOX, self.SHAPPY, self.EMPTY, self.BOX, self.WALL])
+        # map = np.array(
+        # [self.WALL, self.BOX, self.EMPTY, self.EMPTY, self.EMPTY, self.SHAPPY, self.EMPTY, self.EMPTY, self.BOX, self.EMPTY, self.BOX, self.SHAPPY, self.EMPTY, self.BOX, self.WALL])
 
         # Actions
-       # self.STAY_STAY = 0
+        # self.STAY_STAY = 0
         self.STAY_LEFT = 0
         self.STAY_RIGHT = 1
         self.LEFT_STAY = 2
@@ -62,7 +62,7 @@ class MDP_Collaborator_oneDBoxes(object):
         n_actions = len(self.ACTIONS)
 
         # non_col_shappys = np.where(map == "3")
-        #shappys = np.where(self.map == 4 or self.map == 3)
+        # shappys = np.where(self.map == 4 or self.map == 3)
         shappys = []
         for i in range(len(self.map)):
             if self.map[i] == 7:
@@ -72,16 +72,23 @@ class MDP_Collaborator_oneDBoxes(object):
             elif self.map[i] == 3 or self.map[i] == 4:
                 shappys.append(i)
 
-
         self.start_state = State(map=self.map)
 
         self.gamma = 0.9
         self.learning_rate = 0.1  # alpha
 
-       # n_states = len(self.map)  # * n_actions * 4       #4 é o numero de self.BOXes
+        self.max_epsilon = 1
+        self.min_epsilon = 0.01
+        self.epsilon = self.max_epsilon
+        self.decay_rate = 0.001
+
+        # n_states = len(self.map)  # * n_actions * 4       #4 é o numero de self.BOXes
 
         # Q_table = np.zeros((n_states, n_actions))
         self.Q_table = dict()
+
+        self.type_of_policy = policy_file.replace("oneDBoxes_MDP_", '')
+        self.type_of_policy = self.type_of_policy.replace("_policy.txt", '')
 
         self.create_policy()
         self.write_in_txt(policy_file)
@@ -115,8 +122,8 @@ class MDP_Collaborator_oneDBoxes(object):
         return self.Q_table[state][action]
 
     def choose_actions(self, state):
-
-        if random.random() < 0.1:  # exploration
+        random.seed()
+        if random.random() < self.epsilon:  # exploration
             return random.randint(0, len(self.ACTIONS) - 1)
         else:  # exploitation
             return np.argmax(self.Q(state))
@@ -207,17 +214,49 @@ class MDP_Collaborator_oneDBoxes(object):
         new_first_shappy_pos, new_second_shappy_pos = new_shappy_pos(state, actions)
 
         new_map = copy.deepcopy(state.map)
+        # Criar as rewards
+        if self.type_of_policy == "base":
+            if state.map[new_first_shappy_pos] == self.BOX:
+                new_reward += 100
+            else:
+                new_reward -= 1
+            if state.map[new_second_shappy_pos] == self.BOX:
+                new_reward += 100
+            else:
+                new_reward -= 1
+        elif self.type_of_policy == "collaborative":
+            if state.map[new_first_shappy_pos] == self.BOX:
+                new_reward += 100
+            else:
+                new_reward -= 1
+            if state.map[new_second_shappy_pos] == self.BOX:
+                new_reward += 100
+            else:
+                new_reward -= 1
+        elif self.type_of_policy == "non_collaborative":
+            first_shappy_closest_box = self.get_closest_box(state, old_first_shappy_pos)
+            second_shappy_closest_box = self.get_closest_box(state, old_second_shappy_pos)
 
-        #Criar as rewards
-        if state.map[new_first_shappy_pos] == self.BOX:
-            new_reward += 100
-        else:
-            new_reward -= 1
-        if state.map[new_second_shappy_pos] == self.BOX:
-            new_reward += 100
-        else:
-            new_reward -= 1
-
+            if state.map[new_first_shappy_pos] == self.BOX:
+                new_reward += 100
+            elif abs(first_shappy_closest_box - new_first_shappy_pos) < \
+                    abs(first_shappy_closest_box - old_first_shappy_pos):  # o 1 shappy está a aproximar-se
+                new_reward += 100
+            elif abs(first_shappy_closest_box - new_first_shappy_pos) >= \
+                    abs(first_shappy_closest_box - old_first_shappy_pos):  # o 1 shappy está a afastar-se
+                new_reward -= 50
+            else:
+                new_reward -= 1
+            if state.map[new_second_shappy_pos] == self.BOX:
+                new_reward += 100
+            elif abs(second_shappy_closest_box - new_second_shappy_pos) < \
+                    abs(second_shappy_closest_box - old_second_shappy_pos):  # o 2 shappy está a aproximar-se
+                new_reward += 100
+            elif abs(second_shappy_closest_box - new_second_shappy_pos) >= \
+                    abs(second_shappy_closest_box - old_second_shappy_pos):  # o 2 shappy está a afastar-se
+                new_reward -= 50
+            else:
+                new_reward -= 1
 
         # Só mexe o 1 - Mesmo sitio -> Separados
         if old_second_shappy_pos == new_second_shappy_pos and old_first_shappy_pos == old_second_shappy_pos \
@@ -329,7 +368,6 @@ class MDP_Collaborator_oneDBoxes(object):
         #             new_map[old_second_shappy_pos] = self.SHAPPY1
         #         new_map[new_second_shappy_pos] = self.BOTH_SHAPPYS
 
-
         return State(map=new_map), new_reward
 
     def learn(self, state, action, reward, new_state):
@@ -340,7 +378,7 @@ class MDP_Collaborator_oneDBoxes(object):
         # R[si] = r
         # Update Q(s,a):= Q(s,a) + lr [R(s,a) + gamma * max Q(s',a') - Q(s,a)]
         self.Q(state)[action] = self.Q(state, action) + self.learning_rate * \
-                           (reward + self.gamma * np.max(self.Q(new_state)) - self.Q(state, action))
+                                (reward + self.gamma * np.max(self.Q(new_state)) - self.Q(state, action))
 
     def create_stating_states(self):
         existing_starting_states = [self.start_state]
@@ -358,11 +396,11 @@ class MDP_Collaborator_oneDBoxes(object):
         for a in range(100):
             random.seed()
             temp_map = copy.deepcopy(map_copy)
-            pos1 = random.randint(1, len(temp_map)-1)
+            pos1 = random.randint(1, len(temp_map) - 1)
             while pos1 in filled_positions:
                 pos1 = random.randint(1, len(temp_map) - 1)
-            filled_positions.append(pos1)               #Os shappys começam sempre em sitios diferentes
-            pos2 = random.randint(1, len(temp_map)-1)
+            filled_positions.append(pos1)  # Os shappys começam sempre em sitios diferentes
+            pos2 = random.randint(1, len(temp_map) - 1)
             while pos2 in filled_positions:
                 pos2 = random.randint(1, len(temp_map) - 1)
             filled_positions.remove(pos1)
@@ -388,17 +426,19 @@ class MDP_Collaborator_oneDBoxes(object):
 
     def create_policy(self):
 
-        total_episodes = 1000  #tenho que aumentar isto para 100000 :(
+        total_episodes = 3000  # tenho que aumentar isto para 100000 :(
 
-        starting_states = self.create_stating_states()
-        #starting_states = [self.start_state]
+        #starting_states = self.create_stating_states()
+        starting_states = [self.start_state]
         # TRAIN
         rewards = []
         for i_state in range(len(starting_states)):
             for episode in range(total_episodes):
 
                 state = starting_states[i_state]
-                print("State ", i_state, state, " Episode ", episode)
+                #print("State ", i_state, state, " Episode ", episode)
+                print(episode)
+                #print(self.epsilon)
                 episode_rewards = []
 
                 while True:
@@ -416,6 +456,10 @@ class MDP_Collaborator_oneDBoxes(object):
                     episode_rewards.append(reward)
 
                     state = new_state
+
+                    self.epsilon = self.epsilon - self.decay_rate
+                    if self.epsilon < self.min_epsilon:
+                        self.epsilon = self.min_epsilon
 
                 rewards.append(np.mean(episode_rewards))
 
@@ -435,6 +479,22 @@ class MDP_Collaborator_oneDBoxes(object):
         # RESULTS
         f = open(policy_file, "w+")
         for line in self.Q_table:
-            #print(line, "   ", np.argmax(self.Q(line)), "   ", self.Q(line))
+            # print(line, "   ", np.argmax(self.Q(line)), "   ", self.Q(line))
             f.write("%s && %s && %s \r" % (line, np.argmax(self.Q(line)), self.Q(line)))
+        f.write("final")
         f.close()
+
+    def get_closest_box(self, state, pos):
+        closest_box = math.inf
+        minimum_distance = math.inf
+        box_list = []
+        for i in range(len(state.map)):
+            if state.map[i] == 2:
+                box_list.append(i)
+
+        for box in box_list:
+            if abs(box - pos) < minimum_distance:
+                minimum_distance = abs(box - pos)
+                closest_box = box
+
+        return closest_box

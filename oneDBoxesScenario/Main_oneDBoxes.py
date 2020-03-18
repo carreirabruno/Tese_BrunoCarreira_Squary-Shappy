@@ -14,7 +14,7 @@ def main():
     terrain = Terrain_oneDBoxes("oneDBoxes_map2.txt")
 
     #create the policy
-    collaborator = MDP_Collaborator_oneDBoxes(terrain.matrix, non_collaborative_policy_file)
+    #collaborator = MDP_Collaborator_oneDBoxes(terrain.matrix, non_collaborative_policy_file)
     #winsound.Beep(600, 500)
     #winsound.Beep(600, 1000)
 
@@ -30,16 +30,11 @@ def main():
     # game window centered on start
     os.environ['SDL_VIDEO_CENTERED'] = '0'
 
-    update_time = 0.1
-
     #create world
     world = World_oneDBoxes(terrain, non_collaborative_policy_file)
 
     #create the collaboration analyser
     #collaborator = Collaborator_oneDBoxes(world, False)
-
-
-
 
     world.render()
 

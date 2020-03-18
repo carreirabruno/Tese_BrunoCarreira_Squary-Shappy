@@ -1,6 +1,6 @@
 import pygame
 from oneDBoxesScenario.Terrain_oneDBoxes import *
-from oneDBoxesScenario.oneDBox import *
+from oneDBoxesScenario.Box_oneDBoxes import *
 from oneDBoxesScenario.Shappy_oneDBoxes import *
 from copy import *
 
@@ -54,7 +54,7 @@ class World_oneDBoxes(object):
         for column in range(len(self.terrain.matrix[0])):
             for line in range(len(self.terrain.matrix)):
                 if self.terrain.matrix[line][column] == 2:
-                    box = oneDBox(column * self.screen_ratio, line * self.screen_ratio)
+                    box = Box_oneDBoxes(column * self.screen_ratio, line * self.screen_ratio)
                     self.box_group.add(box)
 
         # #create shappys
@@ -248,6 +248,7 @@ class World_oneDBoxes(object):
         policy = []
 
         f = open(policy_file, "r")
+
         save = True
         appended_line = ""
 

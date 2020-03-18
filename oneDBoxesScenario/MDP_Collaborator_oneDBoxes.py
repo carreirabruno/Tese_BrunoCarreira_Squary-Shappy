@@ -2,6 +2,7 @@ import numpy as np
 import random
 import copy
 import math
+from itertools import *
 
 
 class State:
@@ -73,6 +74,7 @@ class MDP_Collaborator_oneDBoxes(object):
                 shappys.append(i)
 
         self.start_state = State(map=self.map)
+        self.current_state = []
 
         self.gamma = 0.9
         self.learning_rate = 0.1  # alpha
@@ -89,6 +91,8 @@ class MDP_Collaborator_oneDBoxes(object):
 
         self.type_of_policy = policy_file.replace("oneDBoxes_MDP_", '')
         self.type_of_policy = self.type_of_policy.replace("_policy.txt", '')
+
+        self.imprimir = False
 
         self.create_policy()
         self.write_in_txt(policy_file)
@@ -225,38 +229,47 @@ class MDP_Collaborator_oneDBoxes(object):
             else:
                 new_reward -= 1
         elif self.type_of_policy == "collaborative":
+            best_collaboration_path = self.calculate_best_possible_paths()
+            shappy3_boxes_path = best_collaboration_path[0]
+            shappy4_boxes_path = best_collaboration_path[1]
+            if self.imprimir:
+                print(self.current_state, shappy3_boxes_path, shappy4_boxes_path)
             if state.map[new_first_shappy_pos] == self.BOX:
-                new_reward += 100
+                new_reward += 10
+            elif shappy3_boxes_path[0] == new_first_shappy_pos:
+                new_reward += 2
+            elif abs(shappy3_boxes_path[0] - new_first_shappy_pos) < abs(shappy3_boxes_path[0] - old_first_shappy_pos):
+                new_reward += 2
+                if self.imprimir:
+                    print(self.current_state, shappy3_boxes_path, shappy4_boxes_path)
+                #print("3 - afastei")
             else:
-                new_reward -= 1
+                new_reward -= 10
             if state.map[new_second_shappy_pos] == self.BOX:
-                new_reward += 100
+                new_reward += 10
+            elif shappy4_boxes_path[0] == new_second_shappy_pos:
+                new_reward += 2
+            elif abs(shappy4_boxes_path[0] - new_second_shappy_pos) < abs(shappy4_boxes_path[0] - old_second_shappy_pos):
+                new_reward += 2
             else:
-                new_reward -= 1
+                new_reward -= 10
         elif self.type_of_policy == "non_collaborative":
             first_shappy_closest_box = self.get_closest_box(state, old_first_shappy_pos)
             second_shappy_closest_box = self.get_closest_box(state, old_second_shappy_pos)
-
             if state.map[new_first_shappy_pos] == self.BOX:
-                new_reward += 100
+                new_reward += 10
             elif abs(first_shappy_closest_box - new_first_shappy_pos) < \
                     abs(first_shappy_closest_box - old_first_shappy_pos):  # o 1 shappy está a aproximar-se
-                new_reward += 100
-            elif abs(first_shappy_closest_box - new_first_shappy_pos) >= \
-                    abs(first_shappy_closest_box - old_first_shappy_pos):  # o 1 shappy está a afastar-se
-                new_reward -= 50
+                new_reward += 2
             else:
-                new_reward -= 1
+                new_reward -= 10
             if state.map[new_second_shappy_pos] == self.BOX:
-                new_reward += 100
+                new_reward += 10
             elif abs(second_shappy_closest_box - new_second_shappy_pos) < \
                     abs(second_shappy_closest_box - old_second_shappy_pos):  # o 2 shappy está a aproximar-se
-                new_reward += 100
-            elif abs(second_shappy_closest_box - new_second_shappy_pos) >= \
-                    abs(second_shappy_closest_box - old_second_shappy_pos):  # o 2 shappy está a afastar-se
-                new_reward -= 50
+                new_reward += 2
             else:
-                new_reward -= 1
+                new_reward -= 10
 
         # Só mexe o 1 - Mesmo sitio -> Separados
         if old_second_shappy_pos == new_second_shappy_pos and old_first_shappy_pos == old_second_shappy_pos \
@@ -435,33 +448,49 @@ class MDP_Collaborator_oneDBoxes(object):
         for i_state in range(len(starting_states)):
             for episode in range(total_episodes):
 
-                state = starting_states[i_state]
+                self.current_state = starting_states[i_state]
+                self.calculate_best_possible_paths()
                 #print("State ", i_state, state, " Episode ", episode)
                 print(episode)
                 #print(self.epsilon)
                 episode_rewards = []
 
+                keep_going = True
                 while True:
-                    if 2 not in state.map:
+                    if 2 not in self.current_state.map:
                         break
 
-                    actions = self.choose_actions(state)
-
-                    new_state, reward = self.take_actions(state, actions)
+                    actions = self.choose_actions(self.current_state)
+                    #print("action ", self.current_state, " ", actions)
+                    new_state, reward = self.take_actions(self.current_state, actions)
 
                     # print(new_state, " ",actions)
 
-                    self.learn(state, actions, reward, new_state)
+                    self.learn(self.current_state, actions, reward, new_state)
 
                     episode_rewards.append(reward)
 
-                    state = new_state
+                    self.current_state = new_state
 
-                    self.epsilon = self.epsilon - self.decay_rate
-                    if self.epsilon < self.min_epsilon:
-                        self.epsilon = self.min_epsilon
+                if episode == 500:
+                    self.epsilon = 0.3
+                elif episode == 2000:
+                     self.epsilon = 0.1
+                elif episode == 2900:
+                    self.imprimir = True
+                    self.epsilon = 0.01
+                # elif episode == 2990:
+                # if episode == 1:
+                #     self.epsilon = 0
+                # for line in self.Q_table:
+                #     print(line, self.Q(line))
+                    # self.epsilon = 0
+                # self.epsilon = self.epsilon - self.decay_rate
+                # if self.epsilon < self.min_epsilon:
+                #     self.epsilon = self.min_epsilon
 
                 rewards.append(np.mean(episode_rewards))
+
 
         # # clean up the lines where shappys where in different positions but only one 4 existed
         # lines_to_delete = []
@@ -498,3 +527,295 @@ class MDP_Collaborator_oneDBoxes(object):
                 closest_box = box
 
         return closest_box
+
+
+    #For collaborative behaviour
+
+    # isto só funciona com 2 agentes, não está otimizado para mais
+    def calculate_all_possible_paths(self):
+        boxes_group = []
+        for i in range(len(self.current_state.map)):
+            if self.current_state.map[i] == 2:
+                boxes_group.append(i)
+
+        paths_combinations = list()
+        paths_permutations = list()
+        paths_combinations.append([math.inf, boxes_group])
+
+        if len(boxes_group) >= 2:
+            for i in range(1, int(len(boxes_group) / 2) + 1):
+                combinations_list = list(combinations(boxes_group, i))
+
+                for ind_combination in combinations_list:
+                    temp_boxes_group_list = list(boxes_group)
+                    for a in ind_combination:
+                        temp_boxes_group_list.remove(a)
+                    paths_combinations.append([ind_combination, temp_boxes_group_list])
+
+            for path_comb in paths_combinations:
+                if path_comb[0] == math.inf or len(path_comb[0]) == 1:  # aqui faz se o primeiro for inf ou 1 só numero
+                    ind_path_1 = path_comb[0]
+                    temp_ind_list = list(permutations(path_comb[1], len(path_comb[1])))
+                    for ind_path_2 in temp_ind_list:
+                        paths_permutations.append([ind_path_1, ind_path_2])
+                else:  # aqui faz se derem os dois para serem permutaveis
+                    temp_ind_list_1 = list(permutations(path_comb[0], len(path_comb[0])))
+                    temp_ind_list_2 = list(permutations(path_comb[1], len(path_comb[1])))
+
+                    for ind_path_1 in temp_ind_list_1:
+                        for ind_path_2 in temp_ind_list_2:
+                            paths_permutations.append([ind_path_1, ind_path_2])
+            return paths_permutations
+        else:
+            paths_combinations.append([paths_combinations[0][1], paths_combinations[0][0]])
+            return paths_combinations
+
+    # isto só funciona com 2 agentes, não está otimizado para mais
+    def calculate_best_possible_paths(self):
+        best_possible_path = []
+        possible_paths = self.calculate_all_possible_paths()
+
+        shappy3_pos = -1
+        shappy4_pos = -1
+        for i in range(len(self.current_state.map)):
+            if self.current_state.map[i] == 3:
+                shappy3_pos = i
+            if self.current_state.map[i] == 4:
+                shappy4_pos = i
+            if self.current_state.map[i] == 7:
+                shappy3_pos = i
+                shappy4_pos = i
+
+        minimum_distance_shappy3 = math.inf
+        minimum_path_shappy3 = []
+        minimum_distance_shappy4 = math.inf
+        minimum_path_shappy4 = []
+        minimum_total_distance = math.inf
+
+        for path in possible_paths:
+            if path[0] == math.inf:
+                if shappy3_pos <= shappy4_pos:
+                    distance_shappy3 = 0
+                    distance_shappy4 = abs(path[1][0] - shappy4_pos)
+                    for i in range(1, len(path[1])):
+                        distance_shappy4 += abs(path[1][i] - path[1][i - 1])
+                    if distance_shappy3 + distance_shappy4 < minimum_total_distance:
+                        # print("inf, else ", path)
+                        minimum_total_distance = distance_shappy3 + distance_shappy4
+                        minimum_distance_shappy3 = distance_shappy3
+                        minimum_path_shappy3 = path[0]
+                        minimum_distance_shappy4 = distance_shappy4
+                        minimum_path_shappy4 = path[1]
+                        best_possible_path = [path[1], path[0]]
+                elif shappy3_pos > shappy4_pos:
+                    distance_shappy4 = 0
+                    distance_shappy3 = abs(path[1][0] - shappy3_pos)
+                    for i in range(1, len(path[1])):
+                        distance_shappy3 += abs(path[1][i] - path[1][i - 1])
+                    if distance_shappy4 + distance_shappy3 < minimum_total_distance:
+                        minimum_total_distance = distance_shappy4 + distance_shappy3
+                        minimum_distance_shappy4 = distance_shappy4
+                        minimum_path_shappy4 = path[0]
+                        minimum_distance_shappy3 = distance_shappy3
+                        minimum_path_shappy3 = path[1]
+                        best_possible_path = [path[0], path[1]]
+            elif path[1] == math.inf:
+                if shappy3_pos <= shappy4_pos:
+                    distance_shappy3 = 0
+                    distance_shappy4 = abs(path[0][0] - shappy4_pos)
+                    for i in range(1, len(path[0])):
+                        distance_shappy4 += abs(path[0][i] - path[0][i - 1])
+                    if distance_shappy3 + distance_shappy4 < minimum_total_distance:
+                        # print("inf, else ", path)
+                        minimum_total_distance = distance_shappy3 + distance_shappy4
+                        minimum_distance_shappy3 = distance_shappy3
+                        minimum_path_shappy3 = path[1]
+                        minimum_distance_shappy4 = distance_shappy4
+                        minimum_path_shappy4 = path[0]
+                        best_possible_path = [path[1], path[0]]
+                elif shappy3_pos > shappy4_pos:
+                    distance_shappy4 = 0
+                    distance_shappy3 = abs(path[0][0] - shappy3_pos)
+                    for i in range(1, len(path[0])):
+                        distance_shappy3 += abs(path[0][i] - path[0][i - 1])
+                    if distance_shappy4 + distance_shappy3 < minimum_total_distance:
+                        minimum_total_distance = distance_shappy4 + distance_shappy3
+                        minimum_distance_shappy4 = distance_shappy4
+                        minimum_path_shappy4 = path[1]
+                        minimum_distance_shappy3 = distance_shappy3
+                        minimum_path_shappy3 = path[0]
+                        best_possible_path = [path[0], path[1]]
+            elif len(path[0]) == 1 and path[0][0] != math.inf:
+                if shappy3_pos <= shappy4_pos:
+                    distance_shappy3 = abs(path[0][0] - shappy3_pos)
+                    distance_shappy4 = abs(path[1][0] - shappy4_pos)
+                    for i in range(1, len(path[1])):
+                        distance_shappy4 += abs(path[1][i] - path[1][i - 1])
+                    if distance_shappy3 + distance_shappy4 < minimum_total_distance:
+                        minimum_total_distance = distance_shappy3 + distance_shappy4
+                        minimum_distance_shappy3 = distance_shappy3
+                        minimum_path_shappy3 = path[0]
+                        minimum_distance_shappy4 = distance_shappy4
+                        minimum_path_shappy4 = path[1]
+                        best_possible_path = [path[0], path[1]]
+                elif shappy3_pos > shappy4_pos:
+                    distance_shappy4 = abs(path[0][0] - shappy4_pos)
+                    distance_shappy3 = abs(path[1][0] - shappy3_pos)
+                    for i in range(1, len(path[1])):
+                        distance_shappy3 += abs(path[1][i] - path[1][i - 1])
+                    if distance_shappy4 + distance_shappy3 < minimum_total_distance:
+                        minimum_total_distance = distance_shappy4 + distance_shappy3
+                        minimum_distance_shappy3 = distance_shappy4
+                        minimum_path_shappy4 = path[0]
+                        minimum_distance_shappy3 = distance_shappy3
+                        minimum_path_shappy3 = path[1]
+                        best_possible_path = [path[1], path[0]]
+            elif len(path[1]) == 1 and path[1][0] != math.inf:
+                if shappy3_pos <= shappy4_pos:
+                    distance_shappy3 = abs(path[0][0] - shappy3_pos)
+                    distance_shappy4 = abs(path[1][0] - shappy4_pos)
+                    for i in range(1, len(path[1])):
+                        distance_shappy4 += abs(path[1][i] - path[1][i - 1])
+                    if distance_shappy3 + distance_shappy4 < minimum_total_distance:
+                        minimum_total_distance = distance_shappy3 + distance_shappy4
+                        minimum_distance_shappy3 = distance_shappy3
+                        minimum_path_shappy3 = path[0]
+                        minimum_distance_shappy4 = distance_shappy4
+                        minimum_path_shappy4 = path[1]
+                        best_possible_path = [path[1], path[0]]
+                elif shappy3_pos > shappy4_pos:
+                    distance_shappy4 = abs(path[0][0] - shappy4_pos)
+                    distance_shappy3 = abs(path[1][0] - shappy3_pos)
+                    for i in range(1, len(path[1])):
+                        distance_shappy3 += abs(path[1][i] - path[1][i - 1])
+                    if distance_shappy4 + distance_shappy3 < minimum_total_distance:
+                        minimum_total_distance = distance_shappy4 + distance_shappy3
+                        minimum_distance_shappy3 = distance_shappy4
+                        minimum_path_shappy4 = path[0]
+                        minimum_distance_shappy3 = distance_shappy3
+                        minimum_path_shappy3 = path[1]
+                        best_possible_path = [path[0], path[1]]
+            else:
+                if shappy3_pos <= shappy4_pos:
+                    distance_shappy3 = abs(path[0][0] - shappy3_pos)
+                    for i in range(1, len(path[0])):
+                        distance_shappy3 += abs(path[0][i] - path[0][i - 1])
+                        distance_shappy4 = abs(path[1][0] - shappy4_pos)
+                        for j in range(1, len(path[1])):
+                            distance_shappy4 += abs(path[1][j] - path[1][j - 1])
+                        if distance_shappy3 + distance_shappy4 < minimum_total_distance:
+                            print("else, else ", path)
+                            minimum_total_distance = distance_shappy3 + distance_shappy4
+                            minimum_distance_shappy3 = distance_shappy3
+                            minimum_path_shappy3 = path[0]
+                            minimum_distance_shappy4 = distance_shappy4
+                            minimum_path_shappy4 = path[1]
+                            best_possible_path = path
+                elif shappy3_pos > shappy4_pos:
+                    distance_shappy4 = abs(path[0][0] - shappy4_pos)
+                    for i in range(1, len(path[0])):
+                        distance_shappy4 += abs(path[0][i] - path[0][i - 1])
+                        distance_shappy3 = abs(path[1][0] - shappy3_pos)
+                        for j in range(1, len(path[1])):
+                            distance_shappy3 += abs(path[1][j] - path[1][j - 1])
+                        if distance_shappy4 + distance_shappy3 < minimum_total_distance:
+                            minimum_total_distance = distance_shappy4 + distance_shappy3
+                            minimum_distance_shappy4 = distance_shappy4
+                            minimum_path_shappy3 = path[0]
+                            minimum_distance_shappy3 = distance_shappy3
+                            minimum_path_shappy3 = path[1]
+                            best_possible_path = [path[1], path[0]]
+
+
+        # # 1º shappy é o shappy4
+        # elif shappy4_pos < shappy3_pos:
+        #     for path in possible_paths:
+        #         if path[0] == math.inf:
+        #             distance_shappy4 = 0
+        #             distance_shappy3 = abs(path[1][0] - shappy3_pos)
+        #             for i in range(1, len(path[1])):
+        #                 distance_shappy3 += abs(path[1][i] - path[1][i - 1])
+        #             if distance_shappy4 + distance_shappy3 < minimum_total_distance:
+        #                 minimum_total_distance = distance_shappy4 + distance_shappy3
+        #                 minimum_distance_shappy4 = distance_shappy4
+        #                 minimum_path_shappy4 = path[0]
+        #                 minimum_distance_shappy3 = distance_shappy3
+        #                 minimum_path_shappy3 = path[1]
+        #                 best_possible_path = [path[1], path[0]]
+        #         elif len(path[0]) == 1 and path[0][0] != math.inf:
+        #             distance_shappy4 = abs(path[0][0] - shappy4_pos)
+        #             distance_shappy3 = abs(path[1][0] - shappy3_pos)
+        #             for i in range(1, len(path[1])):
+        #                 distance_shappy3 += abs(path[1][i] - path[1][i - 1])
+        #             if distance_shappy4 + distance_shappy3 < minimum_total_distance:
+        #                 minimum_total_distance = distance_shappy4 + distance_shappy3
+        #                 minimum_distance_shappy3 = distance_shappy4
+        #                 minimum_path_shappy4 = path[0]
+        #                 minimum_distance_shappy3 = distance_shappy3
+        #                 minimum_path_shappy3 = path[1]
+        #                 best_possible_path = [path[1], path[0]]
+        #         else:
+        #             distance_shappy4 = abs(path[0][0] - shappy4_pos)
+        #             for i in range(1, len(path[0])):
+        #                 distance_shappy4 += abs(path[0][i] - path[0][i - 1])
+        #                 distance_shappy3 = abs(path[1][0] - shappy3_pos)
+        #                 for j in range(1, len(path[1])):
+        #                     distance_shappy3 += abs(path[1][j] - path[1][j - 1])
+        #                 if distance_shappy4 + distance_shappy3 < minimum_total_distance:
+        #                     minimum_total_distance = distance_shappy4 + distance_shappy3
+        #                     minimum_distance_shappy4 = distance_shappy4
+        #                     minimum_path_shappy3 = path[0]
+        #                     minimum_distance_shappy3 = distance_shappy3
+        #                     minimum_path_shappy3 = path[1]
+        #                     best_possible_path = [path[1], path[0]]
+
+        # for path in possible_paths:
+        #     if path[0] == math.inf:
+        #         distance_agent_1 = 0
+        #         distance_agent_2 = abs(path[1][0] - agent2[1])
+        #         for i in range(1, len(path[1])):
+        #             distance_agent_2 += abs(path[1][i] - path[1][i - 1])
+        #         if distance_agent_2 < minimum_distance_agent_2:
+        #             minimum_total_distance = distance_agent_1 + distance_agent_2
+        #             minimum_distance_agent_1 = distance_agent_1
+        #             minimum_path_agent_1 = path[0]
+        #             minimum_distance_agent_2 = distance_agent_2
+        #             minimum_path_agent_2 = path[1]
+        #             best_possible_path = path
+        #     elif len(path[0]) == 1 and path[0][0] != math.inf:
+        #         distance_agent_1 = abs(path[0][0] - agent1[1])
+        #         distance_agent_2 = abs(path[1][0] - agent2[1])
+        #         for i in range(1, len(path[1])):
+        #             distance_agent_2 += abs(path[1][i] - path[1][i - 1])
+        #         if distance_agent_2 < minimum_distance_agent_2:
+        #             minimum_total_distance = distance_agent_1 + distance_agent_2
+        #             minimum_distance_agent_1 = distance_agent_1
+        #             minimum_path_agent_1 = path[0]
+        #             minimum_distance_agent_2 = distance_agent_2
+        #             minimum_path_agent_2 = path[1]
+        #             best_possible_path = path
+        #     else:
+        #         distance_agent_1 = abs(path[0][0] - agent1[1])
+        #         for i in range(1, len(path[0])):
+        #             distance_agent_1 += abs(path[0][i] - path[0][i - 1])
+        #             distance_agent_2 = abs(path[1][0] - agent2[1])
+        #             for j in range(1, len(path[1])):
+        #                 distance_agent_2 += abs(path[1][j] - path[1][j - 1])
+        #             if (distance_agent_1 + distance_agent_2) < minimum_total_distance:
+        #                 minimum_total_distance = distance_agent_1 + distance_agent_2
+        #                 minimum_distance_agent_1 = distance_agent_1
+        #                 minimum_path_agent_1 = path[0]
+        #                 minimum_distance_agent_2 = distance_agent_2
+        #                 minimum_path_agent_2 = path[1]
+        #                 best_possible_path = path
+        #                 print(agent1_pos_x, " ", agent2_pos_x , " ", path, "  ", distance_agent_1, "  ", distance_agent_2)
+        #
+        # print("a " , agent1_pos_x, " ", agent2_pos_x, " ", best_possible_path, "  ", distance_agent_1, "  ", distance_agent_2)
+
+        if best_possible_path[0] == math.inf:
+            best_possible_path[0] = [shappy3_pos]
+        if best_possible_path[1] == math.inf:
+            best_possible_path[1] = [shappy4_pos]
+
+
+        return best_possible_path

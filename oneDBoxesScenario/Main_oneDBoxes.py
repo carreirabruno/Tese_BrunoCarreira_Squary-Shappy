@@ -1,9 +1,10 @@
 import pygame
 import os
 from oneDBoxesScenario.Collaborator_oneDBoxes import *
-from oneDBoxesScenario.MDP_Collaborator_oneDBoxes import *
+from oneDBoxesScenario.MDP_Policy_maker_oneDBoxes import *
 from oneDBoxesScenario.World_oneDBoxes import *
 from oneDBoxesScenario.Terrain_oneDBoxes import *
+from oneDBoxesScenario.Policy_comparator_oneDBoxes import *
 import winsound
 
 def main():
@@ -14,9 +15,12 @@ def main():
     terrain = Terrain_oneDBoxes("oneDBoxes_map2.txt")
 
     #create the policy
-    #collaborator = MDP_Collaborator_oneDBoxes(terrain.matrix, non_collaborative_policy_file)
+    #collaborator = MDP_Policy_maker_oneDBoxes(terrain.matrix, non_collaborative_policy_file)
     #winsound.Beep(600, 500)
-    #winsound.Beep(600, 1000)
+
+
+    #create the comparator
+    policy_comparator = Policy_comparator_oneDBoxes([collaborative_policy_file, non_collaborative_policy_file])
 
     # define a variable to control the main loop
     running = True
@@ -31,7 +35,7 @@ def main():
     os.environ['SDL_VIDEO_CENTERED'] = '0'
 
     #create world
-    world = World_oneDBoxes(terrain, non_collaborative_policy_file)
+    world = World_oneDBoxes(terrain, collaborative_policy_file)
 
     #create the collaboration analyser
     #collaborator = Collaborator_oneDBoxes(world, False)
@@ -54,16 +58,14 @@ def main():
     #    collaborator.update()
 
         if len(world.box_group) == 0:
+            policy_comparator.receive_world_simulation_run(world.simulation_run_states)
             running = False
 
         # event handling, gets all event from the event queue
         for event in pygame.event.get():
-            # only do something if the event is of type QUIT
             if event.type == pygame.QUIT:
-                # change the value to False, to exit the main loop
-         #       collaborator.write_in_txt()
+                policy_comparator.receive_world_simulation_run(world.simulation_run_states)
                 running = False
-            # handle MOUSEBUTTONUP
             if event.type == pygame.MOUSEBUTTONDOWN:
               posx, posy = pygame.mouse.get_pos()
             if event.type == pygame.KEYDOWN:

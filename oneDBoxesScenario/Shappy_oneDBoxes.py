@@ -379,7 +379,7 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
 
     def auto_movement2(self, action_to_do):
 
-        print(self.color, " ", action_to_do)
+        #print(self.color, " ", action_to_do)
 
         if action_to_do == "STAY":
             pass
@@ -397,7 +397,7 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
         # RIGHT_STAY = 5
         # RIGHT_LEFT = 6
         # RIGHT_RIGHT = 7
-        # 
+        #
         # other_agent_pos = int(self.x_pos / self.world.screen_ratio)
         # for i in range(len(self.current_state)):
         #     if self.current_state[i] == 3 and i != self.x_pos / self.world.screen_ratio \

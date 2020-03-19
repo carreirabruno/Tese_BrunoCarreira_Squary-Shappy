@@ -88,6 +88,8 @@ class World_oneDBoxes(object):
                         self.current_state.append(int(letter))
                     break
 
+        self.simulation_run_states = [self.current_state]
+
     def render(self):
         # add background over all past images
         self.screen.fill((255, 255, 255))
@@ -136,7 +138,7 @@ class World_oneDBoxes(object):
 
     def update(self):
 
-        if time.time() - self.time_interval > 1:
+        if time.time() - self.time_interval > 0.1:
             self.time_interval = time.time()
             # if self.last_update is None:
             #     self.last_update = time.time()
@@ -144,22 +146,24 @@ class World_oneDBoxes(object):
 
             # delta_t = time.time() - self.last_update
 
-            actions = self.get_current_action_to_do()
+            actions_to_do = self.get_current_action_to_do()
 
-            print("ola", self.current_state, actions)
+            # print(self.current_state, actions_to_do)
 
             shappy3_state = []
             shappy4_state = []
             for shappy in self.shappy_group:
                 if shappy.color == 3:
-                    shappy3_state = shappy.update(self.current_state, actions[0])
+                    shappy3_state = shappy.update(self.current_state, actions_to_do[0])
                 if shappy.color == 4:
-                    shappy4_state = shappy.update(self.current_state, actions[1])
+                    shappy4_state = shappy.update(self.current_state, actions_to_do[1])
             self.set_new_terrain_matrix(shappy3_state, shappy4_state)
 
             # self.check_collisions()
 
             self.last_update = time.time()
+
+            self.simulation_run_states.append(self.current_state)
 
     # def get_policy(self, policy_file):
     #     policy = []

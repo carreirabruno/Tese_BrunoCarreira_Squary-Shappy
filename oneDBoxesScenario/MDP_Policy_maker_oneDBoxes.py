@@ -24,7 +24,7 @@ class State:
         return f"State(map={self.map})"
 
 
-class MDP_Collaborator_oneDBoxes(object):
+class MDP_Policy_maker_oneDBoxes(object):
 
     def __init__(self, terrain_matrix, policy_file):
         self.map = []
@@ -96,24 +96,6 @@ class MDP_Collaborator_oneDBoxes(object):
 
         self.create_policy()
         self.write_in_txt(policy_file)
-
-    def detect_shappys_pos(self, non_col_shappys, col_shappys):
-
-        if len(non_col_shappys) == 0 and len(col_shappys) == 0:
-            raise Exception("No shappys in the map")
-        elif len(non_col_shappys) == 0 and len(col_shappys) == 1:
-            return col_shappys[0], math.inf
-        elif len(non_col_shappys) == 0 and len(col_shappys) == 2:
-            return col_shappys[0], col_shappys[1]
-        elif len(non_col_shappys) == 1 and len(col_shappys) == 0:
-            return non_col_shappys[0], math.inf
-        elif len(non_col_shappys) == 2 and len(col_shappys) == 0:
-            return non_col_shappys[0], non_col_shappys[1]
-        elif len(non_col_shappys) == 1 and len(col_shappys) == 1:
-            if non_col_shappys[0] < col_shappys[0]:
-                return non_col_shappys[0], col_shappys[0]
-            else:
-                return col_shappys[0], non_col_shappys[0]
 
     def Q(self, state, action=None):
 
@@ -232,16 +214,12 @@ class MDP_Collaborator_oneDBoxes(object):
             best_collaboration_path = self.calculate_best_possible_paths()
             shappy3_boxes_path = best_collaboration_path[0]
             shappy4_boxes_path = best_collaboration_path[1]
-            if self.imprimir:
-                print(self.current_state, shappy3_boxes_path, shappy4_boxes_path)
             if state.map[new_first_shappy_pos] == self.BOX:
                 new_reward += 10
             elif shappy3_boxes_path[0] == new_first_shappy_pos:
                 new_reward += 2
             elif abs(shappy3_boxes_path[0] - new_first_shappy_pos) < abs(shappy3_boxes_path[0] - old_first_shappy_pos):
                 new_reward += 2
-                if self.imprimir:
-                    print(self.current_state, shappy3_boxes_path, shappy4_boxes_path)
                 #print("3 - afastei")
             else:
                 new_reward -= 10
@@ -530,7 +508,6 @@ class MDP_Collaborator_oneDBoxes(object):
 
 
     #For collaborative behaviour
-
     # isto só funciona com 2 agentes, não está otimizado para mais
     def calculate_all_possible_paths(self):
         boxes_group = []

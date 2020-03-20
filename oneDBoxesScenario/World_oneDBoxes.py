@@ -265,7 +265,7 @@ class World_oneDBoxes(object):
             #         phrase += letter
             #     appended_line += phrase
 
-            if "State" in line or "final" in line:  # line == lines[-1]:
+            if "State" in line or "Q_table" in line:  # line == lines[-1]:
                 state = []
                 pos = []
                 save = True
@@ -335,21 +335,21 @@ class World_oneDBoxes(object):
                 actions = state[1]
                 break
 
-        if actions == 0:
+        if actions == 1:
             actions = "STAY_LEFT"
-        elif actions == 1:
-            actions = "STAY_RIGHT"
         elif actions == 2:
-            actions = "LEFT_STAY"
+            actions = "STAY_RIGHT"
         elif actions == 3:
-            actions = "LEFT_LEFT"
+            actions = "LEFT_STAY"
         elif actions == 4:
-            actions = "LEFT_RIGHT"
+            actions = "LEFT_LEFT"
         elif actions == 5:
-            actions = "RIGHT_STAY"
+            actions = "LEFT_RIGHT"
         elif actions == 6:
-            actions = "RIGHT_LEFT"
+            actions = "RIGHT_STAY"
         elif actions == 7:
+            actions = "RIGHT_LEFT"
+        elif actions == 8:
             actions = "RIGHT_RIGHT"
 
         actions = str(actions).split("_")

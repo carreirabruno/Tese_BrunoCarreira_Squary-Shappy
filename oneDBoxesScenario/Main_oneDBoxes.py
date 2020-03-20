@@ -9,18 +9,20 @@ import winsound
 
 def main():
     base_policy_file = "oneDBoxes_MDP_base_policy.txt"
-    collaborative_policy_file = "oneDBoxes_MDP_collaborative_policy.txt"
-    non_collaborative_policy_file = "oneDBoxes_MDP_non_collaborative_policy.txt"
+    collaborative_policy_file = "oneDBoxes_MDP_collaborative_policy2.txt"
+    non_collaborative_policy_file = "oneDBoxes_MDP_non_collaborative_policy2.txt"
 
     terrain = Terrain_oneDBoxes("oneDBoxes_map2.txt")
 
     #create the policy
-    #collaborator = MDP_Policy_maker_oneDBoxes(terrain.matrix, non_collaborative_policy_file)
+    policy_maker_col = MDP_Policy_maker_oneDBoxes(terrain.matrix, collaborative_policy_file)
+    policy_maker_non_col = MDP_Policy_maker_oneDBoxes(terrain.matrix, non_collaborative_policy_file)
     #winsound.Beep(600, 500)
 
+    quit()
 
     #create the comparator
-    policy_comparator = Policy_comparator_oneDBoxes([collaborative_policy_file, non_collaborative_policy_file])
+    #policy_comparator = Policy_comparator_oneDBoxes([collaborative_policy_file, non_collaborative_policy_file])
 
     # define a variable to control the main loop
     running = True

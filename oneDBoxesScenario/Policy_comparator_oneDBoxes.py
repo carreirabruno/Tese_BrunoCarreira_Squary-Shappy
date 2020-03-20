@@ -94,21 +94,21 @@ class Policy_comparator_oneDBoxes(object):
                     shappy4_new = j
 
             if shappy3_new == shappy3_old and shappy4_new < shappy4_old:        # STAY_LEFT
-                self.simulation_run_states_and_action.append([simulation_run[i-1], 0])
+                self.simulation_run_states_and_action.append([simulation_run[i-1], 1])
             elif shappy3_new == shappy3_old and shappy4_new > shappy4_old:      # STAY_RIGHT
-                self.simulation_run_states_and_action.append([simulation_run[i - 1], 1])
-            elif shappy3_new < shappy3_old and shappy4_new == shappy4_old:      # LEFT_STAY
                 self.simulation_run_states_and_action.append([simulation_run[i - 1], 2])
-            elif shappy3_new < shappy3_old and shappy4_new < shappy4_old:      # LEFT_LEFT
+            elif shappy3_new < shappy3_old and shappy4_new == shappy4_old:      # LEFT_STAY
                 self.simulation_run_states_and_action.append([simulation_run[i - 1], 3])
-            elif shappy3_new < shappy3_old and shappy4_new > shappy4_old:      # LEFT_RIGHT
+            elif shappy3_new < shappy3_old and shappy4_new < shappy4_old:      # LEFT_LEFT
                 self.simulation_run_states_and_action.append([simulation_run[i - 1], 4])
-            elif shappy3_new > shappy3_old and shappy4_new == shappy4_old:      # RIGHT_STAY
+            elif shappy3_new < shappy3_old and shappy4_new > shappy4_old:      # LEFT_RIGHT
                 self.simulation_run_states_and_action.append([simulation_run[i - 1], 5])
-            elif shappy3_new > shappy3_old and shappy4_new < shappy4_old:      # RIGHT_LEFT
+            elif shappy3_new > shappy3_old and shappy4_new == shappy4_old:      # RIGHT_STAY
                 self.simulation_run_states_and_action.append([simulation_run[i - 1], 6])
-            elif shappy3_new > shappy3_old and shappy4_new > shappy4_old:      # RIGHT_RIGHT
+            elif shappy3_new > shappy3_old and shappy4_new < shappy4_old:      # RIGHT_LEFT
                 self.simulation_run_states_and_action.append([simulation_run[i - 1], 7])
+            elif shappy3_new > shappy3_old and shappy4_new > shappy4_old:      # RIGHT_RIGHT
+                self.simulation_run_states_and_action.append([simulation_run[i - 1], 8])
 
         self.compare_run_to_policies()
 
@@ -122,7 +122,7 @@ class Policy_comparator_oneDBoxes(object):
                 col += 1
             elif item[1] == non_collaborative_action:
                 non_col += 1
-        print(col, " ", non_col)
+        print("col = ", col, "non_col = ", non_col)
 
 
     def get_action_from_policy(self, state, policy):

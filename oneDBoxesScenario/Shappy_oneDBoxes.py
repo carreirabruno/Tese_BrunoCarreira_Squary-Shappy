@@ -189,7 +189,6 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
             self.current_state[int(self.x_pos / self.world.screen_ratio)] = self.color
 
 
-
     def wall_collision_check(self, pos_x):
         # Verifica se a nova posiçao está livre
         if self.current_state[pos_x] == 1:

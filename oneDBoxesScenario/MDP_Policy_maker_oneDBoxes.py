@@ -48,19 +48,20 @@ class MDP_Policy_maker_oneDBoxes(object):
 
         # Actions
         # self.STAY_STAY = 0
-        self.STAY_LEFT = 0
-        self.STAY_RIGHT = 1
-        self.LEFT_STAY = 2
-        self.LEFT_LEFT = 3
-        self.LEFT_RIGHT = 4
-        self.RIGHT_STAY = 5
-        self.RIGHT_LEFT = 6
-        self.RIGHT_RIGHT = 7
+        self.STAY_LEFT = 1
+        self.STAY_RIGHT = 2
+        self.LEFT_STAY = 3
+        self.LEFT_LEFT = 4
+        self.LEFT_RIGHT = 5
+        self.RIGHT_STAY = 6
+        self.RIGHT_LEFT = 7
+        self.RIGHT_RIGHT = 8
 
         self.ACTIONS = [self.STAY_LEFT, self.STAY_RIGHT,
                         self.LEFT_STAY, self.LEFT_LEFT, self.LEFT_RIGHT,
                         self.RIGHT_STAY, self.RIGHT_LEFT, self.RIGHT_RIGHT]
-        n_actions = len(self.ACTIONS)
+        self.n_actions = len(self.ACTIONS)
+        print(self.n_actions)
 
         # non_col_shappys = np.where(map == "3")
         # shappys = np.where(self.map == 4 or self.map == 3)
@@ -73,6 +74,11 @@ class MDP_Policy_maker_oneDBoxes(object):
             elif self.map[i] == 3 or self.map[i] == 4:
                 shappys.append(i)
 
+        boxes = []
+        for i in range(len(self.map)):
+            if self.map[i] == 2:
+                boxes.append(i)
+
         self.start_state = State(map=self.map)
         self.current_state = []
 
@@ -84,10 +90,15 @@ class MDP_Policy_maker_oneDBoxes(object):
         self.epsilon = self.max_epsilon
         self.decay_rate = 0.001
 
-        # n_states = len(self.map)  # * n_actions * 4       #4 é o numero de self.BOXes
+        self.n_states = len(self.map) * len(shappys) * len(boxes)
+        self.n_states = self.n_states * self.n_states
 
         # Q_table = np.zeros((n_states, n_actions))
         self.Q_table = dict()
+
+        self.states_numbered = []
+        #self.P_table = np.zeros((self.n_states * self.n_actions, self.n_states))
+        self.P_table = dict()
 
         self.type_of_policy = policy_file.replace("oneDBoxes_MDP_", '')
         self.type_of_policy = self.type_of_policy.replace("_policy.txt", '')
@@ -100,19 +111,28 @@ class MDP_Policy_maker_oneDBoxes(object):
     def Q(self, state, action=None):
 
         if state not in self.Q_table:
-            self.Q_table[state] = np.zeros(len(self.ACTIONS))
+            self.Q_table[state] = np.zeros(self.n_actions+1)
 
         if action is None:
             return self.Q_table[state]
 
         return self.Q_table[state][action]
 
+    def P(self, state, new_state=None):
+        if state not in self.P_table:
+            self.P_table[state] = np.zeros(self.n_states)
+
+        if new_state is None:
+            return self.P_table[state]
+
+        return self.P_table[state][new_state]
+
     def choose_actions(self, state):
         random.seed()
         if random.random() < self.epsilon:  # exploration
-            return random.randint(0, len(self.ACTIONS) - 1)
+            return np.random.randint(1, len(self.ACTIONS))
         else:  # exploitation
-            return np.argmax(self.Q(state))
+            return np.argmax(self.Q(state)) + 1
 
     def take_actions(self, state, actions):
 
@@ -362,14 +382,16 @@ class MDP_Policy_maker_oneDBoxes(object):
         return State(map=new_map), new_reward
 
     def learn(self, state, action, reward, new_state):
-        # Devia aqui alterar a tabela das transições P(state, action, new state)
-        # Devia aqui alterar a tabela das rewards para cada estado R[state]
-        # Q[si, a] = Q[si, a] + alpha * (r + gamma * max(Q[nsi, :]) - Q[si, a])
-        # P[a, si, nsi] += 1
-        # R[si] = r
         # Update Q(s,a):= Q(s,a) + lr [R(s,a) + gamma * max Q(s',a') - Q(s,a)]
         self.Q(state)[action] = self.Q(state, action) + self.learning_rate * \
                                 (reward + self.gamma * np.max(self.Q(new_state)) - self.Q(state, action))
+
+        state_number = self.get_numbered_state(state.map)
+        new_state_number = self.get_numbered_state(new_state.map)
+        #print("numbers ", state_number, new_state_number)
+        self.P(state_number)[new_state_number] = action
+
+        # Devia aqui alterar a tabela das rewards para cada estado R[state]
 
     def create_stating_states(self):
         existing_starting_states = [self.start_state]
@@ -417,7 +439,8 @@ class MDP_Policy_maker_oneDBoxes(object):
 
     def create_policy(self):
 
-        total_episodes = 3000  # tenho que aumentar isto para 100000 :(
+        #total_episodes = 3000  # tenho que aumentar isto para 100000 :(
+        total_episodes = 3000
 
         #starting_states = self.create_stating_states()
         starting_states = [self.start_state]
@@ -429,7 +452,7 @@ class MDP_Policy_maker_oneDBoxes(object):
                 self.current_state = starting_states[i_state]
                 self.calculate_best_possible_paths()
                 #print("State ", i_state, state, " Episode ", episode)
-                print(episode)
+                print("Episode ", episode)
                 #print(self.epsilon)
                 episode_rewards = []
 
@@ -488,7 +511,17 @@ class MDP_Policy_maker_oneDBoxes(object):
         for line in self.Q_table:
             # print(line, "   ", np.argmax(self.Q(line)), "   ", self.Q(line))
             f.write("%s && %s && %s \r" % (line, np.argmax(self.Q(line)), self.Q(line)))
-        f.write("final")
+        f.write("Q_TABLE\r")
+
+        for i in range(len(self.states_numbered)):
+            f.write("%s \r" % self.states_numbered[i][0]) #, self.states_numbered[i][1]))
+        f.write("States_numbered\r")
+
+        for line in self.P_table:
+            f.write("%s \r" % self.P(line))
+        f.write("P_table\r")
+
+
         f.close()
 
     def get_closest_box(self, state, pos):
@@ -505,6 +538,24 @@ class MDP_Policy_maker_oneDBoxes(object):
                 closest_box = box
 
         return closest_box
+
+    def get_numbered_state(self, state):
+        #print(state)
+        equal = True
+        while True:
+            if len(self.states_numbered) == 0:
+                self.states_numbered.append([np.asarray(state), len(self.states_numbered)])
+            else:
+                for item in self.states_numbered:
+                    equal = True
+                    for i in range(len(state)):
+                        if state[i] != item[0][i]:
+                            equal = False
+                            break
+                    if equal:
+                        return item[1]
+                if not equal:
+                    self.states_numbered.append([np.asarray(state), len(self.states_numbered)])
 
 
     #For collaborative behaviour

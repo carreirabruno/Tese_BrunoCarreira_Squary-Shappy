@@ -48,20 +48,19 @@ class MDP_Policy_maker_oneDBoxes(object):
 
         # Actions
         # self.STAY_STAY = 0
-        self.STAY_LEFT = 1
-        self.STAY_RIGHT = 2
-        self.LEFT_STAY = 3
-        self.LEFT_LEFT = 4
-        self.LEFT_RIGHT = 5
-        self.RIGHT_STAY = 6
-        self.RIGHT_LEFT = 7
-        self.RIGHT_RIGHT = 8
+        self.STAY_LEFT = 0
+        self.STAY_RIGHT = 1
+        self.LEFT_STAY = 2
+        self.LEFT_LEFT = 3
+        self.LEFT_RIGHT = 4
+        self.RIGHT_STAY = 5
+        self.RIGHT_LEFT = 6
+        self.RIGHT_RIGHT = 7
 
         self.ACTIONS = [self.STAY_LEFT, self.STAY_RIGHT,
                         self.LEFT_STAY, self.LEFT_LEFT, self.LEFT_RIGHT,
                         self.RIGHT_STAY, self.RIGHT_LEFT, self.RIGHT_RIGHT]
         self.n_actions = len(self.ACTIONS)
-        print(self.n_actions)
 
         # non_col_shappys = np.where(map == "3")
         # shappys = np.where(self.map == 4 or self.map == 3)
@@ -101,7 +100,7 @@ class MDP_Policy_maker_oneDBoxes(object):
         self.P_table = dict()
 
         self.type_of_policy = policy_file.replace("oneDBoxes_MDP_", '')
-        self.type_of_policy = self.type_of_policy.replace("_policy.txt", '')
+        self.type_of_policy = self.type_of_policy.replace("_policy2.txt", '')
 
         self.imprimir = False
 
@@ -111,7 +110,9 @@ class MDP_Policy_maker_oneDBoxes(object):
     def Q(self, state, action=None):
 
         if state not in self.Q_table:
-            self.Q_table[state] = np.zeros(self.n_actions+1)
+            self.Q_table[state] = np.zeros(self.n_actions)
+            for i in range(len(self.Q_table[state])):
+                self.Q_table[state][i] = -1
 
         if action is None:
             return self.Q_table[state]
@@ -130,9 +131,9 @@ class MDP_Policy_maker_oneDBoxes(object):
     def choose_actions(self, state):
         random.seed()
         if random.random() < self.epsilon:  # exploration
-            return np.random.randint(1, len(self.ACTIONS))
+            return np.random.randint(0, len(self.ACTIONS)-1)
         else:  # exploitation
-            return np.argmax(self.Q(state)) + 1
+            return np.argmax(self.Q(state))
 
     def take_actions(self, state, actions):
 
@@ -440,7 +441,7 @@ class MDP_Policy_maker_oneDBoxes(object):
     def create_policy(self):
 
         #total_episodes = 3000  # tenho que aumentar isto para 100000 :(
-        total_episodes = 3000
+        total_episodes = 5000
 
         #starting_states = self.create_stating_states()
         starting_states = [self.start_state]
@@ -473,11 +474,11 @@ class MDP_Policy_maker_oneDBoxes(object):
 
                     self.current_state = new_state
 
-                if episode == 500:
+                if episode == 100:
                     self.epsilon = 0.3
-                elif episode == 2000:
+                elif episode == 3000:
                      self.epsilon = 0.1
-                elif episode == 2900:
+                elif episode == 4700:
                     self.imprimir = True
                     self.epsilon = 0.01
                 # elif episode == 2990:

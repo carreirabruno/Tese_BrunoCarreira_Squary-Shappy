@@ -15,11 +15,10 @@ def main():
     terrain = Terrain_oneDBoxes("oneDBoxes_map2.txt")
 
     #create the policy
-    policy_maker_col = MDP_Policy_maker_oneDBoxes(terrain.matrix, collaborative_policy_file)
-    policy_maker_non_col = MDP_Policy_maker_oneDBoxes(terrain.matrix, non_collaborative_policy_file)
+    #policy_maker_col = MDP_Policy_maker_oneDBoxes(terrain.matrix, collaborative_policy_file)
+    #policy_maker_non_col = MDP_Policy_maker_oneDBoxes(terrain.matrix, non_collaborative_policy_file)
     #winsound.Beep(600, 500)
-
-    quit()
+    #quit()
 
     #create the comparator
     #policy_comparator = Policy_comparator_oneDBoxes([collaborative_policy_file, non_collaborative_policy_file])

@@ -70,10 +70,16 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
 
         self.current_state = copy.deepcopy(current_state)
         for i in range(len(self.current_state)):
-            if self.color == 3 and self.current_state[i] == 4:
-                self.current_state[i] = 0
-            if self.color == 4 and self.current_state[i] == 3:
-                self.current_state[i] = 0
+            if self.color == 3:
+                    if self.current_state[i] == 4:
+                        self.current_state[i] = 0
+                    elif self.current_state[i] == 7:
+                        self.current_state[i] = 3
+            elif self.color == 4:
+                    if self.current_state[i] == 3:
+                        self.current_state[i] = 0
+                    elif self.current_state[i] == 7:
+                        self.current_state[i] = 4
 
         # if time.time() - self.time_interval > 0.2:
         # if self.go_ahead:
@@ -128,7 +134,7 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
                     [int(self.x_pos / self.world.screen_ratio) - 1] == 2:
                 self.world.box_group_remove(int(self.y_pos / self.world.screen_ratio),
                                             int(self.x_pos / self.world.screen_ratio) - 1)
-                self.world.score += 1
+                # self.world.score += 1
 
             if self.terrain_matrix[int(self.y_pos / self.world.screen_ratio)] \
                     [int(self.x_pos / self.world.screen_ratio)] != self.other_number:
@@ -150,7 +156,7 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
             if self.current_state[int(self.x_pos / self.world.screen_ratio)] == 2:
                 self.world.box_group_remove(int(self.x_pos / self.world.screen_ratio),
                                             int(self.y_pos / self.world.screen_ratio))
-                self.world.score += 1
+                # self.world.score += 1
 
             self.current_state[int(self.x_pos / self.world.screen_ratio)] = self.color
 

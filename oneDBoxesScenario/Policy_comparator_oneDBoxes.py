@@ -1,4 +1,5 @@
 import copy
+import pickle
 
 class Policy_comparator_oneDBoxes(object):
 
@@ -6,9 +7,17 @@ class Policy_comparator_oneDBoxes(object):
         self.collaborative_policy = []
         self.non_collaborative_policy = []
 
-        self.get_policies(policy_files)
+        #self.get_policies(policy_files)
         
         self.simulation_run_states_and_action = []
+
+        fp = open(policy_files[0], "rb")  # Unpickling
+        self.Q_table_col, self.states_numbered_col, self.P_table_col = pickle.load(fp)
+        fp.close()
+
+        fp = open(policy_files[1], "rb")  # Unpickling
+        self.Q_table_non_col, self.states_numbered_non_col, self.P_table_non_col = pickle.load(fp)
+        fp.close()
 
     def get_policies(self, policy_files):
         for file in policy_files:
@@ -94,21 +103,21 @@ class Policy_comparator_oneDBoxes(object):
                     shappy4_new = j
 
             if shappy3_new == shappy3_old and shappy4_new < shappy4_old:        # STAY_LEFT
-                self.simulation_run_states_and_action.append([simulation_run[i-1], 1])
+                self.simulation_run_states_and_action.append([simulation_run[i-1], 0])
             elif shappy3_new == shappy3_old and shappy4_new > shappy4_old:      # STAY_RIGHT
-                self.simulation_run_states_and_action.append([simulation_run[i - 1], 2])
+                self.simulation_run_states_and_action.append([simulation_run[i - 1], 1])
             elif shappy3_new < shappy3_old and shappy4_new == shappy4_old:      # LEFT_STAY
-                self.simulation_run_states_and_action.append([simulation_run[i - 1], 3])
+                self.simulation_run_states_and_action.append([simulation_run[i - 1], 2])
             elif shappy3_new < shappy3_old and shappy4_new < shappy4_old:      # LEFT_LEFT
-                self.simulation_run_states_and_action.append([simulation_run[i - 1], 4])
+                self.simulation_run_states_and_action.append([simulation_run[i - 1], 3])
             elif shappy3_new < shappy3_old and shappy4_new > shappy4_old:      # LEFT_RIGHT
-                self.simulation_run_states_and_action.append([simulation_run[i - 1], 5])
+                self.simulation_run_states_and_action.append([simulation_run[i - 1], 4])
             elif shappy3_new > shappy3_old and shappy4_new == shappy4_old:      # RIGHT_STAY
-                self.simulation_run_states_and_action.append([simulation_run[i - 1], 6])
+                self.simulation_run_states_and_action.append([simulation_run[i - 1], 5])
             elif shappy3_new > shappy3_old and shappy4_new < shappy4_old:      # RIGHT_LEFT
-                self.simulation_run_states_and_action.append([simulation_run[i - 1], 7])
+                self.simulation_run_states_and_action.append([simulation_run[i - 1], 6])
             elif shappy3_new > shappy3_old and shappy4_new > shappy4_old:      # RIGHT_RIGHT
-                self.simulation_run_states_and_action.append([simulation_run[i - 1], 8])
+                self.simulation_run_states_and_action.append([simulation_run[i - 1], 7])
 
         self.compare_run_to_policies()
 
@@ -123,7 +132,6 @@ class Policy_comparator_oneDBoxes(object):
             elif item[1] == non_collaborative_action:
                 non_col += 1
         print("col = ", col, "non_col = ", non_col)
-
 
     def get_action_from_policy(self, state, policy):
         for line in policy:

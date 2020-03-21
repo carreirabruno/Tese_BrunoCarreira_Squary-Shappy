@@ -3,6 +3,7 @@ from oneDBoxesScenario.Terrain_oneDBoxes import *
 from oneDBoxesScenario.Box_oneDBoxes import *
 from oneDBoxesScenario.Shappy_oneDBoxes import *
 from copy import *
+import pickle
 
 
 class World_oneDBoxes(object):
@@ -90,6 +91,8 @@ class World_oneDBoxes(object):
 
         self.simulation_run_states = [self.current_state]
 
+        self.initial_number_of_boxes = len(self.box_group)
+
     def render(self):
         # add background over all past images
         self.screen.fill((255, 255, 255))
@@ -148,8 +151,6 @@ class World_oneDBoxes(object):
 
             actions_to_do = self.get_current_action_to_do()
 
-            # print(self.current_state, actions_to_do)
-
             shappy3_state = []
             shappy4_state = []
             for shappy in self.shappy_group:
@@ -161,9 +162,11 @@ class World_oneDBoxes(object):
 
             # self.check_collisions()
 
-            self.last_update = time.time()
-
             self.simulation_run_states.append(self.current_state)
+
+            self.score = abs(self.initial_number_of_boxes - len(self.box_group))
+
+            self.last_update = time.time()
 
     # def get_policy(self, policy_file):
     #     policy = []
@@ -249,71 +252,76 @@ class World_oneDBoxes(object):
     #     return policy
 
     def get_policy(self, policy_file):
-        policy = []
-
-        f = open(policy_file, "r")
-
-        save = True
-        appended_line = ""
-
-        lines = f.readlines()
-
-        for line in lines:
-            # if line is lines[-1]:
-            #     phrase = ""
-            #     for letter in line:
-            #         phrase += letter
-            #     appended_line += phrase
-
-            if "State" in line or "Q_table" in line:  # line == lines[-1]:
-                state = []
-                pos = []
-                save = True
-                if len(appended_line) > 0:
-
-                    temp_appended_line = str(appended_line).replace('\'', '')
-
-                    temp_appended_line = str(temp_appended_line).replace(',', '')
-                    split_appended_line = str(temp_appended_line).split('& &')
-
-                    # Criar o state
-                    state_appended_line = split_appended_line[0]
-                    state_appended_line = state_appended_line.replace(' ', '')
-                    state_appended_line = state_appended_line.replace('[State(map=[', '')
-                    state_appended_line = state_appended_line.replace('.', '')
-                    state_appended_line = state_appended_line.replace(')', '')
-                    state_appended_line = state_appended_line.replace(']', '')
-                    state_appended_line = state_appended_line.replace('[', '')
-                    state_appended_line = state_appended_line.replace('\\n', '')
-
-                    state_items = state_appended_line.split('&')
-
-                    map = []
-
-                    for item in state_items[0]:
-                        if item == "[":
-                            pass
-                        else:
-                            map.append(int(item))
-
-                    # Criar a action
-                    action_appended_line = split_appended_line[1]
-                    action_appended_line = action_appended_line.replace(' ', '')
-                    action = int(action_appended_line)
-
-                    policy.append([map, action])
-
-                appended_line = []
-
-            if save:
-                phrase = ""
-                for letter in line:
-                    phrase += letter
-                appended_line += phrase
-
-        f.close()
-
+        fp = open(policy_file, "rb")  # Unpickling
+        policy, states_numbered, P_table = pickle.load(fp)
+        fp.close()
         return policy
+
+        # policy = []
+        #
+        # f = open(policy_file, "r")
+        #
+        # save = True
+        # appended_line = ""
+        #
+        # lines = f.readlines()
+        #
+        # for line in lines:
+        #     # if line is lines[-1]:
+        #     #     phrase = ""
+        #     #     for letter in line:
+        #     #         phrase += letter
+        #     #     appended_line += phrase
+        #
+        #     if "State" in line or "Q_table" in line:  # line == lines[-1]:
+        #         state = []
+        #         pos = []
+        #         save = True
+        #         if len(appended_line) > 0:
+        #
+        #             temp_appended_line = str(appended_line).replace('\'', '')
+        #
+        #             temp_appended_line = str(temp_appended_line).replace(',', '')
+        #             split_appended_line = str(temp_appended_line).split('& &')
+        #
+        #             # Criar o state
+        #             state_appended_line = split_appended_line[0]
+        #             state_appended_line = state_appended_line.replace(' ', '')
+        #             state_appended_line = state_appended_line.replace('[State(map=[', '')
+        #             state_appended_line = state_appended_line.replace('.', '')
+        #             state_appended_line = state_appended_line.replace(')', '')
+        #             state_appended_line = state_appended_line.replace(']', '')
+        #             state_appended_line = state_appended_line.replace('[', '')
+        #             state_appended_line = state_appended_line.replace('\\n', '')
+        #
+        #             state_items = state_appended_line.split('&')
+        #
+        #             map = []
+        #
+        #             for item in state_items[0]:
+        #                 if item == "[":
+        #                     pass
+        #                 else:
+        #                     map.append(int(item))
+        #
+        #             # Criar a action
+        #             action_appended_line = split_appended_line[1]
+        #             action_appended_line = action_appended_line.replace(' ', '')
+        #             action = int(action_appended_line)
+        #
+        #             policy.append([map, action])
+        #
+        #         appended_line = []
+        #
+        #     if save:
+        #         phrase = ""
+        #         for letter in line:
+        #             phrase += letter
+        #         appended_line += phrase
+        #
+        # f.close()
+        #
+        # return policy
 
     def get_current_action_to_do(self):
 
@@ -322,7 +330,6 @@ class World_oneDBoxes(object):
         #     current_state = np.where(current_state == 4, 7, current_state)
         # if 4 not in current_state:
         #     current_state = np.where(current_state == 3, 7, current_state)
-
         actions = -1
         for state in self.policy:
             equal = True
@@ -357,7 +364,7 @@ class World_oneDBoxes(object):
         return actions
 
     def set_new_terrain_matrix(self, shappy3_state, shappy4_state):
-        self.current_state= []
+        self.current_state = []
         for i in range(len(shappy3_state)):
             if shappy3_state[i] == shappy4_state[i]:
                 self.current_state.append(shappy3_state[i])

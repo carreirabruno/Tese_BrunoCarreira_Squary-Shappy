@@ -1,7 +1,9 @@
 import numpy as np
+from numpy import savetxt
 import random
 import copy
 import math
+import pickle
 from itertools import *
 
 
@@ -90,17 +92,18 @@ class MDP_Policy_maker_oneDBoxes(object):
         self.decay_rate = 0.001
 
         self.n_states = len(self.map) * len(shappys) * len(boxes)
-        self.n_states = self.n_states * self.n_states
+        self.n_states *= self.n_states
 
         # Q_table = np.zeros((n_states, n_actions))
         self.Q_table = dict()
 
         self.states_numbered = []
         #self.P_table = np.zeros((self.n_states * self.n_actions, self.n_states))
-        self.P_table = dict()
+        #self.P_table = dict()
+        self.P_table = np.zeros((self.n_actions, self.n_states, self.n_states))
 
         self.type_of_policy = policy_file.replace("oneDBoxes_MDP_", '')
-        self.type_of_policy = self.type_of_policy.replace("_policy2.txt", '')
+        self.type_of_policy = self.type_of_policy.replace("_policy.pickle", '')
 
         self.imprimir = False
 
@@ -390,7 +393,8 @@ class MDP_Policy_maker_oneDBoxes(object):
         state_number = self.get_numbered_state(state.map)
         new_state_number = self.get_numbered_state(new_state.map)
         #print("numbers ", state_number, new_state_number)
-        self.P(state_number)[new_state_number] = action
+        #self.P(state_number)[new_state_number] = action
+        self.P_table[action, state_number, new_state_number] += 1
 
         # Devia aqui alterar a tabela das rewards para cada estado R[state]
 
@@ -441,7 +445,7 @@ class MDP_Policy_maker_oneDBoxes(object):
     def create_policy(self):
 
         #total_episodes = 3000  # tenho que aumentar isto para 100000 :(
-        total_episodes = 5000
+        total_episodes = 3000
 
         #starting_states = self.create_stating_states()
         starting_states = [self.start_state]
@@ -474,11 +478,13 @@ class MDP_Policy_maker_oneDBoxes(object):
 
                     self.current_state = new_state
 
-                if episode == 100:
-                    self.epsilon = 0.3
-                elif episode == 3000:
+                if episode == 300:
+                    self.epsilon = 0.5
+                elif episode == 1000:
+                     self.epsilon = 0.3
+                elif episode == 2000:
                      self.epsilon = 0.1
-                elif episode == 4700:
+                elif episode == 2900:
                     self.imprimir = True
                     self.epsilon = 0.01
                 # elif episode == 2990:
@@ -507,23 +513,26 @@ class MDP_Policy_maker_oneDBoxes(object):
         #     print(result)
 
     def write_in_txt(self, policy_file):
-        # RESULTS
-        f = open(policy_file, "w+")
+        new_Q_table = []
         for line in self.Q_table:
-            # print(line, "   ", np.argmax(self.Q(line)), "   ", self.Q(line))
-            f.write("%s && %s && %s \r" % (line, np.argmax(self.Q(line)), self.Q(line)))
-        f.write("Q_TABLE\r")
+            new_Q_table.append([line.map, np.argmax(self.Q(line)), self.Q(line)])
+        with open(policy_file, "wb") as fp:  # Unpickling
+            pickle.dump((new_Q_table, self.states_numbered, self.P_table), fp)
+            fp.close()
 
-        for i in range(len(self.states_numbered)):
-            f.write("%s \r" % self.states_numbered[i][0]) #, self.states_numbered[i][1]))
-        f.write("States_numbered\r")
-
-        for line in self.P_table:
-            f.write("%s \r" % self.P(line))
-        f.write("P_table\r")
-
-
-        f.close()
+        # # RESULTS
+        # f = open(policy_file, "w+")
+        # for line in self.Q_table:
+        #     # print(line, "   ", np.argmax(self.Q(line)), "   ", self.Q(line))
+        #     f.write("%s && %s && %s \r" % (line, np.argmax(self.Q(line)), self.Q(line)))
+        # f.write("Q_TABLE\r")
+        #
+        # for i in range(len(self.states_numbered)):
+        #     f.write("%s \r" % self.states_numbered[i][0]) #, self.states_numbered[i][1]))
+        # f.write("States_numbered\r")
+        # f.close()
+        #
+        # savetxt('data.csv', self.P_table, delimiter='.')
 
     def get_closest_box(self, state, pos):
         closest_box = math.inf
@@ -545,19 +554,18 @@ class MDP_Policy_maker_oneDBoxes(object):
         equal = True
         while True:
             if len(self.states_numbered) == 0:
-                self.states_numbered.append([np.asarray(state), len(self.states_numbered)])
+                self.states_numbered.append(np.asarray(state))
             else:
-                for item in self.states_numbered:
+                for i in range(len(self.states_numbered)):
                     equal = True
-                    for i in range(len(state)):
-                        if state[i] != item[0][i]:
+                    for j in range(len(self.states_numbered[i])):
+                        if state[j] != self.states_numbered[i][j]:
                             equal = False
                             break
                     if equal:
-                        return item[1]
+                        return i
                 if not equal:
-                    self.states_numbered.append([np.asarray(state), len(self.states_numbered)])
-
+                    self.states_numbered.append(np.asarray(state))
 
     #For collaborative behaviour
     # isto só funciona com 2 agentes, não está otimizado para mais

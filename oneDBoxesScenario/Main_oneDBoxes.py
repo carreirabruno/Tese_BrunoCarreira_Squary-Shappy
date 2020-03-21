@@ -8,9 +8,12 @@ from oneDBoxesScenario.Policy_comparator_oneDBoxes import *
 import winsound
 
 def main():
-    base_policy_file = "oneDBoxes_MDP_base_policy.txt"
-    collaborative_policy_file = "oneDBoxes_MDP_collaborative_policy2.txt"
-    non_collaborative_policy_file = "oneDBoxes_MDP_non_collaborative_policy2.txt"
+    # base_policy_file = "oneDBoxes_MDP_base_policy.txt"
+    # collaborative_policy_file = "oneDBoxes_MDP_collaborative_policy3.txt"
+    # non_collaborative_policy_file = "oneDBoxes_MDP_non_collaborative_policy2.txt"
+
+    collaborative_policy_file = "oneDBoxes_MDP_collaborative_policy.pickle"
+    non_collaborative_policy_file = "oneDBoxes_MDP_non_collaborative_policy.pickle"
 
     terrain = Terrain_oneDBoxes("oneDBoxes_map2.txt")
 
@@ -18,11 +21,11 @@ def main():
     #policy_maker_col = MDP_Policy_maker_oneDBoxes(terrain.matrix, collaborative_policy_file)
     #policy_maker_non_col = MDP_Policy_maker_oneDBoxes(terrain.matrix, non_collaborative_policy_file)
     #winsound.Beep(600, 500)
-    #quit()
+
 
     #create the comparator
     #policy_comparator = Policy_comparator_oneDBoxes([collaborative_policy_file, non_collaborative_policy_file])
-
+    #quit()
     # define a variable to control the main loop
     running = True
 
@@ -59,13 +62,18 @@ def main():
     #    collaborator.update()
 
         if len(world.box_group) == 0:
-            policy_comparator.receive_world_simulation_run(world.simulation_run_states)
+            Policy_comparator_oneDBoxes([collaborative_policy_file, non_collaborative_policy_file]).\
+                receive_world_simulation_run(world.simulation_run_states)
+            #policy_comparator.receive_world_simulation_run(world.simulation_run_states)
             running = False
 
         # event handling, gets all event from the event queue
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                policy_comparator.receive_world_simulation_run(world.simulation_run_states)
+                Policy_comparator_oneDBoxes([collaborative_policy_file, non_collaborative_policy_file]).\
+                    receive_world_simulation_run(
+                    world.simulation_run_states)
+                #policy_comparator.receive_world_simulation_run(world.simulation_run_states)
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
               posx, posy = pygame.mouse.get_pos()

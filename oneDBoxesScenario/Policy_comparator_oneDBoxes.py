@@ -1,5 +1,8 @@
 import copy
 import pickle
+import numpy as np
+import datetime
+import math
 
 class Policy_comparator_oneDBoxes(object):
 
@@ -19,119 +22,120 @@ class Policy_comparator_oneDBoxes(object):
         self.Q_table_non_col, self.states_numbered_non_col, self.P_table_non_col = pickle.load(fp)
         fp.close()
 
-    def get_policies(self, policy_files):
-        for file in policy_files:
-            policy = []
-            f = open(file, "r")
+        self.policies_array = [[self.Q_table_col, self.states_numbered_col, self.P_table_col, "Collaborative"],
+                                 [self.Q_table_non_col, self.states_numbered_non_col, self.P_table_non_col,
+                                  "Non collaborative"]]
 
-            save = True
-            appended_line = ""
+        self.write_date = True
 
-            lines = f.readlines()
-
-            for line in lines:
-                if "State" in line or "final" in line:
-                    save = True
-                    if len(appended_line) > 0:
-
-                        temp_appended_line = str(appended_line).replace('\'', '')
-
-                        temp_appended_line = str(temp_appended_line).replace(',', '')
-                        split_appended_line = str(temp_appended_line).split('& &')
-
-                        # Criar o state
-                        state_appended_line = split_appended_line[0]
-                        state_appended_line = state_appended_line.replace(' ', '')
-                        state_appended_line = state_appended_line.replace('[State(map=[', '')
-                        state_appended_line = state_appended_line.replace('.', '')
-                        state_appended_line = state_appended_line.replace(')', '')
-                        state_appended_line = state_appended_line.replace(']', '')
-                        state_appended_line = state_appended_line.replace('[', '')
-                        state_appended_line = state_appended_line.replace('\\n', '')
-
-                        state_items = state_appended_line.split('&')
-
-                        map = []
-
-                        for item in state_items[0]:
-                            if item == "[":
-                                pass
-                            else:
-                                map.append(int(item))
-
-                        # Criar a action
-                        action_appended_line = split_appended_line[1]
-                        action_appended_line = action_appended_line.replace(' ', '')
-                        action = int(action_appended_line)
-
-                        policy.append([map, action])
-
-                    appended_line = []
-
-                if save:
-                    phrase = ""
-                    for letter in line:
-                        phrase += letter
-                    appended_line += phrase
-
-            f.close()
-
-            temp_file = copy.deepcopy(file)
-            temp_file = temp_file.replace('oneDBoxes_MDP_', '')
-            temp_file = temp_file.replace('_policy.txt', '')
-
-            if temp_file == "collaborative":
-                self.collaborative_policy = policy
-            elif temp_file == "non_collaborative":
-                self.non_collaborative_policy = policy
+    # def get_policies(self, policy_files):
+    #     for file in policy_files:
+    #         policy = []
+    #         f = open(file, "r")
+    #
+    #         save = True
+    #         appended_line = ""
+    #
+    #         lines = f.readlines()
+    #
+    #         for line in lines:
+    #             if "State" in line or "final" in line:
+    #                 save = True
+    #                 if len(appended_line) > 0:
+    #
+    #                     temp_appended_line = str(appended_line).replace('\'', '')
+    #
+    #                     temp_appended_line = str(temp_appended_line).replace(',', '')
+    #                     split_appended_line = str(temp_appended_line).split('& &')
+    #
+    #                     # Criar o state
+    #                     state_appended_line = split_appended_line[0]
+    #                     state_appended_line = state_appended_line.replace(' ', '')
+    #                     state_appended_line = state_appended_line.replace('[State(map=[', '')
+    #                     state_appended_line = state_appended_line.replace('.', '')
+    #                     state_appended_line = state_appended_line.replace(')', '')
+    #                     state_appended_line = state_appended_line.replace(']', '')
+    #                     state_appended_line = state_appended_line.replace('[', '')
+    #                     state_appended_line = state_appended_line.replace('\\n', '')
+    #
+    #                     state_items = state_appended_line.split('&')
+    #
+    #                     map = []
+    #
+    #                     for item in state_items[0]:
+    #                         if item == "[":
+    #                             pass
+    #                         else:
+    #                             map.append(int(item))
+    #
+    #                     # Criar a action
+    #                     action_appended_line = split_appended_line[1]
+    #                     action_appended_line = action_appended_line.replace(' ', '')
+    #                     action = int(action_appended_line)
+    #
+    #                     policy.append([map, action])
+    #
+    #                 appended_line = []
+    #
+    #             if save:
+    #                 phrase = ""
+    #                 for letter in line:
+    #                     phrase += letter
+    #                 appended_line += phrase
+    #
+    #         f.close()
+    #
+    #         temp_file = copy.deepcopy(file)
+    #         temp_file = temp_file.replace('oneDBoxes_MDP_', '')
+    #         temp_file = temp_file.replace('_policy.txt', '')
+    #
+    #         if temp_file == "collaborative":
+    #             self.collaborative_policy = policy
+    #         elif temp_file == "non_collaborative":
+    #             self.non_collaborative_policy = policy
 
     def receive_world_simulation_run(self, simulation_run):
-        self.simulation_run_states_and_action = []
-        for i in range(1, len(simulation_run)):
-            shappy3_old = -1
-            shappy3_new = -1
-            shappy4_old = -1
-            shappy4_new = -1
-            for j in range(len(simulation_run[i])):
-                if simulation_run[i-1][j] == 3:
-                    shappy3_old = j
-                elif simulation_run[i-1][j] == 4:
-                    shappy4_old = j
-                if simulation_run[i][j] == 3:
-                    shappy3_new = j
-                elif simulation_run[i][j] == 4:
-                    shappy4_new = j
+        data = []
+        for array in self.policies_array:
+            actions__according_to_policy = []
+            actions_made = []
+            #print(array[3])
+            for i in range(1, len(simulation_run)):
+                old_state = self.get_state_number(simulation_run[i-1], array[1])
+                new_state = self.get_state_number(simulation_run[i], array[1])
 
-            if shappy3_new == shappy3_old and shappy4_new < shappy4_old:        # STAY_LEFT
-                self.simulation_run_states_and_action.append([simulation_run[i-1], 0])
-            elif shappy3_new == shappy3_old and shappy4_new > shappy4_old:      # STAY_RIGHT
-                self.simulation_run_states_and_action.append([simulation_run[i - 1], 1])
-            elif shappy3_new < shappy3_old and shappy4_new == shappy4_old:      # LEFT_STAY
-                self.simulation_run_states_and_action.append([simulation_run[i - 1], 2])
-            elif shappy3_new < shappy3_old and shappy4_new < shappy4_old:      # LEFT_LEFT
-                self.simulation_run_states_and_action.append([simulation_run[i - 1], 3])
-            elif shappy3_new < shappy3_old and shappy4_new > shappy4_old:      # LEFT_RIGHT
-                self.simulation_run_states_and_action.append([simulation_run[i - 1], 4])
-            elif shappy3_new > shappy3_old and shappy4_new == shappy4_old:      # RIGHT_STAY
-                self.simulation_run_states_and_action.append([simulation_run[i - 1], 5])
-            elif shappy3_new > shappy3_old and shappy4_new < shappy4_old:      # RIGHT_LEFT
-                self.simulation_run_states_and_action.append([simulation_run[i - 1], 6])
-            elif shappy3_new > shappy3_old and shappy4_new > shappy4_old:      # RIGHT_RIGHT
-                self.simulation_run_states_and_action.append([simulation_run[i - 1], 7])
+                if old_state != new_state:
+                    for k in range(len(array[0])):
+                        equal = True
+                        for g in range(len(array[0][k][0])):
+                            if simulation_run[i-1][g] != array[0][k][0][g]:
+                                equal = False
+                                break
+                        if equal:
+                            actions__according_to_policy.append(array[0][k][1])
+                            break
 
-        self.compare_run_to_policies()
+                    if old_state == new_state:
+                        pass
+                    else:
+                        max_actions = []
+                        for action in array[2]:
+                            max_actions.append(action[old_state][new_state])
+                        actions_made.append(np.argmax(max_actions))
 
-    def compare_run_to_policies(self):
-        col = 0
-        non_col = 0
-        for item in self.simulation_run_states_and_action:
-            collaborative_action = self.get_action_from_policy(item[0], self.collaborative_policy)
-            non_collaborative_action = self.get_action_from_policy(item[0], self.non_collaborative_policy)
-            if item[1] == collaborative_action:
-                col += 1
-            elif item[1] == non_collaborative_action:
-                non_col += 1
-        print("col = ", col, "non_col = ", non_col)
+            v_total = self.V_action_state(actions__according_to_policy, actions_made, len(array[2]))
+            data.append([array[3], actions__according_to_policy, actions_made, v_total])
+            #self.write_in_txt(array[3], actions__according_to_policy, actions_made, v_total)
+
+        v_total = 0
+        for a in data:
+            v_total += a[3]
+
+        for a in data:
+            a[3] = "{:.2f}".format(a[3] / v_total)
+
+        self.write_in_txt(data)
+
 
     def get_action_from_policy(self, state, policy):
         for line in policy:
@@ -142,3 +146,38 @@ class Policy_comparator_oneDBoxes(object):
             if equal:
                 return line[1]
 
+    def get_state_number(self, state, states_numbered):
+        for i in range(len(states_numbered)):
+            equal = True
+            for j in range(len(states_numbered[i])):
+                if state[j] != states_numbered[i][j]:
+                    equal = False
+                    break
+            if equal:
+                return i
+        return -1
+
+    def V_action_state(self, actions_policy, actions_made, n_possible_policy_actions):
+        v_total = 0.0
+
+        for i in range(len(actions_made)):
+            if actions_made[i] == actions_policy[i]:
+                v_total += math.exp(-1)/(math.exp(-1) + (n_possible_policy_actions-1)*math.exp(-2))
+            else:
+                v_total += math.exp(-2) / (n_possible_policy_actions * math.exp(-2))
+
+        return v_total
+
+
+    def write_in_txt(self, data):
+        f = open("oneDBoxes_CollaborationResults.txt", "a+")
+
+        datetime_object = datetime.datetime.now()
+        datetime_object = datetime_object.strftime("DATE_%d-%m-%Y___TIME_%H-%M-%S")
+        f.write("%s \n" % datetime_object)
+        for item in data:
+            f.write("%s \n" % item[0])
+            f.write("Actions according to policy -> %s\r" % item[1])
+            f.write("Actions according to shappy -> %s\r" % item[2])
+            f.write("V -> %s\r" % item[3])
+        f.close()

@@ -39,7 +39,7 @@ def main():
     os.environ['SDL_VIDEO_CENTERED'] = '0'
 
     #create world
-    world = World_oneDBoxes(terrain, collaborative_policy_file)
+    world = World_oneDBoxes(terrain, non_collaborative_policy_file)
 
     #create the collaboration analyser
     #collaborator = Collaborator_oneDBoxes(world, False)
@@ -62,17 +62,12 @@ def main():
     #    collaborator.update()
 
         if len(world.box_group) == 0:
-            Policy_comparator_oneDBoxes([collaborative_policy_file, non_collaborative_policy_file]).\
-                receive_world_simulation_run(world.simulation_run_states)
             #policy_comparator.receive_world_simulation_run(world.simulation_run_states)
             running = False
 
         # event handling, gets all event from the event queue
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                Policy_comparator_oneDBoxes([collaborative_policy_file, non_collaborative_policy_file]).\
-                    receive_world_simulation_run(
-                    world.simulation_run_states)
                 #policy_comparator.receive_world_simulation_run(world.simulation_run_states)
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -87,6 +82,9 @@ def main():
                 if event.key == pygame.K_2:
                     for shappy in world.shappy_group:
                         shappy.go_ahead = True
+
+    Policy_comparator_oneDBoxes([collaborative_policy_file, non_collaborative_policy_file]). \
+        receive_world_simulation_run(world.simulation_run_states)
 
 if __name__ == "__main__":
     # call the main function

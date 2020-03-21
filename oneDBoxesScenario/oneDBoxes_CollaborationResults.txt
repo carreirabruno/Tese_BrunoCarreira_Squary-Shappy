@@ -1,0 +1,13 @@
+DATE_21-03-2020___TIME_16-46-18 
+Collaborative 
+Actions according to policy -> [4, 4, 4, 4, 2, 2, 2]Actions according to shappy -> [6, 0, 4, 3, 3, 3, 3]V -> 0.34Non collaborative 
+Actions according to policy -> [6, 7, 4, 3, 3, 3, 3]Actions according to shappy -> [6, 7, 4, 3, 3, 3, 3]V -> 0.66DATE_21-03-2020___TIME_17-28-17 
+Collaborative 
+Actions according to policy -> [4, 4, 4, 2, 4]Actions according to shappy -> [6, 4, 4, 2, 4]V -> 0.57Non collaborative 
+Actions according to policy -> [6, 7, 4, 3, 3]Actions according to shappy -> [6, 4, 4, 2, 4]V -> 0.43DATE_21-03-2020___TIME_17-30-52 
+Collaborative 
+Actions according to policy -> [4, 3, 3, 2, 2, 2]Actions according to shappy -> [1, 0, 0, 2, 2, 2]V -> 0.62Non collaborative 
+Actions according to policy -> [6, 6, 6, 3, 3, 3]Actions according to shappy -> [1, 0, 0, 2, 2, 2]V -> 0.38DATE_21-03-2020___TIME_17-31-47 
+Collaborative 
+Actions according to policy -> [4, 3, 3, 2, 2, 2, 0, 0]Actions according to shappy -> [1, 0, 0, 0, 0, 0, 0, 0]V -> 0.57Non collaborative 
+Actions according to policy -> [6, 6, 6, 3, 3, 3, 3, 3]Actions according to shappy -> [1, 0, 0, 0, 0, 0, 0, 0]V -> 0.43

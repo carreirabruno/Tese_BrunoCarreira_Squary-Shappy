@@ -445,10 +445,10 @@ class MDP_Policy_maker_oneDBoxes(object):
     def create_policy(self):
 
         #total_episodes = 3000  # tenho que aumentar isto para 100000 :(
-        total_episodes = 3000
+        total_episodes = 1000
 
-        #starting_states = self.create_stating_states()
-        starting_states = [self.start_state]
+        starting_states = self.create_stating_states()
+        #starting_states = [self.start_state]
         # TRAIN
         rewards = []
         for i_state in range(len(starting_states)):
@@ -456,8 +456,8 @@ class MDP_Policy_maker_oneDBoxes(object):
 
                 self.current_state = starting_states[i_state]
                 self.calculate_best_possible_paths()
-                #print("State ", i_state, state, " Episode ", episode)
-                print("Episode ", episode)
+                print("State ", i_state, " Episode ", episode)
+                #print("Episode ", episode)
                 #print(self.epsilon)
                 episode_rewards = []
 
@@ -478,13 +478,13 @@ class MDP_Policy_maker_oneDBoxes(object):
 
                     self.current_state = new_state
 
-                if episode == 300:
+                if episode == 100:
                     self.epsilon = 0.5
-                elif episode == 1000:
+                elif episode == 300:
                      self.epsilon = 0.3
-                elif episode == 2000:
+                elif episode == 500:
                      self.epsilon = 0.1
-                elif episode == 2900:
+                elif episode == 990:
                     self.imprimir = True
                     self.epsilon = 0.01
                 # elif episode == 2990:

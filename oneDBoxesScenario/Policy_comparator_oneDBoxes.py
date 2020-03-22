@@ -22,6 +22,7 @@ class Policy_comparator_oneDBoxes(object):
         self.Q_table_non_col, self.states_numbered_non_col, self.P_table_non_col = pickle.load(fp)
         fp.close()
 
+
         self.policies_array = [[self.Q_table_col, self.states_numbered_col, self.P_table_col, "Collaborative"],
                                  [self.Q_table_non_col, self.states_numbered_non_col, self.P_table_non_col,
                                   "Non collaborative"]]
@@ -94,10 +95,10 @@ class Policy_comparator_oneDBoxes(object):
     #         elif temp_file == "non_collaborative":
     #             self.non_collaborative_policy = policy
 
-    def receive_world_simulation_run(self, simulation_run):
+    def receive_world_simulation_run1(self, simulation_run):
         data = []
         for array in self.policies_array:
-            actions__according_to_policy = []
+            actions_according_to_policy = []
             actions_made = []
             #print(array[3])
             for i in range(1, len(simulation_run)):
@@ -112,19 +113,16 @@ class Policy_comparator_oneDBoxes(object):
                                 equal = False
                                 break
                         if equal:
-                            actions__according_to_policy.append(array[0][k][1])
+                            actions_according_to_policy.append(array[0][k][1])
                             break
 
-                    if old_state == new_state:
-                        pass
-                    else:
-                        max_actions = []
-                        for action in array[2]:
-                            max_actions.append(action[old_state][new_state])
-                        actions_made.append(np.argmax(max_actions))
+                    max_actions = []
+                    for action in array[2]:
+                        max_actions.append(action[old_state][new_state])
+                    actions_made.append(np.argmax(max_actions))
 
-            v_total = self.V_action_state(actions__according_to_policy, actions_made, len(array[2]))
-            data.append([array[3], actions__according_to_policy, actions_made, v_total])
+            v_total = self.V_action_state(actions_according_to_policy, actions_made, len(array[2]))
+            data.append([array[3], actions_according_to_policy, actions_made, v_total])
             #self.write_in_txt(array[3], actions__according_to_policy, actions_made, v_total)
 
         v_total = 0
@@ -135,6 +133,70 @@ class Policy_comparator_oneDBoxes(object):
             a[3] = "{:.2f}".format(a[3] / v_total)
 
         self.write_in_txt(data)
+
+
+    def receive_world_simulation_run2(self, simulation_run):
+        data = []
+        for array in self.policies_array:
+            actions_according_to_policy = []
+            total_actions_made = []
+            action_made = -1
+            v = 0
+            #print(array[3])
+            for i in range(1, len(simulation_run)):
+                old_state = self.get_state_number(simulation_run[i-1], array[1])
+                new_state = self.get_state_number(simulation_run[i], array[1])
+                policy_actions_per_state = []
+                if old_state != new_state:
+                    for k in range(len(array[0])):
+                        equal = True
+                        for g in range(len(array[0][k][0])):
+                            if simulation_run[i-1][g] != array[0][k][0][g]:
+                                equal = False
+                                break
+                        if equal:
+                            actions_according_to_policy.append(np.argmax(array[0][k][2]))
+                            policy_actions_per_state.append(array[0][k][2])
+                            break
+
+                    max_actions = []
+                    for action in array[2]:
+                        max_actions.append(action[old_state][new_state])
+                    action_made = np.argmax(max_actions)
+                    total_actions_made.append(action_made)
+
+                    #print(self.organize_and_get_action_value(action_made, policy_actions_per_state))
+
+                    v += self.organize_and_get_action_value(action_made, policy_actions_per_state)
+                    #calcular o V aqui
+
+            #v_total = self.V_action_state(actions_according_to_policy, actions_made, len(array[2]))
+            data.append([array[3], actions_according_to_policy, total_actions_made, v])
+            #self.write_in_txt(array[3], actions__according_to_policy, actions_made, v_total)
+
+        v_total = 0
+        for a in data:
+            v_total += a[3]
+
+        for a in data:
+            a[3] = "{:.2f}".format(a[3] / v_total)
+
+        self.write_in_txt(data)
+
+    def organize_and_get_action_value(self, action_made, policy_actions_per_state):
+        temp_array = copy.deepcopy(policy_actions_per_state[0])
+        organized_array = []
+        for i in range(len(temp_array)):
+            min_action = np.argmin(temp_array)
+            organized_array.append(min_action)
+            temp_array[min_action] = math.inf
+
+        #print(organized_array)
+        #print(action_made)
+
+        for i in range(len(organized_array)):
+            if action_made == organized_array[i]:
+                return i
 
 
     def get_action_from_policy(self, state, policy):
@@ -157,16 +219,16 @@ class Policy_comparator_oneDBoxes(object):
                 return i
         return -1
 
-    def V_action_state(self, actions_policy, actions_made, n_possible_policy_actions):
-        v_total = 0.0
-
-        for i in range(len(actions_made)):
-            if actions_made[i] == actions_policy[i]:
-                v_total += math.exp(-1)/(math.exp(-1) + (n_possible_policy_actions-1)*math.exp(-2))
-            else:
-                v_total += math.exp(-2) / (n_possible_policy_actions * math.exp(-2))
-
-        return v_total
+    # def V_action_state(self, actions_policy, actions_made, n_possible_policy_actions):
+    #     v_total = 0.0
+    #
+    #     for i in range(len(actions_made)):
+    #         if actions_made[i] == actions_policy[i]:
+    #             v_total += math.exp(-1)/(math.exp(-1) + (n_possible_policy_actions-1)*math.exp(-2))
+    #         #else:
+    #          #   v_total += math.exp(-2) / (n_possible_policy_actions * math.exp(-2))
+    #
+    #     return v_total
 
 
     def write_in_txt(self, data):
@@ -180,4 +242,5 @@ class Policy_comparator_oneDBoxes(object):
             f.write("Actions according to policy -> %s\r" % item[1])
             f.write("Actions according to shappy -> %s\r" % item[2])
             f.write("V -> %s\r" % item[3])
+        f.write("\n")
         f.close()

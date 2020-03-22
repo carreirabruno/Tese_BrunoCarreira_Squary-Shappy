@@ -103,7 +103,7 @@ class MDP_Policy_maker_oneDBoxes(object):
         self.P_table = np.zeros((self.n_actions, self.n_states, self.n_states))
 
         self.type_of_policy = policy_file.replace("oneDBoxes_MDP_", '')
-        self.type_of_policy = self.type_of_policy.replace("_policy.pickle", '')
+        self.type_of_policy = self.type_of_policy.replace("_policy2.pickle", '')
 
         self.imprimir = False
 
@@ -445,10 +445,10 @@ class MDP_Policy_maker_oneDBoxes(object):
     def create_policy(self):
 
         #total_episodes = 3000  # tenho que aumentar isto para 100000 :(
-        total_episodes = 1000
+        total_episodes = 3000
 
-        starting_states = self.create_stating_states()
-        #starting_states = [self.start_state]
+        #starting_states = self.create_stating_states()
+        starting_states = [self.start_state]
         # TRAIN
         rewards = []
         for i_state in range(len(starting_states)):
@@ -478,13 +478,13 @@ class MDP_Policy_maker_oneDBoxes(object):
 
                     self.current_state = new_state
 
-                if episode == 100:
+                if episode == 500:
                     self.epsilon = 0.5
-                elif episode == 300:
+                elif episode ==1300:
                      self.epsilon = 0.3
-                elif episode == 500:
+                elif episode == 2000:
                      self.epsilon = 0.1
-                elif episode == 990:
+                elif episode == 2900:
                     self.imprimir = True
                     self.epsilon = 0.01
                 # elif episode == 2990:

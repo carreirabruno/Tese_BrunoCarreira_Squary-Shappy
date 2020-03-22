@@ -12,8 +12,8 @@ def main():
     # collaborative_policy_file = "oneDBoxes_MDP_collaborative_policy3.txt"
     # non_collaborative_policy_file = "oneDBoxes_MDP_non_collaborative_policy2.txt"
 
-    collaborative_policy_file = "oneDBoxes_MDP_collaborative_policy.pickle"
-    non_collaborative_policy_file = "oneDBoxes_MDP_non_collaborative_policy.pickle"
+    collaborative_policy_file = "oneDBoxes_MDP_collaborative_policy2.pickle"
+    non_collaborative_policy_file = "oneDBoxes_MDP_non_collaborative_policy2.pickle"
 
     terrain = Terrain_oneDBoxes("oneDBoxes_map2.txt")
 
@@ -39,7 +39,7 @@ def main():
     os.environ['SDL_VIDEO_CENTERED'] = '0'
 
     #create world
-    world = World_oneDBoxes(terrain, non_collaborative_policy_file)
+    world = World_oneDBoxes(terrain, collaborative_policy_file)
 
     #create the collaboration analyser
     #collaborator = Collaborator_oneDBoxes(world, False)
@@ -84,7 +84,7 @@ def main():
                         shappy.go_ahead = True
 
     Policy_comparator_oneDBoxes([collaborative_policy_file, non_collaborative_policy_file]). \
-        receive_world_simulation_run(world.simulation_run_states)
+        receive_world_simulation_run2(world.simulation_run_states)
 
 if __name__ == "__main__":
     # call the main function

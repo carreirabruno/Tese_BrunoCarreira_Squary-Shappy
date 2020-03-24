@@ -14,23 +14,19 @@ def main():
 
     base_policy2_file = "oneDBoxes_MDP_base_policy2.pickle"
     base_policy3_file = "oneDBoxes_MDP_base_policy3.pickle"
-    collaborative_policy_file = "oneDBoxes_MDP_collaborative_policy2.pickle"
-    non_collaborative_policy_file = "oneDBoxes_MDP_non_collaborative_policy2.pickle"
+
+    # collaborative_policy_file = "oneDBoxes_MDP_collaborative_policy2.pickle"
+    # non_collaborative_policy_file = "oneDBoxes_MDP_non_collaborative_policy2.pickle"
 
     terrain2 = Terrain_oneDBoxes("oneDBoxes_map2.txt")
     terrain3 = Terrain_oneDBoxes("oneDBoxes_map3.txt")
 
     #create the policy
     policy_maker_col2 = MDP_Policy_maker_oneDBoxes(terrain2.matrix, base_policy2_file)
-    #policy_maker_col3 = MDP_Policy_maker_oneDBoxes(terrain3.matrix, base_policy3_file)
-    #policy_maker_col = MDP_Policy_maker_oneDBoxes(terrain.matrix, collaborative_policy_file)
-    #policy_maker_non_col = MDP_Policy_maker_oneDBoxes(terrain.matrix, non_collaborative_policy_file)
+    policy_maker_col3 = MDP_Policy_maker_oneDBoxes(terrain3.matrix, base_policy3_file)
+
     #winsound.Beep(600, 500)
 
-
-    #create the comparator
-    #policy_comparator = Policy_comparator_oneDBoxes([collaborative_policy_file, non_collaborative_policy_file])
-    #quit()
     # define a variable to control the main loop
     running = True
 

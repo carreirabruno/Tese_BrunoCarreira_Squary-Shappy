@@ -230,11 +230,11 @@ class MDP_Policy_maker_oneDBoxes(object):
             if state.map[new_first_shappy_pos] == self.BOX:
                 new_reward += 10
             else:
-                new_reward -= 0
+                new_reward += 0
             if state.map[new_second_shappy_pos] == self.BOX:
                 new_reward += 10
             else:
-                new_reward -= 0
+                new_reward += 0
         elif self.type_of_policy == "collaborative":
             best_collaboration_path = self.calculate_best_possible_paths()
             shappy3_boxes_path = best_collaboration_path[0]

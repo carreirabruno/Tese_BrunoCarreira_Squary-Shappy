@@ -104,6 +104,7 @@ class MDP_Policy_maker_oneDBoxes(object):
 
         self.type_of_policy = policy_file.replace("oneDBoxes_MDP_", '')
         self.type_of_policy = self.type_of_policy.replace("_policy2.pickle", '')
+        self.type_of_policy = self.type_of_policy.replace("_policy3.pickle", '')
 
         self.imprimir = False
 
@@ -227,13 +228,13 @@ class MDP_Policy_maker_oneDBoxes(object):
         # Criar as rewards
         if self.type_of_policy == "base":
             if state.map[new_first_shappy_pos] == self.BOX:
-                new_reward += 100
+                new_reward += 10
             else:
-                new_reward -= 1
+                new_reward -= 0
             if state.map[new_second_shappy_pos] == self.BOX:
-                new_reward += 100
+                new_reward += 10
             else:
-                new_reward -= 1
+                new_reward -= 0
         elif self.type_of_policy == "collaborative":
             best_collaboration_path = self.calculate_best_possible_paths()
             shappy3_boxes_path = best_collaboration_path[0]
@@ -244,7 +245,6 @@ class MDP_Policy_maker_oneDBoxes(object):
                 new_reward += 2
             elif abs(shappy3_boxes_path[0] - new_first_shappy_pos) < abs(shappy3_boxes_path[0] - old_first_shappy_pos):
                 new_reward += 2
-                #print("3 - afastei")
             else:
                 new_reward -= 10
             if state.map[new_second_shappy_pos] == self.BOX:
@@ -480,7 +480,7 @@ class MDP_Policy_maker_oneDBoxes(object):
 
                 if episode == 500:
                     self.epsilon = 0.5
-                elif episode ==1300:
+                elif episode == 1300:
                      self.epsilon = 0.3
                 elif episode == 2000:
                      self.epsilon = 0.1

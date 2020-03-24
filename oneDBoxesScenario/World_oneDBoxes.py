@@ -141,7 +141,7 @@ class World_oneDBoxes(object):
 
     def update(self):
 
-        if time.time() - self.time_interval > 0.1:
+        if time.time() - self.time_interval > 1:
             self.time_interval = time.time()
             # if self.last_update is None:
             #     self.last_update = time.time()

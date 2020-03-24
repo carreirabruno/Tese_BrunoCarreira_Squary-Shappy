@@ -12,12 +12,17 @@ def main():
     # collaborative_policy_file = "oneDBoxes_MDP_collaborative_policy3.txt"
     # non_collaborative_policy_file = "oneDBoxes_MDP_non_collaborative_policy2.txt"
 
+    base_policy2_file = "oneDBoxes_MDP_base_policy2.pickle"
+    base_policy3_file = "oneDBoxes_MDP_base_policy3.pickle"
     collaborative_policy_file = "oneDBoxes_MDP_collaborative_policy2.pickle"
     non_collaborative_policy_file = "oneDBoxes_MDP_non_collaborative_policy2.pickle"
 
-    terrain = Terrain_oneDBoxes("oneDBoxes_map2.txt")
+    terrain2 = Terrain_oneDBoxes("oneDBoxes_map2.txt")
+    terrain3 = Terrain_oneDBoxes("oneDBoxes_map3.txt")
 
     #create the policy
+    policy_maker_col2 = MDP_Policy_maker_oneDBoxes(terrain2.matrix, base_policy2_file)
+    #policy_maker_col3 = MDP_Policy_maker_oneDBoxes(terrain3.matrix, base_policy3_file)
     #policy_maker_col = MDP_Policy_maker_oneDBoxes(terrain.matrix, collaborative_policy_file)
     #policy_maker_non_col = MDP_Policy_maker_oneDBoxes(terrain.matrix, non_collaborative_policy_file)
     #winsound.Beep(600, 500)
@@ -39,7 +44,7 @@ def main():
     os.environ['SDL_VIDEO_CENTERED'] = '0'
 
     #create world
-    world = World_oneDBoxes(terrain, collaborative_policy_file)
+    world = World_oneDBoxes(terrain2, base_policy2_file)
 
     #create the collaboration analyser
     #collaborator = Collaborator_oneDBoxes(world, False)
@@ -83,8 +88,8 @@ def main():
                     for shappy in world.shappy_group:
                         shappy.go_ahead = True
 
-    Policy_comparator_oneDBoxes([collaborative_policy_file, non_collaborative_policy_file]). \
-        receive_world_simulation_run2(world.simulation_run_states)
+    #Policy_comparator_oneDBoxes([collaborative_policy_file, non_collaborative_policy_file]). \
+     #   receive_world_simulation_run2(world.simulation_run_states)
 
 if __name__ == "__main__":
     # call the main function

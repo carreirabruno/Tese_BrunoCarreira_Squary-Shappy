@@ -197,7 +197,7 @@ class Policy_comparator_oneDBoxes(object):
         for i in range(len(organized_array)):
             if action_made == organized_array[i]:
                 return i
-
+        return 0
 
     def get_action_from_policy(self, state, policy):
         for line in policy:

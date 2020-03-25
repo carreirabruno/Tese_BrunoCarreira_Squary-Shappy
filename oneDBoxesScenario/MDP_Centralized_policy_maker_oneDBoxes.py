@@ -26,9 +26,10 @@ class State:
         return f"State(map={self.map})"
 
 
-class MDP_Policy_maker_oneDBoxes(object):
+class MDP_Centralized_policy_maker_oneDBoxes(object):
 
     def __init__(self, terrain_matrix, policy_file):
+
         self.map = []
         for line in terrain_matrix:
             if 2 in line:
@@ -445,7 +446,7 @@ class MDP_Policy_maker_oneDBoxes(object):
     def create_policy(self):
 
         #total_episodes = 3000  # tenho que aumentar isto para 100000 :(
-        total_episodes = 3000
+        total_episodes = 5000
 
         #starting_states = self.create_stating_states()
         starting_states = [self.start_state]
@@ -455,7 +456,7 @@ class MDP_Policy_maker_oneDBoxes(object):
             for episode in range(total_episodes):
 
                 self.current_state = starting_states[i_state]
-                self.calculate_best_possible_paths()
+                # self.calculate_best_possible_paths()
                 print("State ", i_state, " Episode ", episode)
                 #print("Episode ", episode)
                 #print(self.epsilon)
@@ -478,13 +479,13 @@ class MDP_Policy_maker_oneDBoxes(object):
 
                     self.current_state = new_state
 
-                if episode == 500:
+                if episode == 1000:
                     self.epsilon = 0.5
-                elif episode == 1300:
-                     self.epsilon = 0.3
                 elif episode == 2000:
+                     self.epsilon = 0.3
+                elif episode == 3000:
                      self.epsilon = 0.1
-                elif episode == 2900:
+                elif episode == 4500:
                     self.imprimir = True
                     self.epsilon = 0.01
                 # elif episode == 2990:
@@ -515,7 +516,7 @@ class MDP_Policy_maker_oneDBoxes(object):
     def write_in_txt(self, policy_file):
         new_Q_table = []
         for line in self.Q_table:
-            new_Q_table.append([line.map, np.argmax(self.Q(line)), self.Q(line)])
+            new_Q_table.append([line.map, self.Q(line)])
         with open(policy_file, "wb") as fp:  # Unpickling
             pickle.dump((new_Q_table, self.states_numbered, self.P_table), fp)
             fp.close()

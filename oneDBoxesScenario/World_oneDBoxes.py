@@ -149,18 +149,17 @@ class World_oneDBoxes(object):
 
             # delta_t = time.time() - self.last_update
 
-            actions_to_do = self.get_current_action_to_do()
+            # actions_to_do = self.get_current_action_to_do()
 
             shappy3_state = []
             shappy4_state = []
             for shappy in self.shappy_group:
                 if shappy.color == 3:
-                    shappy3_state = shappy.update(self.current_state, actions_to_do[0])
+                    shappy3_state = shappy.update(self.current_state)
                 if shappy.color == 4:
-                    shappy4_state = shappy.update(self.current_state, actions_to_do[1])
-            self.set_new_terrain_matrix(shappy3_state, shappy4_state)
+                    shappy4_state = shappy.update(self.current_state)
 
-            # self.check_collisions()
+            self.set_new_terrain_matrix(shappy3_state, shappy4_state)
 
             self.simulation_run_states.append(self.current_state)
 
@@ -323,55 +322,57 @@ class World_oneDBoxes(object):
         #
         # return policy
 
-    def get_current_action_to_do(self):
-
-        # current_state = np.array(current_state)
-        # if 3 not in current_state:
-        #     current_state = np.where(current_state == 4, 7, current_state)
-        # if 4 not in current_state:
-        #     current_state = np.where(current_state == 3, 7, current_state)
-        actions = -1
-        for state in self.policy:
-            equal = True
-            # comparison = current_state == state[0]
-            for i in range(len(state[0])):
-                if self.current_state[i] != state[0][i]:
-                    equal = False
-            # if comparison.all():
-            if equal:
-                actions = state[1]
-                break
-
-        if actions == 0:
-            actions = "STAY_LEFT"
-        elif actions == 1:
-            actions = "STAY_RIGHT"
-        elif actions == 2:
-            actions = "LEFT_STAY"
-        elif actions == 3:
-            actions = "LEFT_LEFT"
-        elif actions == 4:
-            actions = "LEFT_RIGHT"
-        elif actions == 5:
-            actions = "RIGHT_STAY"
-        elif actions == 6:
-            actions = "RIGHT_LEFT"
-        elif actions == 7:
-            actions = "RIGHT_RIGHT"
-
-        actions = str(actions).split("_")
-
-        return actions
+    # def get_current_action_to_do(self):
+    #
+    #     # current_state = np.array(current_state)
+    #     # if 3 not in current_state:
+    #     #     current_state = np.where(current_state == 4, 7, current_state)
+    #     # if 4 not in current_state:
+    #     #     current_state = np.where(current_state == 3, 7, current_state)
+    #     actions = -1
+    #     for state in self.policy:
+    #         equal = True
+    #         # comparison = current_state == state[0]
+    #         for i in range(len(state[0])):
+    #             if self.current_state[i] != state[0][i]:
+    #                 equal = False
+    #         # if comparison.all():
+    #         if equal:
+    #             actions = np.argmax(state[1])
+    #             break
+    #
+    #     if actions == 0:
+    #         actions = "STAY_LEFT"
+    #     elif actions == 1:
+    #         actions = "STAY_RIGHT"
+    #     elif actions == 2:
+    #         actions = "LEFT_STAY"
+    #     elif actions == 3:
+    #         actions = "LEFT_LEFT"
+    #     elif actions == 4:
+    #         actions = "LEFT_RIGHT"
+    #     elif actions == 5:
+    #         actions = "RIGHT_STAY"
+    #     elif actions == 6:
+    #         actions = "RIGHT_LEFT"
+    #     elif actions == 7:
+    #         actions = "RIGHT_RIGHT"
+    #
+    #     actions = str(actions).split("_")
+    #
+    #     return actions
 
     def set_new_terrain_matrix(self, shappy3_state, shappy4_state):
-        self.current_state = []
-        for i in range(len(shappy3_state)):
-            if shappy3_state[i] == shappy4_state[i]:
-                self.current_state.append(shappy3_state[i])
-            elif shappy3_state[i] == 2 and shappy4_state[i] != 2 or shappy3_state[i] == 0 and shappy4_state[i] == 4:
-                self.current_state.append(shappy4_state[i])
-            elif shappy3_state[i] != 2 and shappy4_state[i] == 2 or shappy3_state[i] == 3 and shappy4_state[i] == 0:
-                self.current_state.append(shappy3_state[i])
-            elif shappy3_state[i] == 3 and shappy4_state[i] == 4:
-                self.current_state.append(7)
+        self.current_state = shappy3_state
+
+        for i in range(len(self.current_state)):
+            if self.current_state[i] == shappy4_state[i]:
+                pass
+            elif self.current_state[i] == 3 and shappy4_state[i] == 4:
+                self.current_state[i] = 7
+            elif self.current_state[i] != 3 and shappy4_state[i] == 4:
+                self.current_state[i] = 4
+            elif self.current_state[i] == 4 and shappy4_state[i] != 4:
+                self.current_state[i] = shappy4_state[i]
+
 

@@ -28,7 +28,7 @@ class State:
 
 class MDP_Decentralized_policy_maker_oneDBoxes(object):
 
-    def __init__(self, terrain_matrix, policy_file, color):
+    def __init__(self, terrain_matrix, policy_file):
 
         self.map = []
         for line in terrain_matrix:
@@ -40,7 +40,7 @@ class MDP_Decentralized_policy_maker_oneDBoxes(object):
         # Environment items
         self.WALL = 1
         self.BOX = 2
-        self.SHAPPY = color
+        self.SHAPPY = 3
         self.EMPTY = 0
 
         # Actions
@@ -56,10 +56,10 @@ class MDP_Decentralized_policy_maker_oneDBoxes(object):
         for i in range(len(self.map)):
             if self.map[i] == 7:
                 self.shappy_pos = i
-                break
-            elif self.map[i] == color:
+            elif self.map[i] == 3:
                 self.shappy_pos = i
-                break
+            elif self.map[i] == 4:
+                self.map[i] = 0
 
         boxes = []
         for i in range(len(self.map)):
@@ -118,7 +118,7 @@ class MDP_Decentralized_policy_maker_oneDBoxes(object):
     def choose_actions(self, state):
         random.seed()
         if random.random() < self.epsilon:  # exploration
-            return np.random.randint(0, len(self.ACTIONS)-1)
+            return np.random.randint(0, len(self.ACTIONS))
         else:  # exploitation
             return np.argmax(self.Q(state))
 
@@ -183,59 +183,63 @@ class MDP_Decentralized_policy_maker_oneDBoxes(object):
         existing_starting_states = [self.start_state]
 
         map_copy = copy.deepcopy(self.map)
-        if 3 in map_copy or 4 in map_copy:
+        if 3 in map_copy:
             map_copy = np.where(map_copy == 3, 0, map_copy)
-            map_copy = np.where(map_copy == 4, 0, map_copy)
 
         filled_positions = []
+        boxes_positions = []
         for i in range(len(map_copy)):
-            if map_copy[i] == 1 or map_copy[i] == 2:
+            if map_copy[i] == 1:
                 filled_positions.append(i)
+            if map_copy[i] == 2:
+                boxes_positions.append([i])
 
-        for a in range(100):
-            random.seed()
+        boxes_positions.append([boxes_positions[0][0],boxes_positions[1][0]])
+        boxes_positions.append([boxes_positions[0][0], boxes_positions[2][0]])
+        boxes_positions.append([boxes_positions[1][0], boxes_positions[2][0]])
+        different_boxes_map = [map_copy]
+        for pos in boxes_positions:
             temp_map = copy.deepcopy(map_copy)
-            pos1 = random.randint(1, len(temp_map) - 1)
-            while pos1 in filled_positions:
-                pos1 = random.randint(1, len(temp_map) - 1)
-            filled_positions.append(pos1)  # Os shappys começam sempre em sitios diferentes
-            pos2 = random.randint(1, len(temp_map) - 1)
-            while pos2 in filled_positions:
-                pos2 = random.randint(1, len(temp_map) - 1)
-            filled_positions.remove(pos1)
+            for ind_pos in pos:
+                temp_map[pos] = 0
+            different_boxes_map.append(temp_map)
 
-            if pos1 < pos2:
-                temp_map[pos1] = 3
-                temp_map[pos2] = 4
-            else:
-                temp_map[pos2] = 3
-                temp_map[pos1] = 4
+        for ind_map in different_boxes_map:
+            for a in range(100):
+                random.seed()
+                temp_map = copy.deepcopy(ind_map)
+                pos = random.randint(1, len(temp_map) - 1)
+                while pos in filled_positions:
+                    pos = random.randint(1, len(temp_map) - 1)
 
-            temp_state = State(map=temp_map)
-            already_exists = False
-            for state in existing_starting_states:
-                comparison = state.map == temp_state.map
-                if comparison.all():
-                    already_exists = True
+                temp_map[pos] = 3
 
-            if not already_exists:
-                existing_starting_states.append(temp_state)
+                temp_state = State(map=temp_map)
+                already_exists = False
+                for state in existing_starting_states:
+                    comparison = state.map == temp_state.map
+                    if comparison.all():
+                        already_exists = True
+
+                if not already_exists:
+                    existing_starting_states.append(temp_state)
 
         return existing_starting_states
 
     def create_policy(self):
 
-        total_episodes = 3000
+        total_episodes = 1000
 
-        #starting_states = self.create_stating_states()
-        starting_states = [self.start_state]
+        starting_states = self.create_stating_states()
+        #starting_states = [self.start_state]
         # TRAIN
         rewards = []
         for i_state in range(len(starting_states)):
             for episode in range(total_episodes):
 
                 self.current_state = starting_states[i_state]
-                print("State ", i_state, " Episode ", episode)
+
+                print("State ", i_state, "/", len(starting_states)-1, " Episode ", episode)
 
                 episode_rewards = []
 
@@ -243,7 +247,10 @@ class MDP_Decentralized_policy_maker_oneDBoxes(object):
                     if 2 not in self.current_state.map:
                         break
 
+                    #print(self.current_state)
+
                     actions = self.choose_actions(self.current_state)
+
                     new_state, reward = self.take_actions(self.current_state, actions)
 
                     self.learn(self.current_state, actions, reward, new_state)
@@ -252,13 +259,13 @@ class MDP_Decentralized_policy_maker_oneDBoxes(object):
 
                     self.current_state = new_state
 
-                if episode == 500:
+                if episode == 100:
                     self.epsilon = 0.5
-                elif episode == 1300:
+                elif episode == 300:
                      self.epsilon = 0.3
-                elif episode == 2000:
+                elif episode == 500:
                      self.epsilon = 0.1
-                elif episode == 2900:
+                elif episode == 900:
                     self.epsilon = 0.01
 
                 rewards.append(np.mean(episode_rewards))

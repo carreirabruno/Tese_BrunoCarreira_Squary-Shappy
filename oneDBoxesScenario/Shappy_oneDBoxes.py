@@ -15,7 +15,7 @@ def get_center(sprite):
 class Shappy_oneDBoxes(pygame.sprite.Sprite):
 
     def __init__(self, name, x_pos, y_pos, world, color, terrain_matrix, screen_width, screen_height,
-                 auto, policy):
+                 auto, policy, type_of_policy):
 
         pygame.sprite.Sprite.__init__(self)
         self.x_pos = x_pos
@@ -31,6 +31,7 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
         self.type = None
         self.auto = auto
         self.policy = policy
+        self.type_of_policy = type_of_policy
 
         self.color = color
 
@@ -103,7 +104,7 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
                     # self.x_pos += 1 * self.world.screen_ratio
                     self.righty()
         elif self.auto:
-            self.auto_movement()
+            self.auto_movement(self.type_of_policy)
 
         self.time_interval = time.time()
 
@@ -379,32 +380,55 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
     #             else:
     #                 self.move_left(4, 3)
 
-    def auto_movement(self):
+    def auto_movement(self, type):
+        if type == "Centralized":
+            actions = -1
+            for state in self.policy:
+                equal = True
+                for i in range(len(state[0])):
+                    if self.current_state[i] != state[0][i]:
+                        equal = False
+                if equal:
+                    actions = np.argmax(state[1])
+                    break
 
-        actions = -1
-        for state in self.policy:
-            equal = True
-            for i in range(len(state[0])):
-                if self.current_state[i] != state[0][i]:
-                    equal = False
-            if equal:
-                actions = np.argmax(state[1])
-                break
+            if self.color == 3:
+                if actions == 0 or actions == 1:
+                    pass
+                elif actions == 2 or actions == 3 or actions == 4:
+                    self.lefty()
+                elif actions == 5 or actions == 6 or actions == 7:
+                    self.righty()
+            elif self.color == 4:
+                if actions == 2 or actions == 5:
+                    pass
+                elif actions == 0 or actions == 3 or actions == 6:
+                    self.lefty()
+                elif actions == 1 or actions == 4 or actions == 7:
+                    self.righty()
+        elif type == "Decentralized":
+            for i in range(len(self.current_state)):
+                if self.current_state[i] == 4:
+                    self.current_state[i] = 0
+                elif self.current_state[i] == 7:
+                    self.current_state[i] = 3
 
-        if self.color == 3:
-            if actions == 0 or actions == 1:
+            actions = -1
+            for state in self.policy:
+                equal = True
+                for i in range(len(state[0])):
+                    if self.current_state[i] != state[0][i]:
+                        equal = False
+                if equal:
+                    actions = np.argmax(state[1])
+                    break
+            if actions == 0:
                 pass
-            elif actions == 2 or actions == 3 or actions == 4:
+            elif actions == 1:
                 self.lefty()
-            elif actions == 5 or actions == 6 or actions == 7:
+            elif actions == 2:
                 self.righty()
-        elif self.color == 4:
-            if actions == 2 or actions == 5:
-                pass
-            elif actions == 0 or actions == 3 or actions == 6:
-                self.lefty()
-            elif actions == 1 or actions == 4 or actions == 7:
-                self.righty()
+
 
         # if actions == 0:
         #     actions = "STAY_LEFT"

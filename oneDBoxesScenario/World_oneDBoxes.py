@@ -8,7 +8,9 @@ import pickle
 
 class World_oneDBoxes(object):
 
-    def __init__(self, terrain, policy_file):
+    def __init__(self, terrain, policy_file, type_of_policy):
+
+        self.type_of_policy = type_of_policy
 
         self.last_update = None
 
@@ -64,12 +66,12 @@ class World_oneDBoxes(object):
                 if self.terrain.matrix[line][column] == 3:
                     shappy = Shappy_oneDBoxes('A', column * self.screen_ratio, line * self.screen_ratio, self, 3,
                                               self.terrain.matrix, self.screen_width, self.screen_height,
-                                              False, self.policy)
+                                              False, self.policy, self.type_of_policy)
                     self.shappy_group.add(shappy)
                 if self.terrain.matrix[line][column] == 4:
                     shappy = Shappy_oneDBoxes('B', column * self.screen_ratio, line * self.screen_ratio, self,
                                               4, self.terrain.matrix, self.screen_width, self.screen_height,
-                                              False, self.policy)
+                                              False, self.policy, self.type_of_policy)
                     self.shappy_group.add(shappy)
 
         # #create shappys

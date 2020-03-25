@@ -136,7 +136,7 @@ class MDP_Centralized_policy_maker_oneDBoxes(object):
     def choose_actions(self, state):
         random.seed()
         if random.random() < self.epsilon:  # exploration
-            return np.random.randint(0, len(self.ACTIONS)-1)
+            return np.random.randint(0, len(self.ACTIONS))
         else:  # exploitation
             return np.argmax(self.Q(state))
 

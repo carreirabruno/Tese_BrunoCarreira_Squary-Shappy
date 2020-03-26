@@ -34,9 +34,6 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
                 temp_array.append(int(letter))
             self.map.append(temp_array)
 
-        self.print_array(self.map)
-        quit()
-
         random.seed()
 
         # Environment items
@@ -86,18 +83,17 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
         self.n_actions = len(self.ACTIONS)
 
         shappys = []
-        for i in range(len(self.map)):
-            if self.map[i] == 7:
-                shappys.append(i)
-                shappys.append(i)
-                break
-            elif self.map[i] == 3 or self.map[i] == 4:
-                shappys.append(i)
-
         boxes = []
         for i in range(len(self.map)):
-            if self.map[i] == 2:
-                boxes.append(i)
+            for j in range(len(self.map[i])):
+                if self.map[i][j] == 2:
+                    boxes.append([i, j])
+                if self.map[i][j] == 7:
+                    shappys.append([i, j])
+                    shappys.append([i, j])
+                    break
+                elif self.map[i][j] == 3 or self.map[i][j] == 4:
+                    shappys.append([i, j])
 
         self.start_state = State(map=self.map)
         self.current_state = []
@@ -110,12 +106,15 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
         self.epsilon = self.max_epsilon
         self.decay_rate = 0.001
 
-        self.n_states = len(self.map) * len(shappys) * len(boxes)
+        self.n_states = len(self.map[0]) * len(self.map[0]) * len(shappys) * len(boxes)
         self.n_states *= self.n_states
+        print(self.n_states, "isto está a preencher demasiada memoria, tenho que mudar o self.P()")
+
 
         self.Q_table = dict()
 
         self.states_numbered = []
+
         self.P_table = np.zeros((self.n_actions, self.n_states, self.n_states))
 
         self.type_of_policy = policy_file.replace("twoDBoxes_MDP_", '')
@@ -156,16 +155,16 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
 
         new_reward = 0
         new_first_shappy_pos, new_second_shappy_pos, old_first_shappy_pos, \
-                                                            old_second_shappy_pos = self.new_shappy_pos(state, actions)
+                                                     old_second_shappy_pos = self.new_shappy_pos(state, actions)
 
         new_map = copy.deepcopy(state.map)
 
         # Criar as rewards
-        if state.map[new_first_shappy_pos] == self.BOX:
+        if state.map[new_first_shappy_pos[0]][new_first_shappy_pos[1]] == self.BOX:
             new_reward += 10
         else:
             new_reward += 0
-        if state.map[new_second_shappy_pos] == self.BOX:
+        if state.map[new_second_shappy_pos[0]][new_second_shappy_pos[1]] == self.BOX:
             new_reward += 10
         else:
             new_reward += 0
@@ -173,128 +172,267 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
         # Só mexe o 1 - Mesmo sitio -> Separados
         if old_second_shappy_pos == new_second_shappy_pos and old_first_shappy_pos == old_second_shappy_pos \
                 and new_first_shappy_pos != new_second_shappy_pos:
-            new_map[old_first_shappy_pos] = self.SHAPPY2
-            new_map[new_first_shappy_pos] = self.SHAPPY1
+            new_map[old_first_shappy_pos[0]][old_first_shappy_pos[1]] = self.SHAPPY2
+            new_map[new_first_shappy_pos[0]][new_first_shappy_pos[1]] = self.SHAPPY1
 
         # Só mexe o 1 - Separados -> Mesmo sitio
         if old_second_shappy_pos == new_second_shappy_pos and old_first_shappy_pos != old_second_shappy_pos \
                 and new_first_shappy_pos == new_second_shappy_pos:
-            new_map[old_first_shappy_pos] = self.EMPTY
-            new_map[new_first_shappy_pos] = self.BOTH_SHAPPYS
+            new_map[old_first_shappy_pos[0]][old_first_shappy_pos[1]] = self.EMPTY
+            new_map[new_first_shappy_pos[0]][new_first_shappy_pos[1]] = self.BOTH_SHAPPYS
 
         # Só mexe o 2 - Mesmo sitio -> Separados
         elif old_first_shappy_pos == new_first_shappy_pos and old_first_shappy_pos == old_second_shappy_pos \
                 and new_first_shappy_pos != new_second_shappy_pos:
-            new_map[old_second_shappy_pos] = self.SHAPPY1
-            new_map[new_second_shappy_pos] = self.SHAPPY2
+            new_map[old_second_shappy_pos[0]][old_second_shappy_pos[1]] = self.SHAPPY1
+            new_map[new_second_shappy_pos[0]][new_second_shappy_pos[1]] = self.SHAPPY2
 
         # Só mexe o 2 - Separados -> Mesmo sitio
         elif old_first_shappy_pos == new_first_shappy_pos and old_first_shappy_pos != old_second_shappy_pos \
                 and new_first_shappy_pos == new_second_shappy_pos:
-            new_map[old_second_shappy_pos] = self.EMPTY
-            new_map[new_second_shappy_pos] = self.BOTH_SHAPPYS
+            new_map[old_second_shappy_pos[0]][old_second_shappy_pos[1]] = self.EMPTY
+            new_map[new_second_shappy_pos[0]][new_second_shappy_pos[1]] = self.BOTH_SHAPPYS
 
         # Mexem os dois - Mesmo sitio -> Mesmo sitio
         elif old_first_shappy_pos == old_second_shappy_pos and new_first_shappy_pos == new_second_shappy_pos:
-            new_map[old_first_shappy_pos] = self.EMPTY
-            new_map[new_first_shappy_pos] = self.BOTH_SHAPPYS
+            new_map[old_first_shappy_pos[0]][old_first_shappy_pos[1]] = self.EMPTY
+            new_map[new_first_shappy_pos[0]][new_first_shappy_pos[1]] = self.BOTH_SHAPPYS
 
         # Mexem os dois - Separados -> Mesmo sitio
         elif old_first_shappy_pos != old_second_shappy_pos and new_first_shappy_pos == new_second_shappy_pos:
-            new_map[old_first_shappy_pos] = self.EMPTY
-            new_map[old_second_shappy_pos] = self.EMPTY
-            new_map[new_first_shappy_pos] = self.BOTH_SHAPPYS
+            new_map[old_first_shappy_pos[0]][old_first_shappy_pos[1]] = self.EMPTY
+            new_map[old_second_shappy_pos[0]][old_second_shappy_pos[1]] = self.EMPTY
+            new_map[new_first_shappy_pos[0]][new_first_shappy_pos[1]] = self.BOTH_SHAPPYS
 
         # Mexem os dois - Mesmo sitio -> Separados
         elif old_first_shappy_pos == old_second_shappy_pos and new_first_shappy_pos != new_second_shappy_pos:
-            new_map[old_first_shappy_pos] = self.EMPTY
-            new_map[new_first_shappy_pos] = self.SHAPPY1
-            new_map[new_second_shappy_pos] = self.SHAPPY2
+            new_map[old_first_shappy_pos[0]][old_first_shappy_pos[1]] = self.EMPTY
+            new_map[new_first_shappy_pos[0]][new_first_shappy_pos[1]] = self.SHAPPY1
+            new_map[new_second_shappy_pos[0]][new_second_shappy_pos[1]] = self.SHAPPY2
 
         # Mexem os dois - Separados -> Separados
         elif old_first_shappy_pos != old_second_shappy_pos and new_first_shappy_pos != new_second_shappy_pos:
-            new_map[old_first_shappy_pos] = self.EMPTY
-            new_map[old_second_shappy_pos] = self.EMPTY
-            new_map[new_first_shappy_pos] = self.SHAPPY1
-            new_map[new_second_shappy_pos] = self.SHAPPY2
+            new_map[old_first_shappy_pos[0]][old_first_shappy_pos[1]] = self.EMPTY
+            new_map[old_second_shappy_pos[0]][old_second_shappy_pos[1]] = self.EMPTY
+            new_map[new_first_shappy_pos[0]][new_first_shappy_pos[1]] = self.SHAPPY1
+            new_map[new_second_shappy_pos[0]][new_second_shappy_pos[1]] = self.SHAPPY2
 
         return State(map=new_map), new_reward
 
     def new_shappy_pos(self, state, action):
-        old_first_shappy_pos = 0
-        old_second_shappy_pos = 0
-        for i in range(len(state.map)):
-            if state.map[i] == 7:
-                old_first_shappy_pos = i
-                old_second_shappy_pos = i
-                break
-            elif state.map[i] == 3:
-                old_first_shappy_pos = i
-            elif state.map[i] == 4:
-                old_second_shappy_pos = i
+        old_first_shappy_pos = []
+        old_second_shappy_pos = []
 
-        if action == self.STAY_LEFT:
+        for i in range(len(state.map)):
+            for j in range(len(state.map[i])):
+                if state.map[i][j] == 7:
+                    old_first_shappy_pos = [i, j]
+                    old_second_shappy_pos = [i, j]
+                    break
+                elif state.map[i][j] == 3:
+                    old_first_shappy_pos = [i, j]
+                elif state.map[i][j] == 4:
+                    old_second_shappy_pos = [i, j]
+
+        if action == self.STAY_STAY:
             first_shappy_pos = old_first_shappy_pos
-            if state.map[old_second_shappy_pos - 1] == self.WALL:  # colidiu com uma self.WALL
+            second_shappy_pos = old_second_shappy_pos
+        elif action == self.STAY_LEFT:
+            first_shappy_pos = old_first_shappy_pos
+            if state.map[old_second_shappy_pos[0]][old_second_shappy_pos[1] - 1] == self.WALL:  # colidiu com uma self.WALL
                 second_shappy_pos = old_second_shappy_pos
             else:
-                second_shappy_pos = old_second_shappy_pos - 1
+                second_shappy_pos = [old_second_shappy_pos[0], old_second_shappy_pos[1] - 1]
         elif action == self.STAY_RIGHT:
             first_shappy_pos = old_first_shappy_pos
-            if state.map[old_second_shappy_pos + 1] == self.WALL:  # colidiu com uma self.WALL
+            if state.map[old_second_shappy_pos[0]][old_second_shappy_pos[1] + 1] == self.WALL:  # colidiu com uma self.WALL
                 second_shappy_pos = old_second_shappy_pos
             else:
-                second_shappy_pos = old_second_shappy_pos + 1
+                second_shappy_pos = [old_second_shappy_pos[0], old_second_shappy_pos[1] + 1]
+        elif action == self.STAY_UP:
+            first_shappy_pos = old_first_shappy_pos
+            if state.map[old_second_shappy_pos[0] - 1][old_second_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                second_shappy_pos = old_second_shappy_pos
+            else:
+                second_shappy_pos = [old_second_shappy_pos[0] - 1, old_second_shappy_pos[1]]
+        elif action == self.STAY_DOWN:
+            first_shappy_pos = old_first_shappy_pos
+            if state.map[old_second_shappy_pos[0] + 1][old_second_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                second_shappy_pos = old_second_shappy_pos
+            else:
+                second_shappy_pos = [old_second_shappy_pos[0] + 1, old_second_shappy_pos[1]]
 
         elif action == self.LEFT_STAY:
-            if state.map[old_first_shappy_pos - 1] == self.WALL:  # colidiu com uma self.WALL
+            if state.map[old_first_shappy_pos[0]][old_first_shappy_pos[1] - 1] == self.WALL:  # colidiu com uma self.WALL
                 first_shappy_pos = old_first_shappy_pos
             else:
-                first_shappy_pos = old_first_shappy_pos - 1
+                first_shappy_pos = [old_first_shappy_pos[0], old_first_shappy_pos[1] - 1]
             second_shappy_pos = old_second_shappy_pos
         elif action == self.LEFT_LEFT:
-            if state.map[old_first_shappy_pos - 1] == self.WALL:  # colidiu com uma self.WALL
+            if state.map[old_first_shappy_pos[0]][old_first_shappy_pos[1] - 1] == self.WALL:  # colidiu com uma self.WALL
                 first_shappy_pos = old_first_shappy_pos
             else:
-                first_shappy_pos = old_first_shappy_pos - 1
-            if state.map[old_second_shappy_pos - 1] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = [old_first_shappy_pos[0], old_first_shappy_pos[1] - 1]
+            if state.map[old_second_shappy_pos[0]][old_second_shappy_pos[1] - 1] == self.WALL:  # colidiu com uma self.WALL
                 second_shappy_pos = old_second_shappy_pos
             else:
-                second_shappy_pos = old_second_shappy_pos - 1
+                second_shappy_pos = [old_second_shappy_pos[0], old_second_shappy_pos[1] - 1]
         elif action == self.LEFT_RIGHT:
-            if state.map[old_first_shappy_pos - 1] == self.WALL:  # colidiu com uma self.WALL
+            if state.map[old_first_shappy_pos[0]][old_first_shappy_pos[1] - 1] == self.WALL:  # colidiu com uma self.WALL
                 first_shappy_pos = old_first_shappy_pos
             else:
-                first_shappy_pos = old_first_shappy_pos - 1
-            if state.map[old_second_shappy_pos + 1] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = [old_first_shappy_pos[0], old_first_shappy_pos[1] - 1]
+            if state.map[old_second_shappy_pos[0]][old_second_shappy_pos[1] + 1] == self.WALL:  # colidiu com uma self.WALL
                 second_shappy_pos = old_second_shappy_pos
             else:
-                second_shappy_pos = old_second_shappy_pos + 1
+                second_shappy_pos = [old_second_shappy_pos[0], old_second_shappy_pos[1] + 1]
+        elif action == self.LEFT_UP:
+            if state.map[old_first_shappy_pos[0]][old_first_shappy_pos[1] - 1] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0], old_first_shappy_pos[1] - 1]
+            if state.map[old_second_shappy_pos[0] - 1][old_second_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                second_shappy_pos = old_second_shappy_pos
+            else:
+                second_shappy_pos = [old_second_shappy_pos[0] - 1, old_second_shappy_pos[1]]
+        elif action == self.LEFT_DOWN:
+            if state.map[old_first_shappy_pos[0]][old_first_shappy_pos[1] - 1] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0], old_first_shappy_pos[1] - 1]
+            if state.map[old_second_shappy_pos[0] + 1][old_second_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                second_shappy_pos = old_second_shappy_pos
+            else:
+                second_shappy_pos = [old_second_shappy_pos[0] + 1, old_second_shappy_pos[1]]
 
         elif action == self.RIGHT_STAY:
-            if state.map[old_first_shappy_pos + 1] == self.WALL:  # colidiu com uma self.WALL
+            if state.map[old_first_shappy_pos[0]][old_first_shappy_pos[1] + 1] == self.WALL:  # colidiu com uma self.WALL
                 first_shappy_pos = old_first_shappy_pos
             else:
-                first_shappy_pos = old_first_shappy_pos + 1
+                first_shappy_pos = [old_first_shappy_pos[0], old_first_shappy_pos[1] + 1]
             second_shappy_pos = old_second_shappy_pos
         elif action == self.RIGHT_LEFT:
-            if state.map[old_first_shappy_pos + 1] == self.WALL:  # colidiu com uma self.WALL
+            if state.map[old_first_shappy_pos[0]][old_first_shappy_pos[1] + 1] == self.WALL:  # colidiu com uma self.WALL
                 first_shappy_pos = old_first_shappy_pos
             else:
-                first_shappy_pos = old_first_shappy_pos + 1
-            if state.map[old_second_shappy_pos - 1] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = [old_first_shappy_pos[0], old_first_shappy_pos[1] + 1]
+            if state.map[old_second_shappy_pos[0]][old_second_shappy_pos[1] - 1] == self.WALL:  # colidiu com uma self.WALL
                 second_shappy_pos = old_second_shappy_pos
             else:
-                second_shappy_pos = old_second_shappy_pos - 1
+                second_shappy_pos = [old_second_shappy_pos[0], old_second_shappy_pos[1] - 1]
         elif action == self.RIGHT_RIGHT:
-            if state.map[old_first_shappy_pos + 1] == self.WALL:  # colidiu com uma self.WALL
+            if state.map[old_first_shappy_pos[0]][old_first_shappy_pos[1] + 1] == self.WALL:  # colidiu com uma self.WALL
                 first_shappy_pos = old_first_shappy_pos
             else:
-                first_shappy_pos = old_first_shappy_pos + 1
-            if state.map[old_second_shappy_pos + 1] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = [old_first_shappy_pos[0], old_first_shappy_pos[1] + 1]
+            if state.map[old_second_shappy_pos[0]][old_second_shappy_pos[1] + 1] == self.WALL:  # colidiu com uma self.WALL
                 second_shappy_pos = old_second_shappy_pos
             else:
-                second_shappy_pos = old_second_shappy_pos + 1
+                second_shappy_pos = [old_second_shappy_pos[0], old_second_shappy_pos[1] + 1]
+        elif action == self.RIGHT_UP:
+            if state.map[old_first_shappy_pos[0]][old_first_shappy_pos[1] + 1] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0], old_first_shappy_pos[1] + 1]
+            if state.map[old_second_shappy_pos[0] - 1][old_second_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                second_shappy_pos = old_second_shappy_pos
+            else:
+                second_shappy_pos = [old_second_shappy_pos[0] - 1, old_second_shappy_pos[1]]
+        elif action == self.RIGHT_DOWN:
+            if state.map[old_first_shappy_pos[0]][old_first_shappy_pos[1] + 1] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0], old_first_shappy_pos[1] + 1]
+            if state.map[old_second_shappy_pos[0] + 1][old_second_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                second_shappy_pos = old_second_shappy_pos
+            else:
+                second_shappy_pos = [old_second_shappy_pos[0] + 1, old_second_shappy_pos[1]]
+
+        elif action == self.UP_STAY:
+            if state.map[old_first_shappy_pos[0] - 1][old_first_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0] - 1, old_first_shappy_pos[1]]
+            second_shappy_pos = old_second_shappy_pos
+        elif action == self.UP_LEFT:
+            if state.map[old_first_shappy_pos[0] - 1][old_first_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0] - 1, old_first_shappy_pos[1]]
+            if state.map[old_second_shappy_pos[0]][old_second_shappy_pos[1] - 1] == self.WALL:  # colidiu com uma self.WALL
+                second_shappy_pos = old_second_shappy_pos
+            else:
+                second_shappy_pos = [old_second_shappy_pos[0], old_second_shappy_pos[1] - 1]
+        elif action == self.UP_RIGHT:
+            if state.map[old_first_shappy_pos[0] - 1][old_first_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0] - 1, old_first_shappy_pos[1]]
+            if state.map[old_second_shappy_pos[0]][old_second_shappy_pos[1] + 1] == self.WALL:  # colidiu com uma self.WALL
+                second_shappy_pos = old_second_shappy_pos
+            else:
+                second_shappy_pos = [old_second_shappy_pos[0], old_second_shappy_pos[1] + 1]
+        elif action == self.UP_UP:
+            if state.map[old_first_shappy_pos[0] - 1][old_first_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0] - 1, old_first_shappy_pos[1]]
+            if state.map[old_second_shappy_pos[0] - 1][old_second_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                second_shappy_pos = old_second_shappy_pos
+            else:
+                second_shappy_pos = [old_second_shappy_pos[0] - 1, old_second_shappy_pos[1]]
+        elif action == self.UP_DOWN:
+            if state.map[old_first_shappy_pos[0] - 1][old_first_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0] - 1, old_first_shappy_pos[1]]
+            if state.map[old_second_shappy_pos[0] + 1][old_second_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                second_shappy_pos = old_second_shappy_pos
+            else:
+                second_shappy_pos = [old_second_shappy_pos[0] + 1, old_second_shappy_pos[1]]
+
+        elif action == self.DOWN_STAY:
+            if state.map[old_first_shappy_pos[0] + 1][old_first_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0] + 1, old_first_shappy_pos[1]]
+            second_shappy_pos = old_second_shappy_pos
+        elif action == self.DOWN_LEFT:
+            if state.map[old_first_shappy_pos[0] + 1][old_first_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0] + 1, old_first_shappy_pos[1]]
+            if state.map[old_second_shappy_pos[0]][old_second_shappy_pos[1] - 1] == self.WALL:  # colidiu com uma self.WALL
+                second_shappy_pos = old_second_shappy_pos
+            else:
+                second_shappy_pos = [old_second_shappy_pos[0], old_second_shappy_pos[1] - 1]
+        elif action == self.DOWN_RIGHT:
+            if state.map[old_first_shappy_pos[0] + 1][old_first_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0] + 1, old_first_shappy_pos[1]]
+            if state.map[old_second_shappy_pos[0]][old_second_shappy_pos[1] + 1] == self.WALL:  # colidiu com uma self.WALL
+                second_shappy_pos = old_second_shappy_pos
+            else:
+                second_shappy_pos = [old_second_shappy_pos[0], old_second_shappy_pos[1] + 1]
+        elif action == self.DOWN_UP:
+            if state.map[old_first_shappy_pos[0] + 1][old_first_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0] + 1, old_first_shappy_pos[1]]
+            if state.map[old_second_shappy_pos[0] - 1][old_second_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                second_shappy_pos = old_second_shappy_pos
+            else:
+                second_shappy_pos = [old_second_shappy_pos[0] - 1, old_second_shappy_pos[1]]
+        elif action == self.DOWN_DOWN:
+            if state.map[old_first_shappy_pos[0] + 1][old_first_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0] + 1, old_first_shappy_pos[1]]
+            if state.map[old_second_shappy_pos[0] + 1][old_second_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                second_shappy_pos = old_second_shappy_pos
+            else:
+                second_shappy_pos = [old_second_shappy_pos[0] + 1, old_second_shappy_pos[1]]
 
         else:
             raise ValueError(f"Unknown action {action}")
@@ -368,7 +506,15 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
                 print("State ", i_state, " Episode ", episode)
                 episode_rewards = []
                 while True:
-                    if 2 not in self.current_state.map:
+                    #self.print_array(self.current_state.map)
+                    self.check_walls()
+
+                    stop = True
+                    for i in range(len(self.current_state.map)):
+                        for j in range(len(self.current_state.map[i])):
+                            if self.current_state.map[i][j] == 2:
+                                stop = False
+                    if stop:
                         break
 
                     actions = self.choose_actions(self.current_state)
@@ -384,9 +530,9 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
                 if episode == 100:
                     self.epsilon = 0.5
                 elif episode == 250:
-                     self.epsilon = 0.3
+                    self.epsilon = 0.3
                 elif episode == 500:
-                     self.epsilon = 0.1
+                    self.epsilon = 0.1
                 elif episode == 900:
                     self.epsilon = 0.01
 
@@ -409,14 +555,32 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
                 for i in range(len(self.states_numbered)):
                     equal = True
                     for j in range(len(self.states_numbered[i])):
-                        if state[j] != self.states_numbered[i][j]:
+                        if not self.compare_arrays(state[j], self.states_numbered[i][j]):
                             equal = False
-                            break
                     if equal:
                         return i
-                if not equal:
-                    self.states_numbered.append(np.asarray(state))
+                self.states_numbered.append(np.asarray(state))
 
     def print_array(self, array):
         for line in array:
             print(line)
+
+    def compare_arrays(self, array1, array2):
+        for i in range(len(array1)):
+            if array1[i] != array2[i]:
+                return False
+        return True
+
+    def check_walls(self):
+        array =[self.current_state.map[0], self.current_state.map[len(self.current_state.map[0])-1]]
+        for i in range(len(array)):
+            for j in range(len(array[i])):
+                if array[i][j] != 1:
+                    return False
+
+        for i in range(1, len(self.current_state.map[0])-1):
+            if self.current_state.map[i][0] != 1 or self.current_state.map[i][len(self.current_state.map[0])-1] != 1:
+                print()
+                print()
+                self.print_array(self.current_state)
+                quit()

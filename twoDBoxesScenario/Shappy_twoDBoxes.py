@@ -77,7 +77,7 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
                 if keys[pygame.K_DOWN]:
                     self.downy()
         elif self.auto:
-            self.auto_movement(self.type_of_policy)
+            self.auto_movement()
 
         self.rect.x = self.x_pos
         self.rect.y = self.y_pos
@@ -88,73 +88,63 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
         return self.current_state
 
     def lefty(self):
-        if not self.wall_collision_check(int(self.x_pos / self.world.screen_ratio) - 1,
-                                         int(self.y_pos / self.world.screen_ratio)):
+        if self.current_state[int(self.x_pos / self.world.screen_ratio) - 1][int(self.y_pos /
+                                                                             self.world.screen_ratio)] != 1:
             self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
                                                                               self.world.screen_ratio)] = 0
             self.x_pos -= 1 * self.world.screen_ratio
 
-            if self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
+            if self.current_state[int(self.y_pos / self.world.screen_ratio)][int(self.x_pos /
                                                                                  self.world.screen_ratio)] == 2:
-                self.world.box_group_remove(int(self.x_pos / self.world.screen_ratio),
-                                            int(self.y_pos / self.world.screen_ratio))
+                self.world.box_group_remove(self.x_pos, self.y_pos)
 
             self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
                                                                               self.world.screen_ratio)] = self.color
 
     def righty(self):
-        if not self.wall_collision_check(int(self.x_pos / self.world.screen_ratio) + 1,
-                                         int(self.y_pos / self.world.screen_ratio)):
+        if self.current_state[int(self.x_pos / self.world.screen_ratio) + 1][int(self.y_pos /
+                                                                             self.world.screen_ratio)] != 1:
             self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
                                                                               self.world.screen_ratio)] = 0
             self.x_pos += 1 * self.world.screen_ratio
 
-            if self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
+            if self.current_state[int(self.y_pos / self.world.screen_ratio)][int(self.x_pos /
                                                                                  self.world.screen_ratio)] == 2:
-                self.world.box_group_remove(int(self.x_pos / self.world.screen_ratio),
-                                            int(self.y_pos / self.world.screen_ratio))
+                self.world.box_group_remove(self.x_pos, self.y_pos)
 
             self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
                                                                               self.world.screen_ratio)] = self.color
 
     def upy(self):
-        if not self.wall_collision_check(int(self.x_pos / self.world.screen_ratio),
-                                         int(self.y_pos / self.world.screen_ratio)-1):
+        if self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
+                                                                             self.world.screen_ratio) - 1] != 1:
             self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
                                                                               self.world.screen_ratio)] = 0
             self.y_pos -= 1 * self.world.screen_ratio
 
-            if self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
+            if self.current_state[int(self.y_pos / self.world.screen_ratio)][int(self.x_pos /
                                                                                  self.world.screen_ratio)] == 2:
-                self.world.box_group_remove(int(self.x_pos / self.world.screen_ratio),
-                                            int(self.y_pos / self.world.screen_ratio))
+                self.world.box_group_remove(self.x_pos, self.y_pos)
 
             self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
                                                                               self.world.screen_ratio)] = self.color
 
     def downy(self):
-        if not self.wall_collision_check(int(self.x_pos / self.world.screen_ratio),
-                                         int(self.y_pos / self.world.screen_ratio)+1):
+        if self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
+                                                                             self.world.screen_ratio) + 1] != 1:
             self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
                                                                               self.world.screen_ratio)] = 0
             self.y_pos += 1 * self.world.screen_ratio
 
-            if self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
+            if self.current_state[int(self.y_pos / self.world.screen_ratio)][int(self.x_pos /
                                                                                  self.world.screen_ratio)] == 2:
-                self.world.box_group_remove(int(self.x_pos / self.world.screen_ratio),
-                                            int(self.y_pos / self.world.screen_ratio))
+                self.world.box_group_remove(self.x_pos, self.y_pos)
 
             self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
                                                                               self.world.screen_ratio)] = self.color
 
-    def wall_collision_check(self, pos_x, pos_y):
-        if self.current_state[pos_x][pos_y] == 1:
-            return True
-        else:
-            return False
-
-    def auto_movement(self, type):
-        if type == "Centralized":
+    def auto_movement(self):
+        if self.type_of_policy == "centralized":
             actions = -1
             for state in self.policy:
                 equal = True
@@ -189,7 +179,8 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
                     self.upy()
                 elif action4 == "DOWN":
                     self.downy()
-        elif type == "Decentralized":
+
+        elif self.type_of_policy == "decentralized":
             for i in range(len(self.current_state)):
                 if self.current_state[i] == 4:
                     self.current_state[i] = 0
@@ -272,7 +263,7 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
             stringed_actions = "DOWN_UP"
         elif action == 24:
             stringed_actions = "DOWN_DOWN"
-            
+
         stringed_actions = stringed_actions.split("_")
-        
+
         return stringed_actions[0], stringed_actions[1]

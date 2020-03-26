@@ -15,7 +15,7 @@ def main():
 
     individual_base_policy2_file = "oneDBoxes_MDP_base_policy2_individual.pickle"
 
-    terrain2 = Terrain_oneDBoxes("oneDBoxes_map2.txt")
+    terrain2 = Terrain_oneDBoxes("twoDBoxes_map1.txt")
     terrain3 = Terrain_oneDBoxes("oneDBoxes_map3.txt")
 
 

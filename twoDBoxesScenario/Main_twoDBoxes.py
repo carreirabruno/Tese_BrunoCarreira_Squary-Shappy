@@ -13,7 +13,7 @@ def main():
     terrain = Terrain_twoDBoxes("twoDBoxes_map2.txt")
 
     #create the policy
-    centralized_policy_maker = MDP_Centralized_policy_maker_twoDBoxes(terrain.matrix, centralized_policy_file)
+    #centralized_policy_maker = MDP_Centralized_policy_maker_twoDBoxes(terrain.matrix, centralized_policy_file)
     #quit()
 
     # define a variable to control the main loop

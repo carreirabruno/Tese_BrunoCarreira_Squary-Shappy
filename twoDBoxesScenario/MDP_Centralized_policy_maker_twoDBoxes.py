@@ -552,7 +552,7 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
                 if map_copy[i][j] == 1 or map_copy[i][j] == 2:
                     filled_positions.append([i, j])
 
-        for a in range(20):
+        for a in range(10):
             random.seed()
 
             temp_map = copy.deepcopy(map_copy)
@@ -581,6 +581,10 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
             if not already_exists:
                 existing_starting_states.append(temp_state)
 
+        # for item in existing_starting_states:
+        #     self.print_array(item.map)
+        #     print()
+
         return existing_starting_states
 
     def create_policy(self):
@@ -593,6 +597,7 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
         # TRAIN
         rewards = []
         for i_state in range(len(starting_states)):
+            self.epsilon = self.max_epsilon
             for episode in range(total_episodes):
                 self.current_state = starting_states[i_state]
                 print("State ", i_state, " Episode ", episode)

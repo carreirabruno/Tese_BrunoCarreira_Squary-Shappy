@@ -119,32 +119,22 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
                 if item != 1:
                     count += 1
 
-
-        self.n_states = 1
+        # self.n_states = 1
         # self.n_states = len(self.map[0]) * len(self.map[0]) * (len(shappys) + 1) * (len(boxes) + 2) *2
         # self.n_states = count * len(shappys) * len(boxes) * (count-len(shappys)-len(boxes))
         # self.n_states *= self.n_states
-        print(self.n_states, "isto está a preencher demasiada memoria, tenho que mudar o self.P()")
-
+        # print(self.n_states, "isto está a preencher demasiada memoria, tenho que mudar o self.P()")
 
         self.Q_table = dict()
 
         self.states_numbered = []
 
-        self.P_table = np.zeros((self.n_actions, self.n_states, self.n_states))
+        #self.P_table = np.zeros((self.n_actions, self.n_states, self.n_states))
 
         self.type_of_policy = policy_file.replace("twoDBoxes_MDP_", '')
         self.type_of_policy = self.type_of_policy.replace("_policy.pickle", '')
 
-        # bigger = 0
-        # for i in range(0, 100):
-        #     print(i)
         self.create_policy()
-        #     # print(len(self.states_numbered))
-        #     if len(self.states_numbered) > bigger:
-        #         bigger = len(self.states_numbered)
-        #         print(("BIGGER   ===== "), bigger)
-
         self.write_in_txt(policy_file)
 
     def Q(self, state, action=None):
@@ -159,14 +149,14 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
 
         return self.Q_table[state][action]
 
-    def P(self, state, new_state=None):
-        if state not in self.P_table:
-            self.P_table[state] = np.zeros(self.n_states)
-
-        if new_state is None:
-            return self.P_table[state]
-
-        return self.P_table[state][new_state]
+    # def P(self, state, new_state=None):
+    #     if state not in self.P_table:
+    #         self.P_table[state] = np.zeros(self.n_states)
+    #
+    #     if new_state is None:
+    #         return self.P_table[state]
+    #
+    #     return self.P_table[state][new_state]
 
     def choose_actions(self, state):
         random.seed()
@@ -547,39 +537,45 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
         existing_starting_states = [self.start_state]
 
         map_copy = copy.deepcopy(self.map)
-        if 3 in map_copy or 4 in map_copy:
-            map_copy = np.where(map_copy == 3, 0, map_copy)
-            map_copy = np.where(map_copy == 4, 0, map_copy)
+        for i in range(len(map_copy)):
+            for j in range(len(map_copy[i])):
+                if map_copy[i][j] == 3 or map_copy[i][j] == 4:
+                    map_copy[i][j] = 0
+
+        # if 3 in map_copy or 4 in map_copy:
+        #     map_copy = np.where(map_copy == 3, 0, map_copy)
+        #     map_copy = np.where(map_copy == 4, 0, map_copy)
 
         filled_positions = []
         for i in range(len(map_copy)):
-            if map_copy[i] == 1 or map_copy[i] == 2:
-                filled_positions.append(i)
+            for j in range(len(map_copy[i])):
+                if map_copy[i][j] == 1 or map_copy[i][j] == 2:
+                    filled_positions.append([i, j])
 
-        for a in range(100):
+        for a in range(20):
             random.seed()
-            temp_map = copy.deepcopy(map_copy)
-            pos1 = random.randint(1, len(temp_map) - 1)
-            while pos1 in filled_positions:
-                pos1 = random.randint(1, len(temp_map) - 1)
-            filled_positions.append(pos1)  # Os shappys começam sempre em sitios diferentes
-            pos2 = random.randint(1, len(temp_map) - 1)
-            while pos2 in filled_positions:
-                pos2 = random.randint(1, len(temp_map) - 1)
-            filled_positions.remove(pos1)
 
-            if pos1 < pos2:
-                temp_map[pos1] = 3
-                temp_map[pos2] = 4
-            else:
-                temp_map[pos2] = 3
-                temp_map[pos1] = 4
+            temp_map = copy.deepcopy(map_copy)
+            pos1_x = random.randint(1, len(temp_map) - 1)
+            pos1_y = random.randint(1, len(temp_map) - 1)
+            while [pos1_x, pos1_y] in filled_positions:
+                pos1_x = random.randint(1, len(temp_map) - 1)
+                pos1_y = random.randint(1, len(temp_map) - 1)
+            filled_positions.append([pos1_x, pos1_y])  # Os shappys começam sempre em sitios diferentes
+            pos2_x = random.randint(1, len(temp_map) - 1)
+            pos2_y = random.randint(1, len(temp_map) - 1)
+            while [pos2_x, pos2_y] in filled_positions:
+                pos2_x = random.randint(1, len(temp_map) - 1)
+                pos2_y = random.randint(1, len(temp_map) - 1)
+            filled_positions.remove([pos1_x, pos1_y])
+
+            temp_map[pos1_x][pos1_y] = 3
+            temp_map[pos2_x][pos2_y] = 4
 
             temp_state = State(map=temp_map)
             already_exists = False
             for state in existing_starting_states:
-                comparison = state.map == temp_state.map
-                if comparison.all():
+                if self.compare_arrays(state.map, temp_state.map):
                     already_exists = True
 
             if not already_exists:
@@ -591,8 +587,8 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
 
         total_episodes = 10000
 
-        # starting_states = self.create_stating_states()
-        starting_states = [self.start_state]
+        starting_states = self.create_stating_states()
+        # starting_states = [self.start_state]
 
         # TRAIN
         rewards = []

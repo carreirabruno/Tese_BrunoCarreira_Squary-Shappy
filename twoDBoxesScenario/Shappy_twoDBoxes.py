@@ -85,12 +85,14 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
         self.old_x_pos = self.x_pos
         self.old_y_pos = self.y_pos
 
+        #if self.color == 3:
+            #self.print_array(self.current_state)
         return self.current_state
 
     def lefty(self):
-        if self.current_state[int(self.x_pos / self.world.screen_ratio) - 1][int(self.y_pos /
-                                                                             self.world.screen_ratio)] != 1:
-            self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
+        if self.current_state[int(self.y_pos / self.world.screen_ratio)][int(self.x_pos /
+                                                                             self.world.screen_ratio) - 1] != 1:
+            self.current_state[int(self.y_pos / self.world.screen_ratio)][int(self.x_pos /
                                                                               self.world.screen_ratio)] = 0
             self.x_pos -= 1 * self.world.screen_ratio
 
@@ -98,13 +100,13 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
                                                                                  self.world.screen_ratio)] == 2:
                 self.world.box_group_remove(self.x_pos, self.y_pos)
 
-            self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
+            self.current_state[int(self.y_pos / self.world.screen_ratio)][int(self.x_pos /
                                                                               self.world.screen_ratio)] = self.color
 
     def righty(self):
-        if self.current_state[int(self.x_pos / self.world.screen_ratio) + 1][int(self.y_pos /
-                                                                             self.world.screen_ratio)] != 1:
-            self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
+        if self.current_state[int(self.y_pos / self.world.screen_ratio)][int(self.x_pos /
+                                                                             self.world.screen_ratio) + 1] != 1:
+            self.current_state[int(self.y_pos / self.world.screen_ratio)][int(self.x_pos /
                                                                               self.world.screen_ratio)] = 0
             self.x_pos += 1 * self.world.screen_ratio
 
@@ -112,13 +114,14 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
                                                                                  self.world.screen_ratio)] == 2:
                 self.world.box_group_remove(self.x_pos, self.y_pos)
 
-            self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
+            self.current_state[int(self.y_pos / self.world.screen_ratio)][int(self.x_pos /
                                                                               self.world.screen_ratio)] = self.color
 
     def upy(self):
-        if self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
-                                                                             self.world.screen_ratio) - 1] != 1:
-            self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
+
+        if self.current_state[int(self.y_pos / self.world.screen_ratio) - 1][int(self.x_pos /
+                                                                             self.world.screen_ratio)] != 1:
+            self.current_state[int(self.y_pos / self.world.screen_ratio)][int(self.x_pos /
                                                                               self.world.screen_ratio)] = 0
             self.y_pos -= 1 * self.world.screen_ratio
 
@@ -126,26 +129,28 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
                                                                                  self.world.screen_ratio)] == 2:
                 self.world.box_group_remove(self.x_pos, self.y_pos)
 
-            self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
+            self.current_state[int(self.y_pos / self.world.screen_ratio)][int(self.x_pos /
                                                                               self.world.screen_ratio)] = self.color
 
     def downy(self):
-        if self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
-                                                                             self.world.screen_ratio) + 1] != 1:
-            self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
+        if self.current_state[int(self.y_pos / self.world.screen_ratio) + 1][int(self.x_pos /
+                                                                             self.world.screen_ratio)] != 1:
+            self.current_state[int(self.y_pos / self.world.screen_ratio)][int(self.x_pos /
                                                                               self.world.screen_ratio)] = 0
+
             self.y_pos += 1 * self.world.screen_ratio
 
             if self.current_state[int(self.y_pos / self.world.screen_ratio)][int(self.x_pos /
                                                                                  self.world.screen_ratio)] == 2:
                 self.world.box_group_remove(self.x_pos, self.y_pos)
 
-            self.current_state[int(self.x_pos / self.world.screen_ratio)][int(self.y_pos /
+            self.current_state[int(self.y_pos / self.world.screen_ratio)][int(self.x_pos /
                                                                               self.world.screen_ratio)] = self.color
 
     def auto_movement(self):
         if self.type_of_policy == "centralized":
             actions = -1
+
             for state in self.policy:
                 equal = True
                 for i in range(len(state[0])):
@@ -154,7 +159,7 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
                 if equal:
                     actions = np.argmax(state[1])
                     break
-            
+
             action3, action4 = self.get_centralized_stringed_actions(actions)
             
             if self.color == 3:
@@ -267,3 +272,7 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
         stringed_actions = stringed_actions.split("_")
 
         return stringed_actions[0], stringed_actions[1]
+
+    def print_array(self, array):
+        for line in array:
+            print(line)

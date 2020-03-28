@@ -10,11 +10,11 @@ def main():
 
     centralized_policy_file = "twoDBoxes_MDP_centralized_policy.pickle"
 
-    terrain = Terrain_twoDBoxes("twoDBoxes_map1.txt")
+    terrain = Terrain_twoDBoxes("twoDBoxes_map2.txt")
 
     #create the policy
-    centralized_policy_maker = MDP_Centralized_policy_maker_twoDBoxes(terrain.matrix, centralized_policy_file)
-    quit()
+    #centralized_policy_maker = MDP_Centralized_policy_maker_twoDBoxes(terrain.matrix, centralized_policy_file)
+    #quit()
 
     # define a variable to control the main loop
     running = True
@@ -29,7 +29,7 @@ def main():
     os.environ['SDL_VIDEO_CENTERED'] = '0'
 
     #create world
-    world = World_twoDBoxes(terrain, centralized_policy_file, "Centralized")
+    world = World_twoDBoxes(terrain, centralized_policy_file)
 
     world.render()
 

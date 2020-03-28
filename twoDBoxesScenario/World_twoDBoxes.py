@@ -125,8 +125,10 @@ class World_twoDBoxes(object):
 
     def get_policy(self, policy_file):
         fp = open(policy_file, "rb")  # Unpickling
-        policy, states_numbered, P_table = pickle.load(fp)
+        #policy, states_numbered, P_table = pickle.load(fp)
+        policy = pickle.load(fp)
         fp.close()
+
         return policy
 
     def set_new_terrain_matrix(self, shappy3_state, shappy4_state):

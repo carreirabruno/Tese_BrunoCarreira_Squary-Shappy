@@ -1,21 +1,21 @@
 import pygame
 import os
-from twoDBoxesScenario.MDP_Centralized_policy_maker_twoDBoxes import *
-from twoDBoxesScenario.MDP_Decentralized_policy_maker_twoDBoxes import *
-from twoDBoxesScenario.World_twoDBoxes import *
-from twoDBoxesScenario.Terrain_twoDBoxes import *
+from twoDMovingBoxesScenario.MDP_Centralized_policy_maker_twoDMovingBoxes import *
+from twoDMovingBoxesScenario.MDP_Decentralized_policy_maker_twoDMovingBoxes import *
+from twoDMovingBoxesScenario.World_twoDMovingBoxes import *
+from twoDMovingBoxesScenario.Terrain_twoDMovingBoxes import *
 import winsound
 
 def main():
 
-    centralized_policy_file = "twoDBoxes_MDP_centralized_policy_map1.pickle"
-    decentralized_policy_file = "twoDBoxes_MDP_decentralized_policy_map1.pickle"
+    centralized_policy_file = "twoDMovingBoxes_MDP_centralized_policy_map1.pickle"
+    decentralized_policy_file = "twoDMovingBoxes_MDP_decentralized_policy_map1.pickle"
 
-    terrain = Terrain_twoDBoxes("twoDMovingBoxes_map1.txt")
+    terrain = Terrain_twoDMovingBoxes("twoDMovingBoxes_map1.txt")
 
     #create the policy
-    centralized_policy_maker = MDP_Centralized_policy_maker_twoDBoxes(terrain.matrix, centralized_policy_file)
-    #decentralized_policy_maker = MDP_Decentralized_policy_maker_twoDBoxes(terrain.matrix, decentralized_policy_file)
+    centralized_policy_maker = MDP_Centralized_policy_maker_twoDMovingBoxes(terrain.matrix, centralized_policy_file)
+    #decentralized_policy_maker = MDP_Decentralized_policy_maker_twoDMovingBoxes(terrain.matrix, decentralized_policy_file)
     #quit()
 
     # define a variable to control the main loop
@@ -31,7 +31,7 @@ def main():
     os.environ['SDL_VIDEO_CENTERED'] = '0'
 
     #create world
-    world = World_twoDBoxes(terrain, centralized_policy_file)
+    world = World_twoDMovingBoxes(terrain, centralized_policy_file)
 
     world.render()
 

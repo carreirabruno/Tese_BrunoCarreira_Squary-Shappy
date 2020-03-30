@@ -11,19 +11,16 @@ class State:
 
     def __init__(self, map):
         self.map = map
-        # self.first_shappy_pos = first_shappy_pos
-        # self.second_shappy_pos = second_shappy_pos
 
     def __eq__(self, other):
         return isinstance(other,
-                          State)  # and self.map == other.map and self.first_shappy_pos == other.first_shappy_pos \
-        # and self.second_shappy_pos == other.second_shappy_pos
+                          State)
 
     def __hash__(self):
         return hash(str(self.map))
 
     def __str__(self):
-        return f"State(map={self.map})"
+        return f"{self.map}"
 
 
 class MDP_Decentralized_policy_maker_twoDBoxes(object):
@@ -32,8 +29,13 @@ class MDP_Decentralized_policy_maker_twoDBoxes(object):
 
         self.map = []
         for line in terrain_matrix:
-            if 2 in line:
-                self.map = np.array(line)
+            temp_array = []
+            for letter in line:
+            #     if int(letter) == 4:
+            #         temp_array.append(int(3))
+            #     else:
+                temp_array.append(int(letter))
+            self.map.append(temp_array)
 
         random.seed()
 
@@ -44,27 +46,22 @@ class MDP_Decentralized_policy_maker_twoDBoxes(object):
         self.EMPTY = 0
 
         # Actions
-
         self.STAY = 0
         self.LEFT = 1
         self.RIGHT = 2
+        self.UP = 3
+        self.DOWN = 4
 
-        self.ACTIONS = [self.STAY, self.LEFT, self.RIGHT]
+        self.ACTIONS = [self.STAY, self.LEFT, self.RIGHT, self.UP, self.DOWN]
         self.n_actions = len(self.ACTIONS)
-
-        self.shappy_pos = -1
-        for i in range(len(self.map)):
-            if self.map[i] == 7:
-                self.shappy_pos = i
-            elif self.map[i] == 3:
-                self.shappy_pos = i
-            elif self.map[i] == 4:
-                self.map[i] = 0
 
         boxes = []
         for i in range(len(self.map)):
-            if self.map[i] == 2:
-                boxes.append(i)
+            for j in range(len(self.map[i])):
+                if self.map[i][j] == 2:
+                    boxes.append([i, j])
+                elif self.map[i][j] == 4:
+                    self.map[i][j] = 0
 
         self.start_state = State(map=self.map)
         self.current_state = []
@@ -77,19 +74,9 @@ class MDP_Decentralized_policy_maker_twoDBoxes(object):
         self.epsilon = self.max_epsilon
         self.decay_rate = 0.001
 
-        self.n_states = len(self.map) * len(boxes)
-        self.n_states *= self.n_states
-
         self.Q_table = dict()
 
         self.states_numbered = []
-        self.P_table = np.zeros((self.n_actions, self.n_states, self.n_states))
-
-        self.type_of_policy = policy_file.replace("twoDBoxes_MDP_", '')
-        self.type_of_policy = self.type_of_policy.replace("_policy2.pickle", '')
-        self.type_of_policy = self.type_of_policy.replace("_policy3.pickle", '')
-        self.type_of_policy = self.type_of_policy.replace("_policy2_individual.pickle", '')
-        self.type_of_policy = self.type_of_policy.replace("_policy3_individual.pickle", '')
 
         self.create_policy()
         self.write_in_txt(policy_file)
@@ -106,148 +93,158 @@ class MDP_Decentralized_policy_maker_twoDBoxes(object):
 
         return self.Q_table[state][action]
 
-    def P(self, state, new_state=None):
-        if state not in self.P_table:
-            self.P_table[state] = np.zeros(self.n_states)
-
-        if new_state is None:
-            return self.P_table[state]
-
-        return self.P_table[state][new_state]
-
     def choose_actions(self, state):
         random.seed()
         if random.random() < self.epsilon:  # exploration
-            return np.random.randint(0, len(self.ACTIONS))
+            return np.random.randint(0, self.n_actions)
         else:  # exploitation
             return np.argmax(self.Q(state))
 
     def take_actions(self, state, actions):
-        old_shappy_pos = 0
-        for i in range(len(state.map)):
-            if state.map[i] == 7:
-                old_shappy_pos = i
-                break
-            elif state.map[i] == self.SHAPPY:
-                old_shappy_pos = i
-
-        def get_new_shappy_position(state, action):
-            if action == self.STAY:
-                new_shappy_pos = old_shappy_pos
-            elif action == self.LEFT:
-                if state.map[old_shappy_pos - 1] == self.WALL:  # colidiu com uma self.WALL
-                    new_shappy_pos = old_shappy_pos
-                else:
-                    new_shappy_pos = old_shappy_pos - 1
-            elif action == self.RIGHT:
-                if state.map[old_shappy_pos + 1] == self.WALL:  # colidiu com uma self.WALL
-                    new_shappy_pos = old_shappy_pos
-                else:
-                    new_shappy_pos = old_shappy_pos + 1
-            else:
-                raise ValueError(f"Unknown action {action}")
-            return new_shappy_pos
 
         new_reward = 0
-        new_shappy_pos = get_new_shappy_position(state, actions)
+        new_first_shappy_pos, old_first_shappy_pos = self.new_shappy_pos(state, actions)
 
         new_map = copy.deepcopy(state.map)
+
         # Criar as rewards
-        if self.type_of_policy == "base":
-            if state.map[new_shappy_pos] == self.BOX:
-                new_reward += 10
-            else:
-                new_reward += 0
-            if state.map[new_shappy_pos] == self.BOX:
-                new_reward += 10
-            else:
-                new_reward += 0
+        if state.map[new_first_shappy_pos[0]][new_first_shappy_pos[1]] == self.BOX:
+            new_reward += 10
+        else:
+            new_reward += 0
 
-            new_map[old_shappy_pos] = self.EMPTY
-            new_map[new_shappy_pos] = self.SHAPPY
-
+        new_map[old_first_shappy_pos[0]][old_first_shappy_pos[1]] = self.EMPTY
+        new_map[new_first_shappy_pos[0]][new_first_shappy_pos[1]] = self.SHAPPY
 
         return State(map=new_map), new_reward
+
+    def new_shappy_pos(self, state, action):
+        old_first_shappy_pos = []
+        for i in range(len(state.map)):
+            for j in range(len(state.map[i])):
+                if state.map[i][j] == 7:
+                    old_first_shappy_pos = [i, j]
+                elif state.map[i][j] == 3:
+                    old_first_shappy_pos = [i, j]
+
+        if action == self.STAY:
+            first_shappy_pos = old_first_shappy_pos
+
+        elif action == self.LEFT:
+            if state.map[old_first_shappy_pos[0]][old_first_shappy_pos[1] - 1] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0], old_first_shappy_pos[1] - 1]
+
+        elif action == self.RIGHT:
+            if state.map[old_first_shappy_pos[0]][old_first_shappy_pos[1] + 1] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0], old_first_shappy_pos[1] + 1]
+
+        elif action == self.UP:
+            if state.map[old_first_shappy_pos[0] - 1][old_first_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0] - 1, old_first_shappy_pos[1]]
+
+        elif action == self.DOWN:
+            if state.map[old_first_shappy_pos[0] + 1][old_first_shappy_pos[1]] == self.WALL:  # colidiu com uma self.WALL
+                first_shappy_pos = old_first_shappy_pos
+            else:
+                first_shappy_pos = [old_first_shappy_pos[0] + 1, old_first_shappy_pos[1]]
+        else:
+            raise ValueError(f"Unknown action {action}")
+
+        return first_shappy_pos, old_first_shappy_pos
 
     def learn(self, state, action, reward, new_state):
         self.Q(state)[action] = self.Q(state, action) + self.learning_rate * \
                                 (reward + self.gamma * np.max(self.Q(new_state)) - self.Q(state, action))
 
-        state_number = self.get_numbered_state(state.map)
-        new_state_number = self.get_numbered_state(new_state.map)
-        self.P_table[action, state_number, new_state_number] += 1
-
-        # Devia aqui alterar a tabela das rewards para cada estado R[state]
+        #state_number = self.get_numbered_state(state.map)
+        #new_state_number = self.get_numbered_state(new_state.map)
+        #self.P_table[action, state_number, new_state_number] += 1
 
     def create_stating_states(self):
         existing_starting_states = [self.start_state]
 
         map_copy = copy.deepcopy(self.map)
-        if 3 in map_copy:
-            map_copy = np.where(map_copy == 3, 0, map_copy)
+        for i in range(len(map_copy)):
+            for j in range(len(map_copy[i])):
+                if map_copy[i][j] == 3 or map_copy[i][j] == 4:
+                    map_copy[i][j] = 0
+
+        # if 3 in map_copy or 4 in map_copy:
+        #     map_copy = np.where(map_copy == 3, 0, map_copy)
+        #     map_copy = np.where(map_copy == 4, 0, map_copy)
 
         filled_positions = []
-        boxes_positions = []
         for i in range(len(map_copy)):
-            if map_copy[i] == 1:
-                filled_positions.append(i)
-            if map_copy[i] == 2:
-                boxes_positions.append([i])
+            for j in range(len(map_copy[i])):
+                if map_copy[i][j] == 1 or map_copy[i][j] == 2:
+                    filled_positions.append([i, j])
 
-        boxes_positions.append([boxes_positions[0][0],boxes_positions[1][0]])
-        boxes_positions.append([boxes_positions[0][0], boxes_positions[2][0]])
-        boxes_positions.append([boxes_positions[1][0], boxes_positions[2][0]])
-        different_boxes_map = [map_copy]
-        for pos in boxes_positions:
+        for a in range(10):
+            random.seed()
+
             temp_map = copy.deepcopy(map_copy)
-            for ind_pos in pos:
-                temp_map[pos] = 0
-            different_boxes_map.append(temp_map)
+            pos1_x = random.randint(1, len(temp_map) - 1)
+            pos1_y = random.randint(1, len(temp_map) - 1)
+            while [pos1_x, pos1_y] in filled_positions:
+                pos1_x = random.randint(1, len(temp_map) - 1)
+                pos1_y = random.randint(1, len(temp_map) - 1)
+            filled_positions.append([pos1_x, pos1_y])  # Os shappys começam sempre em sitios diferentes
+            pos2_x = random.randint(1, len(temp_map) - 1)
+            pos2_y = random.randint(1, len(temp_map) - 1)
+            while [pos2_x, pos2_y] in filled_positions:
+                pos2_x = random.randint(1, len(temp_map) - 1)
+                pos2_y = random.randint(1, len(temp_map) - 1)
+            filled_positions.remove([pos1_x, pos1_y])
 
-        for ind_map in different_boxes_map:
-            for a in range(100):
-                random.seed()
-                temp_map = copy.deepcopy(ind_map)
-                pos = random.randint(1, len(temp_map) - 1)
-                while pos in filled_positions:
-                    pos = random.randint(1, len(temp_map) - 1)
+            temp_map[pos1_x][pos1_y] = 3
+            temp_map[pos2_x][pos2_y] = 4
 
-                temp_map[pos] = 3
+            temp_state = State(map=temp_map)
+            already_exists = False
+            for state in existing_starting_states:
+                if self.compare_arrays(state.map, temp_state.map):
+                    already_exists = True
 
-                temp_state = State(map=temp_map)
-                already_exists = False
-                for state in existing_starting_states:
-                    comparison = state.map == temp_state.map
-                    if comparison.all():
-                        already_exists = True
+            if not already_exists:
+                existing_starting_states.append(temp_state)
 
-                if not already_exists:
-                    existing_starting_states.append(temp_state)
+        # for item in existing_starting_states:
+        #     self.print_array(item.map)
+        #     print()
 
         return existing_starting_states
 
     def create_policy(self):
 
-        total_episodes = 1000
+        total_episodes = 50000
 
-        starting_states = self.create_stating_states()
-        #starting_states = [self.start_state]
+        # starting_states = self.create_stating_states()
+        starting_states = [self.start_state]
+
         # TRAIN
         rewards = []
         for i_state in range(len(starting_states)):
+            self.epsilon = self.max_epsilon
             for episode in range(total_episodes):
-
                 self.current_state = starting_states[i_state]
-
-                print("State ", i_state, "/", len(starting_states)-1, " Episode ", episode)
-
+                print("State ", i_state, " Episode ", episode)
                 episode_rewards = []
-
                 while True:
-                    if 2 not in self.current_state.map:
-                        break
+                    self.check_walls()
 
-                    #print(self.current_state)
+                    stop = True
+                    for i in range(len(self.current_state.map)):
+                        for j in range(len(self.current_state.map[i])):
+                            if self.current_state.map[i][j] == 2:
+                                stop = False
+                    if stop:
+                        break
 
                     actions = self.choose_actions(self.current_state)
 
@@ -259,14 +256,16 @@ class MDP_Decentralized_policy_maker_twoDBoxes(object):
 
                     self.current_state = new_state
 
-                if episode == 100:
+                if episode == 1000:
                     self.epsilon = 0.5
-                elif episode == 300:
-                     self.epsilon = 0.3
-                elif episode == 500:
-                     self.epsilon = 0.1
-                elif episode == 900:
+                elif episode == 3000:
+                    self.epsilon = 0.3
+                elif episode == 10000:
+                    self.epsilon = 0.1
+                elif episode == 40000:
                     self.epsilon = 0.01
+                elif episode == 49000:
+                    self.epsilon = 0
 
                 rewards.append(np.mean(episode_rewards))
 
@@ -275,7 +274,8 @@ class MDP_Decentralized_policy_maker_twoDBoxes(object):
         for line in self.Q_table:
             new_Q_table.append([line.map, self.Q(line)])
         with open(policy_file, "wb") as fp:  # Unpickling
-            pickle.dump((new_Q_table, self.states_numbered, self.P_table), fp)
+            #pickle.dump((new_Q_table, self.states_numbered, self.P_table), fp)
+            pickle.dump(new_Q_table, fp)
             fp.close()
 
     def get_numbered_state(self, state):
@@ -287,10 +287,32 @@ class MDP_Decentralized_policy_maker_twoDBoxes(object):
                 for i in range(len(self.states_numbered)):
                     equal = True
                     for j in range(len(self.states_numbered[i])):
-                        if state[j] != self.states_numbered[i][j]:
+                        if not self.compare_arrays(state[j], self.states_numbered[i][j]):
                             equal = False
-                            break
                     if equal:
                         return i
-                if not equal:
-                    self.states_numbered.append(np.asarray(state))
+                self.states_numbered.append(np.asarray(state))
+
+    def print_array(self, array):
+        for line in array:
+            print(line)
+
+    def compare_arrays(self, array1, array2):
+        for i in range(len(array1)):
+            if array1[i] != array2[i]:
+                return False
+        return True
+
+    def check_walls(self):
+        array =[self.current_state.map[0], self.current_state.map[len(self.current_state.map[0])-1]]
+        for i in range(len(array)):
+            for j in range(len(array[i])):
+                if array[i][j] != 1:
+                    return False
+
+        for i in range(1, len(self.current_state.map[0])-1):
+            if self.current_state.map[i][0] != 1 or self.current_state.map[i][len(self.current_state.map[0])-1] != 1:
+                print()
+                print()
+                self.print_array(self.current_state)
+                quit()

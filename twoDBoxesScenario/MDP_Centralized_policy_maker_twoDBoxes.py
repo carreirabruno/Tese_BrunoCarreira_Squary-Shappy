@@ -95,11 +95,10 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
                 if self.map[i][j] == 7:
                     shappys.append([i, j])
                     shappys.append([i, j])
-                    break
-                elif self.map[i][j] == 3:
-                    shappys.append([i, j])
-                # elif self.map[i][j] == 3 or self.map[i][j] == 4:
+                # elif self.map[i][j] == 3:             #Mudei isto, dev estar correto agora
                 #     shappys.append([i, j])
+                elif self.map[i][j] == 3 or self.map[i][j] == 4:
+                    shappys.append([i, j])
 
         self.start_state = State(map=self.map)
         self.current_state = []
@@ -130,9 +129,6 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
         self.states_numbered = []
 
         #self.P_table = np.zeros((self.n_actions, self.n_states, self.n_states))
-
-        self.type_of_policy = policy_file.replace("twoDBoxes_MDP_", '')
-        self.type_of_policy = self.type_of_policy.replace("_policy.pickle", '')
 
         self.create_policy()
         self.write_in_txt(policy_file)
@@ -589,10 +585,10 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
 
     def create_policy(self):
 
-        total_episodes = 10000
+        total_episodes = 50000
 
-        starting_states = self.create_stating_states()
-        # starting_states = [self.start_state]
+        # starting_states = self.create_stating_states()
+        starting_states = [self.start_state]
 
         # TRAIN
         rewards = []
@@ -624,15 +620,15 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
 
                     self.current_state = new_state
 
-                if episode == 500:
+                if episode == 1000:
                     self.epsilon = 0.5
-                elif episode == 1200:
-                    self.epsilon = 0.3
                 elif episode == 3000:
+                    self.epsilon = 0.3
+                elif episode == 10000:
                     self.epsilon = 0.1
-                elif episode == 6000:
+                elif episode == 40000:
                     self.epsilon = 0.01
-                elif episode == 9000:
+                elif episode == 49000:
                     self.epsilon = 0
 
                 rewards.append(np.mean(episode_rewards))

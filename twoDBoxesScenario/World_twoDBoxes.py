@@ -11,7 +11,7 @@ class World_twoDBoxes(object):
     def __init__(self, terrain, policy_file):
 
         type_of_policy = policy_file.replace("twoDBoxes_MDP_", '')
-        type_of_policy = type_of_policy.replace("_policy.pickle", '')
+        type_of_policy = type_of_policy.replace("_policy_map1.pickle", '')
 
         self.last_update = None
 
@@ -104,7 +104,7 @@ class World_twoDBoxes(object):
 
     def update(self):
 
-        if time.time() - self.time_interval > 0.1:
+        if time.time() - self.time_interval > 1:
             self.time_interval = time.time()
 
             shappy3_state = []

@@ -8,12 +8,14 @@ import winsound
 
 def main():
 
-    centralized_policy_file = "twoDBoxes_MDP_centralized_policy.pickle"
+    centralized_policy_file = "twoDBoxes_MDP_centralized_policy_map1.pickle"
+    decentralized_policy_file = "twoDBoxes_MDP_decentralized_policy_map1.pickle"
 
-    terrain = Terrain_twoDBoxes("twoDBoxes_map2.txt")
+    terrain = Terrain_twoDBoxes("twoDBoxes_map1.txt")
 
     #create the policy
     #centralized_policy_maker = MDP_Centralized_policy_maker_twoDBoxes(terrain.matrix, centralized_policy_file)
+    #decentralized_policy_maker = MDP_Decentralized_policy_maker_twoDBoxes(terrain.matrix, decentralized_policy_file)
     #quit()
 
     # define a variable to control the main loop
@@ -29,7 +31,7 @@ def main():
     os.environ['SDL_VIDEO_CENTERED'] = '0'
 
     #create world
-    world = World_twoDBoxes(terrain, centralized_policy_file)
+    world = World_twoDBoxes(terrain, decentralized_policy_file)
 
     world.render()
 

@@ -187,10 +187,17 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
 
         elif self.type_of_policy == "decentralized":
             for i in range(len(self.current_state)):
-                if self.current_state[i] == 4:
-                    self.current_state[i] = 0
-                elif self.current_state[i] == 7:
-                    self.current_state[i] = 3
+                for j in range(len(self.current_state[i])):
+                    if self.current_state[i][j] == 7:
+                        self.current_state[i][j] = 3
+                    elif self.color == 3:
+                        if self.current_state[i][j] == 4:
+                            self.current_state[i][j] = 0
+                    elif self.color == 4:
+                        if self.current_state[i][j] == 4:
+                            self.current_state[i][j] = 3
+                        elif self.current_state[i][j] == 3:
+                            self.current_state[i][j] = 0
 
             actions = -1
             for state in self.policy:
@@ -201,6 +208,7 @@ class Shappy_twoDBoxes(pygame.sprite.Sprite):
                 if equal:
                     actions = np.argmax(state[1])
                     break
+
             if actions == 0:
                 pass
             elif actions == 1:

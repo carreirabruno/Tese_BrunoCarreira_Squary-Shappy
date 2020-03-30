@@ -14,7 +14,7 @@ def main():
     terrain = Terrain_twoDMovingBoxes("twoDMovingBoxes_map1.txt")
 
     #create the policy
-    centralized_policy_maker = MDP_Centralized_policy_maker_twoDMovingBoxes(terrain.matrix, centralized_policy_file)
+    #centralized_policy_maker = MDP_Centralized_policy_maker_twoDMovingBoxes(terrain.matrix, centralized_policy_file)
     #decentralized_policy_maker = MDP_Decentralized_policy_maker_twoDMovingBoxes(terrain.matrix, decentralized_policy_file)
     #quit()
 

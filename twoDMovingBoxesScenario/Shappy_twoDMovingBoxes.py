@@ -149,16 +149,19 @@ class Shappy_twoDMovingBoxes(pygame.sprite.Sprite):
 
     def auto_movement(self):
         if self.type_of_policy == "centralized":
-            actions = -1
+            actions = 0
 
             for state in self.policy:
                 equal = True
                 for i in range(len(state[0])):
-                    if self.current_state[i] != state[0][i]:
-                        equal = False
+                    for j in range(len(self.current_state[i])):
+                        if self.current_state[i][j] != state[0][i][j]:
+                            equal = False
                 if equal:
+                    self.print_array(self.current_state)
                     actions = np.argmax(state[1])
                     break
+            print(actions)
 
             action3, action4 = self.get_centralized_stringed_actions(actions)
             
@@ -199,7 +202,7 @@ class Shappy_twoDMovingBoxes(pygame.sprite.Sprite):
                         elif self.current_state[i][j] == 3:
                             self.current_state[i][j] = 0
 
-            actions = -1
+            actions = 0
             for state in self.policy:
                 equal = True
                 for i in range(len(state[0])):

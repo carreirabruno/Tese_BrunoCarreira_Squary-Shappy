@@ -95,8 +95,6 @@ class MDP_Centralized_policy_maker_twoDMovingBoxes(object):
                 if self.map[i][j] == 7:
                     shappys.append([i, j])
                     shappys.append([i, j])
-                # elif self.map[i][j] == 3:             #Mudei isto, dev estar correto agora
-                #     shappys.append([i, j])
                 elif self.map[i][j] == 3 or self.map[i][j] == 4:
                     shappys.append([i, j])
 
@@ -111,23 +109,9 @@ class MDP_Centralized_policy_maker_twoDMovingBoxes(object):
         self.epsilon = self.max_epsilon
         self.decay_rate = 0.001
 
-        # count = 0
-        # for line in self.map:
-        #     for item in line:
-        #         if item != 1:
-        #             count += 1
-
-        # self.n_states = 1
-        # self.n_states = len(self.map[0]) * len(self.map[0]) * (len(shappys) + 1) * (len(boxes) + 2) *2
-        # self.n_states = count * len(shappys) * len(boxes) * (count-len(shappys)-len(boxes))
-        # self.n_states *= self.n_states
-        # print(self.n_states, "isto está a preencher demasiada memoria, tenho que mudar o self.P()")
-
         self.Q_table = dict()
 
         self.states_numbered = []
-
-        #self.P_table = np.zeros((self.n_actions, self.n_states, self.n_states))
 
         self.create_policy()
         self.write_in_txt(policy_file)
@@ -144,89 +128,12 @@ class MDP_Centralized_policy_maker_twoDMovingBoxes(object):
 
         return self.Q_table[state][action]
 
-    # def P(self, state, new_state=None):
-    #     if state not in self.P_table:
-    #         self.P_table[state] = np.zeros(self.n_states)
-    #
-    #     if new_state is None:
-    #         return self.P_table[state]
-    #
-    #     return self.P_table[state][new_state]
-
     def choose_actions(self, state):
         random.seed()
         if random.random() < self.epsilon:  # exploration
             return np.random.randint(0, len(self.ACTIONS))
         else:  # exploitation
             return np.argmax(self.Q(state))
-
-    # def take_actions(self, state, actions):
-    # 
-    #     new_reward = 0
-    #     new_first_shappy_pos, new_second_shappy_pos, old_first_shappy_pos, \
-    #                                                  old_second_shappy_pos = self.new_shappy_pos(state, actions)
-    # 
-    #     new_map = copy.deepcopy(state.map)
-    # 
-    #     # Criar as rewards
-    #     if state.map[new_first_shappy_pos[0]][new_first_shappy_pos[1]] == self.BOX:
-    #         new_reward += 10
-    #     else:
-    #         new_reward += 0
-    #     if state.map[new_second_shappy_pos[0]][new_second_shappy_pos[1]] == self.BOX:
-    #         new_reward += 10
-    #     else:
-    #         new_reward += 0
-    # 
-    #     # Só mexe o 1 - Mesmo sitio -> Separados
-    #     if old_second_shappy_pos == new_second_shappy_pos and old_first_shappy_pos == old_second_shappy_pos \
-    #             and new_first_shappy_pos != new_second_shappy_pos:
-    #         new_map[old_first_shappy_pos[0]][old_first_shappy_pos[1]] = self.SHAPPY2
-    #         new_map[new_first_shappy_pos[0]][new_first_shappy_pos[1]] = self.SHAPPY1
-    # 
-    #     # Só mexe o 1 - Separados -> Mesmo sitio
-    #     if old_second_shappy_pos == new_second_shappy_pos and old_first_shappy_pos != old_second_shappy_pos \
-    #             and new_first_shappy_pos == new_second_shappy_pos:
-    #         new_map[old_first_shappy_pos[0]][old_first_shappy_pos[1]] = self.EMPTY
-    #         new_map[new_first_shappy_pos[0]][new_first_shappy_pos[1]] = self.BOTH_SHAPPYS
-    # 
-    #     # Só mexe o 2 - Mesmo sitio -> Separados
-    #     elif old_first_shappy_pos == new_first_shappy_pos and old_first_shappy_pos == old_second_shappy_pos \
-    #             and new_first_shappy_pos != new_second_shappy_pos:
-    #         new_map[old_second_shappy_pos[0]][old_second_shappy_pos[1]] = self.SHAPPY1
-    #         new_map[new_second_shappy_pos[0]][new_second_shappy_pos[1]] = self.SHAPPY2
-    # 
-    #     # Só mexe o 2 - Separados -> Mesmo sitio
-    #     elif old_first_shappy_pos == new_first_shappy_pos and old_first_shappy_pos != old_second_shappy_pos \
-    #             and new_first_shappy_pos == new_second_shappy_pos:
-    #         new_map[old_second_shappy_pos[0]][old_second_shappy_pos[1]] = self.EMPTY
-    #         new_map[new_second_shappy_pos[0]][new_second_shappy_pos[1]] = self.BOTH_SHAPPYS
-    # 
-    #     # Mexem os dois - Mesmo sitio -> Mesmo sitio
-    #     elif old_first_shappy_pos == old_second_shappy_pos and new_first_shappy_pos == new_second_shappy_pos:
-    #         new_map[old_first_shappy_pos[0]][old_first_shappy_pos[1]] = self.EMPTY
-    #         new_map[new_first_shappy_pos[0]][new_first_shappy_pos[1]] = self.BOTH_SHAPPYS
-    # 
-    #     # Mexem os dois - Separados -> Mesmo sitio
-    #     elif old_first_shappy_pos != old_second_shappy_pos and new_first_shappy_pos == new_second_shappy_pos:
-    #         new_map[old_first_shappy_pos[0]][old_first_shappy_pos[1]] = self.EMPTY
-    #         new_map[old_second_shappy_pos[0]][old_second_shappy_pos[1]] = self.EMPTY
-    #         new_map[new_first_shappy_pos[0]][new_first_shappy_pos[1]] = self.BOTH_SHAPPYS
-    # 
-    #     # Mexem os dois - Mesmo sitio -> Separados
-    #     elif old_first_shappy_pos == old_second_shappy_pos and new_first_shappy_pos != new_second_shappy_pos:
-    #         new_map[old_first_shappy_pos[0]][old_first_shappy_pos[1]] = self.EMPTY
-    #         new_map[new_first_shappy_pos[0]][new_first_shappy_pos[1]] = self.SHAPPY1
-    #         new_map[new_second_shappy_pos[0]][new_second_shappy_pos[1]] = self.SHAPPY2
-    # 
-    #     # Mexem os dois - Separados -> Separados
-    #     elif old_first_shappy_pos != old_second_shappy_pos and new_first_shappy_pos != new_second_shappy_pos:
-    #         new_map[old_first_shappy_pos[0]][old_first_shappy_pos[1]] = self.EMPTY
-    #         new_map[old_second_shappy_pos[0]][old_second_shappy_pos[1]] = self.EMPTY
-    #         new_map[new_first_shappy_pos[0]][new_first_shappy_pos[1]] = self.SHAPPY1
-    #         new_map[new_second_shappy_pos[0]][new_second_shappy_pos[1]] = self.SHAPPY2
-    # 
-    #     return State(map=new_map), new_reward
 
     def take_actions(self, state, actions):
 
@@ -299,7 +206,6 @@ class MDP_Centralized_policy_maker_twoDMovingBoxes(object):
     def new_shappy_pos(self, state, action):
         old_first_shappy_pos = []
         old_second_shappy_pos = []
-        first = True
         for i in range(len(state.map)):
             for j in range(len(state.map[i])):
                 if state.map[i][j] == 7:
@@ -307,11 +213,7 @@ class MDP_Centralized_policy_maker_twoDMovingBoxes(object):
                     old_second_shappy_pos = [i, j]
                     break
                 elif state.map[i][j] == 3:
-                    # if first:
                     old_first_shappy_pos = [i, j]
-                    #     first = False
-                    # else:
-                    #     old_second_shappy_pos = [i, j]
                 elif state.map[i][j] == 4:
                     old_second_shappy_pos = [i, j]
 
@@ -524,10 +426,6 @@ class MDP_Centralized_policy_maker_twoDMovingBoxes(object):
         self.Q(state)[action] = self.Q(state, action) + self.learning_rate * \
                                 (reward + self.gamma * np.max(self.Q(new_state)) - self.Q(state, action))
 
-        #state_number = self.get_numbered_state(state.map)
-        #new_state_number = self.get_numbered_state(new_state.map)
-        #self.P_table[action, state_number, new_state_number] += 1
-
     def create_stating_states(self):
         existing_starting_states = [self.start_state]
 
@@ -536,10 +434,6 @@ class MDP_Centralized_policy_maker_twoDMovingBoxes(object):
             for j in range(len(map_copy[i])):
                 if map_copy[i][j] == 3 or map_copy[i][j] == 4:
                     map_copy[i][j] = 0
-
-        # if 3 in map_copy or 4 in map_copy:
-        #     map_copy = np.where(map_copy == 3, 0, map_copy)
-        #     map_copy = np.where(map_copy == 4, 0, map_copy)
 
         filled_positions = []
         for i in range(len(map_copy)):
@@ -584,9 +478,8 @@ class MDP_Centralized_policy_maker_twoDMovingBoxes(object):
 
     def create_policy(self):
 
-        total_episodes = 50000
+        total_episodes = 1000
 
-        # starting_states = self.create_stating_states()
         starting_states = [self.start_state]
 
         # TRAIN
@@ -598,7 +491,6 @@ class MDP_Centralized_policy_maker_twoDMovingBoxes(object):
                 print("State ", i_state, " Episode ", episode)
                 episode_rewards = []
                 while True:
-                    #self.print_array(self.current_state.map)
                     self.check_walls()
 
                     stop = True
@@ -619,13 +511,15 @@ class MDP_Centralized_policy_maker_twoDMovingBoxes(object):
 
                     self.current_state = new_state
 
-                if episode == 1000:
+                    self.new_boxes_position()
+
+                if episode == 100:
                     self.epsilon = 0.5
-                elif episode == 3000:
+                elif episode == 500:
                     self.epsilon = 0.3
-                elif episode == 10000:
+                elif episode == 900:
                     self.epsilon = 0.1
-                elif episode == 40000:
+                elif episode == 2500:
                     self.epsilon = 0.01
                 elif episode == 49000:
                     self.epsilon = 0
@@ -634,10 +528,10 @@ class MDP_Centralized_policy_maker_twoDMovingBoxes(object):
 
     def write_in_txt(self, policy_file):
         new_Q_table = []
-        for line in self.Q_table:
+        temp_QTable = copy.deepcopy(self.Q_table)
+        for line in temp_QTable:
             new_Q_table.append([line.map, self.Q(line)])
         with open(policy_file, "wb") as fp:  # Unpickling
-            #pickle.dump((new_Q_table, self.states_numbered, self.P_table), fp)
             pickle.dump(new_Q_table, fp)
             fp.close()
 
@@ -679,3 +573,30 @@ class MDP_Centralized_policy_maker_twoDMovingBoxes(object):
                 print()
                 self.print_array(self.current_state)
                 quit()
+
+    def new_boxes_position(self):
+        boxes = []
+        for i in range(len(self.current_state.map)):
+            for j in range(len(self.current_state.map[i])):
+                if self.current_state.map[i][j] == 2:
+                    boxes.append([i, j])
+
+        for pos in boxes:
+            random.seed()
+            box_action = random.randint(0, 3)
+            if box_action == 0:  # LEFT
+                if self.current_state.map[pos[0]][pos[1] - 1] == 0:
+                    self.current_state.map[pos[0]][pos[1]] = 0
+                    self.current_state.map[pos[0]][pos[1] - 1] = 2
+            elif box_action == 1:  # RIGHT
+                if self.current_state.map[pos[0]][pos[1] + 1] == 0:
+                    self.current_state.map[pos[0]][pos[1]] = 0
+                    self.current_state.map[pos[0]][pos[1] + 1] = 2
+            elif box_action == 2:  # UP
+                if self.current_state.map[pos[0] - 1][pos[1]] == 0:
+                    self.current_state.map[pos[0]][pos[1]] = 0
+                    self.current_state.map[pos[0] - 1][pos[1]] = 2
+            elif box_action == 3:  # DOWN
+                if self.current_state.map[pos[0] + 1][pos[1]] == 0:
+                    self.current_state.map[pos[0]][pos[1]] = 0
+                    self.current_state.map[pos[0] + 1][pos[1]] = 2

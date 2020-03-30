@@ -10,7 +10,7 @@ class World_twoDMovingBoxes(object):
 
     def __init__(self, terrain, policy_file):
 
-        type_of_policy = policy_file.replace("twoDBoxes_MDP_", '')
+        type_of_policy = policy_file.replace("twoDMovingBoxes_MDP_", '')
         type_of_policy = type_of_policy.replace("_policy_map1.pickle", '')
 
         self.last_update = None
@@ -52,19 +52,19 @@ class World_twoDMovingBoxes(object):
         for column in range(len(self.terrain.matrix[0])):
             for line in range(len(self.terrain.matrix)):
                 if self.terrain.matrix[line][column] == 2:
-                    box = Box_twoDBoxes(column * self.screen_ratio, line * self.screen_ratio)
+                    box = Box_twoDMovingBoxes(column * self.screen_ratio, line * self.screen_ratio, self)
                     self.box_group.add(box)
 
         # #create shappys
         for column in range(len(self.terrain.matrix[0])):
             for line in range(len(self.terrain.matrix)):
                 if self.terrain.matrix[line][column] == 3:
-                    shappy = Shappy_twoDBoxes(column * self.screen_ratio, line * self.screen_ratio, self, 3,
+                    shappy = Shappy_twoDMovingBoxes(column * self.screen_ratio, line * self.screen_ratio, self, 3,
                                               self.terrain.matrix, self.screen_width, self.screen_height,
                                               False, self.policy, type_of_policy)
                     self.shappy_group.add(shappy)
                 if self.terrain.matrix[line][column] == 4:
-                    shappy = Shappy_twoDBoxes(column * self.screen_ratio, line * self.screen_ratio, self,
+                    shappy = Shappy_twoDMovingBoxes(column * self.screen_ratio, line * self.screen_ratio, self,
                                               4, self.terrain.matrix, self.screen_width, self.screen_height,
                                               False, self.policy, type_of_policy)
                     self.shappy_group.add(shappy)
@@ -104,7 +104,7 @@ class World_twoDMovingBoxes(object):
 
     def update(self):
 
-        if time.time() - self.time_interval > 1:
+        if time.time() - self.time_interval > 0.1:
             self.time_interval = time.time()
 
             shappy3_state = []
@@ -121,6 +121,8 @@ class World_twoDMovingBoxes(object):
 
             self.score = abs(self.initial_number_of_boxes - len(self.box_group))
 
+            self.box_group.update()
+
             self.last_update = time.time()
 
     def get_policy(self, policy_file):
@@ -133,7 +135,6 @@ class World_twoDMovingBoxes(object):
 
     def set_new_terrain_matrix(self, shappy3_state, shappy4_state):
         self.current_state = shappy3_state
-
         for i in range(len(self.current_state)):
             for j in range(len(self.current_state[i])):
                 if self.current_state[i][j] == shappy4_state[i][j]:
@@ -144,6 +145,7 @@ class World_twoDMovingBoxes(object):
                     self.current_state[i][j] = 4
                 elif self.current_state[i][j] == 4 and shappy4_state[i][j] != 4:
                     self.current_state[i][j] = shappy4_state[i][j]
+
 
     def print_array(self, array):
         for line in array:

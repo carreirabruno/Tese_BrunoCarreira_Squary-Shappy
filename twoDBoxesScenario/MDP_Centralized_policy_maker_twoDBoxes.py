@@ -111,12 +111,11 @@ class MDP_Centralized_policy_maker_twoDBoxes(object):
         self.epsilon = self.max_epsilon
         self.decay_rate = 0.001
 
-
-        count = 0
-        for line in self.map:
-            for item in line:
-                if item != 1:
-                    count += 1
+        # count = 0
+        # for line in self.map:
+        #     for item in line:
+        #         if item != 1:
+        #             count += 1
 
         # self.n_states = 1
         # self.n_states = len(self.map[0]) * len(self.map[0]) * (len(shappys) + 1) * (len(boxes) + 2) *2

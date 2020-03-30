@@ -14,7 +14,7 @@ def main():
     terrain = Terrain_twoDBoxes("twoDBoxes_map1.txt")
 
     #create the policy
-    #centralized_policy_maker = MDP_Centralized_policy_maker_twoDBoxes(terrain.matrix, centralized_policy_file)
+    centralized_policy_maker = MDP_Centralized_policy_maker_twoDBoxes(terrain.matrix, centralized_policy_file)
     #decentralized_policy_maker = MDP_Decentralized_policy_maker_twoDBoxes(terrain.matrix, decentralized_policy_file)
     #quit()
 
@@ -31,7 +31,7 @@ def main():
     os.environ['SDL_VIDEO_CENTERED'] = '0'
 
     #create world
-    world = World_twoDBoxes(terrain, decentralized_policy_file)
+    world = World_twoDBoxes(terrain, centralized_policy_file)
 
     world.render()
 

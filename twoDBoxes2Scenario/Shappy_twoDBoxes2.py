@@ -7,15 +7,10 @@ import copy
 
 numpy.set_printoptions(threshold=sys.maxsize)
 
-
-def get_center(sprite):
-    return sprite.rect.x + sprite.rect.width / 2, sprite.rect.y + sprite.rect.height / 2
-
-
 class Shappy_twoDBoxes2(pygame.sprite.Sprite):
 
     def __init__(self, x_pos, y_pos, world, color, terrain_matrix, screen_width, screen_height,
-                 auto, policy, type_of_policy):
+                 auto, policy, type_of_policy, fov_radius):
 
         pygame.sprite.Sprite.__init__(self)
         self.x_pos = x_pos
@@ -30,6 +25,7 @@ class Shappy_twoDBoxes2(pygame.sprite.Sprite):
         self.auto = auto
         self.policy = policy
         self.type_of_policy = type_of_policy
+        self.fov_radius = int(fov_radius - 0.5)
 
         self.color = color
 
@@ -53,8 +49,12 @@ class Shappy_twoDBoxes2(pygame.sprite.Sprite):
 
         self.current_state = []
 
+        self.in_my_radius = False
+        self.nearby_box_pos = []
+
     def update(self, current_state):
         self.current_state = copy.deepcopy(current_state)
+
         if not self.auto:
             self.calculate = False
             keys = pygame.key.get_pressed()
@@ -67,6 +67,12 @@ class Shappy_twoDBoxes2(pygame.sprite.Sprite):
                     self.upy()
                 if keys[pygame.K_s]:
                     self.downy()
+                if keys[pygame.K_1]:
+                    self.world.send_message(self.color, "Blue pos is [" + str(self.x_pos) + "," + str(self.y_pos) + "]")
+                if self.check_nearby_boxes():
+                    if keys[pygame.K_2]:
+                        self.world.send_message(self.color, "Box pos in [" + str(self.nearby_box_pos[0]) + "," + str(self.nearby_box_pos[1]) + "]")
+
             elif self.color == 4:
                 if keys[pygame.K_LEFT]:
                     self.lefty()
@@ -76,6 +82,12 @@ class Shappy_twoDBoxes2(pygame.sprite.Sprite):
                     self.upy()
                 if keys[pygame.K_DOWN]:
                     self.downy()
+                if keys[pygame.K_KP1]:
+                    self.world.send_message(self.color, "Red pos is [" + str(self.x_pos) + "," + str(self.y_pos) + "]")
+                if self.check_nearby_boxes():
+                    if keys[pygame.K_KP2]:
+                        self.world.send_message(self.color, "Box pos in [" + str(self.nearby_box_pos[0]) + "," + str(self.nearby_box_pos[1]) + "]")
+
         elif self.auto:
             self.auto_movement()
 
@@ -284,3 +296,33 @@ class Shappy_twoDBoxes2(pygame.sprite.Sprite):
     def print_array(self, array):
         for line in array:
             print(line)
+
+    def check_nearby_boxes(self):
+        converted_x_pos = int(self.x_pos / self.world.screen_ratio)
+        converted_y_pos = int(self.y_pos / self.world.screen_ratio)
+        for i in range(max(0, converted_y_pos - self.fov_radius), min(int(self.screen_height/self.world.screen_ratio), converted_y_pos + self.fov_radius + 1)):
+            for j in range(max(0, converted_x_pos - self.fov_radius), min(int(self.screen_width/self.world.screen_ratio), converted_x_pos + self.fov_radius + 1)):
+                if self.current_state[i][j] == 2:
+                    self.nearby_box_pos = [j, i]
+                    return True
+        return False
+
+    def get_center(self):
+        return self.rect.x + self.rect.width / 2, self.rect.y + self.rect.height / 2
+
+    # def detect_message(self):
+    #     print("ola")
+    #     message = ""
+    #     while self.writing:
+    #         for event in pygame.event.get():
+    #             if event.type == pygame.KEYDOWN:
+    #                 if event.key == pygame.K_RETURN:
+    #                     print("adeus")
+    #                     self.writing = False
+    #                 elif event.key == pygame.K_BACKSPACE:
+    #                     message = message[:-1]
+    #                 else:
+    #                     message += event.unicode
+    #                     print(message)
+    #
+    #     self.world.send_message(self.color, message)

@@ -50,14 +50,11 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
               posx, posy = pygame.mouse.get_pos()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_1:
+                if event.key == pygame.K_RETURN:
                     world.show_automatic = not world.show_automatic
                     for shappy in world.shappy_group:
                         shappy.auto = not shappy.auto
                         shappy.calculate = True
-                if event.key == pygame.K_2:
-                    for shappy in world.shappy_group:
-                        shappy.go_ahead = True
 
 if __name__ == "__main__":
     # call the main function

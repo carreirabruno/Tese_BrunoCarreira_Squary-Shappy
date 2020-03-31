@@ -18,6 +18,8 @@ class World_twoDBoxes2(object):
         self.screen_ratio = 30
 
         self.terrain = terrain
+        terrain_matrix = copy(self.terrain.matrix)
+        terrain_matrix = terrain_matrix[:-2]
 
         self.policy = self.get_policy(policy_file)
         #self.policy = policy_file
@@ -26,8 +28,6 @@ class World_twoDBoxes2(object):
         self.screen_height = len(self.terrain.matrix) * self.screen_ratio
 
         self.screen = pygame.display.set_mode([self.screen_width, self.screen_height])
-
-        self.fov_radius = 100
 
         self.font = pygame.font.SysFont("Times New Roman", 20)
 
@@ -39,6 +39,13 @@ class World_twoDBoxes2(object):
 
         self.show_automatic = False
         self.time_interval = time.time()
+
+        self.message_from_4 = ""
+        self.time_out_message_from_4 = 0
+        self.message_from_3 = ""
+        self.time_out_message_from_3 = 0
+
+        self.fov_radius = 1.5
 
         # create walls
         for column in range(len(self.terrain.matrix[0])):
@@ -60,17 +67,17 @@ class World_twoDBoxes2(object):
             for line in range(len(self.terrain.matrix)):
                 if self.terrain.matrix[line][column] == 3:
                     shappy = Shappy_twoDBoxes2(column * self.screen_ratio, line * self.screen_ratio, self, 3,
-                                              self.terrain.matrix, self.screen_width, self.screen_height,
-                                              False, self.policy, type_of_policy)
+                                              terrain_matrix, self.screen_width, self.screen_height,
+                                              False, self.policy, type_of_policy, self.fov_radius)
                     self.shappy_group.add(shappy)
                 if self.terrain.matrix[line][column] == 4:
                     shappy = Shappy_twoDBoxes2(column * self.screen_ratio, line * self.screen_ratio, self,
-                                              4, self.terrain.matrix, self.screen_width, self.screen_height,
-                                              False, self.policy, type_of_policy)
+                                              4, terrain_matrix, self.screen_width, self.screen_height,
+                                              False, self.policy, type_of_policy, self.fov_radius)
                     self.shappy_group.add(shappy)
 
         self.current_state = []
-        for line in self.terrain.matrix:
+        for line in terrain_matrix:
             temp_array = []
             for letter in line:
                 temp_array.append(int(letter))
@@ -85,6 +92,16 @@ class World_twoDBoxes2(object):
         self.screen.fill((255, 255, 255))
 
         self.shappy_group.draw(self.screen)
+        for shappy in self.shappy_group:
+            color = (0, 0, 0)
+            if shappy.color == 3:
+                color = (0, 0, 255)
+            elif shappy.color == 4:
+                color = (255, 0, 0)
+            pygame.draw.rect(self.screen, color,
+                             (shappy.get_center()[0] - (self.fov_radius * self.screen_ratio), shappy.get_center()[1] - (self.fov_radius * self.screen_ratio),
+                              self.fov_radius*2 * self.screen_ratio, self.fov_radius*2 * self.screen_ratio), 2)
+
         self.box_group.draw(self.screen)
         self.wall_group.draw(self.screen)
 
@@ -95,6 +112,14 @@ class World_twoDBoxes2(object):
             automatic_rend = self.font.render("Automatic", 1, (255, 255, 255))
             self.screen.blit(automatic_rend, (self.screen_width / 2 - 30, 5))
 
+        if time.time() < self.time_out_message_from_3:
+            message_rend = self.font.render(str(self.message_from_3), 1, (0, 0, 255))
+            self.screen.blit(message_rend, (10, self.screen_height-55))
+
+        if time.time() < self.time_out_message_from_4:
+            message_rend = self.font.render(str(self.message_from_4), 1, (255, 0, 0))
+            self.screen.blit(message_rend, (10, self.screen_height-25))
+
         pygame.display.flip()
 
     def box_group_remove(self, input_x_pos, input_y_pos):
@@ -104,7 +129,7 @@ class World_twoDBoxes2(object):
 
     def update(self):
 
-        if time.time() - self.time_interval > 1:
+        if time.time() - self.time_interval > 0.1:
             self.time_interval = time.time()
 
             shappy3_state = []
@@ -148,3 +173,12 @@ class World_twoDBoxes2(object):
     def print_array(self, array):
         for line in array:
             print(line)
+
+    def send_message(self, _from, message):
+        if _from == 4:
+            self.message_from_4 = message
+            self.time_out_message_from_4 = time.time() + 2
+        if _from == 3:
+            self.message_from_3 = message
+            self.time_out_message_from_3 = time.time() + 2
+

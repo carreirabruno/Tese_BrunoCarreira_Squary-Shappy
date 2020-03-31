@@ -40,4 +40,9 @@ class Terrain_twoDBoxes2(object):
                     self.matrix[y][x] = 7
                 x += 1
             y += 1
+
         f.close()
+
+    def print_array(self, array):
+        for line in array:
+            print(line)

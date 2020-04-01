@@ -1,33 +1,30 @@
 import pygame
 import os
-from oneDBoxes2Scenario.Collaborator_oneDBoxes2 import *
 from oneDBoxes2Scenario.MDP_Centralized_policy_maker_oneDBoxes2 import *
 from oneDBoxes2Scenario.MDP_Decentralized_policy_maker_oneDBoxes2 import *
 from oneDBoxes2Scenario.World_oneDBoxes2 import *
 from oneDBoxes2Scenario.Terrain_oneDBoxes2 import *
-from oneDBoxes2Scenario.Policy_comparator_oneDBoxes2 import *
-import winsound
 
 def main():
 
-    base_policy2_file = "oneDBoxes2_MDP_base_policy2.pickle"
-    base_policy3_file = "oneDBoxes2_MDP_base_policy3.pickle"
+    centralized_policy_map1_file = "oneDBoxes2_MDP_centralized_policy_map1.pickle"
+    centralized_policy_map2_file = "oneDBoxes2_MDP_centralized_policy_map2.pickle"
 
-    individual_base_policy2_file = "oneDBoxes2_MDP_base_policy2_individual.pickle"
-    individual_base_policy3_file = "oneDBoxes2_MDP_base_policy3_individual.pickle"
+    decentralized_policy_map1_file = "oneDBoxes2_MDP_decentralized_policy_map1.pickle"
+    decentralized_policy_map2_file = "oneDBoxes2_MDP_decentralized_policy_map2.pickle"
 
+
+    terrain1 = Terrain_oneDBoxes2("oneDBoxes2_map1.txt")
     terrain2 = Terrain_oneDBoxes2("oneDBoxes2_map2.txt")
-    terrain3 = Terrain_oneDBoxes2("oneDBoxes2_map3.txt")
 
 
     #create the policy
-    # policy_maker_map2 = MDP_Centralized_policy_maker_oneDBoxes2(terrain2.matrix, base_policy2_file)
-    # policy_maker_map3 = MDP_Centralized_policy_maker_oneDBoxes2(terrain3.matrix, base_policy3_file)
+    # policy_maker_map1 = MDP_Centralized_policy_maker_oneDBoxes2(terrain1.matrix, centralized_policy_map2_file)
+    # policy_maker_map2 = MDP_Centralized_policy_maker_oneDBoxes2(terrain2.matrix, centralized_policy_map2_file)
 
-    # decentralized_policy_maker2 = MDP_Decentralized_policy_maker_oneDBoxes2(terrain2.matrix, individual_base_policy2_file)
-    # decentralized_policy_maker3 = MDP_Decentralized_policy_maker_oneDBoxes2(terrain3.matrix, individual_base_policy3_file)
+    decentralized_policy_maker1 = MDP_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, decentralized_policy_map1_file)
+    # decentralized_policy_maker2 = MDP_Decentralized_policy_maker_oneDBoxes2(terrain2.matrix, decentralized_policy_map2_file)
 
-    #winsound.Beep(600, 500)
 
     # define a variable to control the main loop
     running = True
@@ -42,52 +39,31 @@ def main():
     os.environ['SDL_VIDEO_CENTERED'] = '0'
 
     #create world
-    world = World_oneDBoxes2(terrain3, individual_base_policy3_file, "Decentralized")
-
-    #create the collaboration analyser
-    #collaborator = Collaborator_oneDBoxes(world, False)
+    world = World_oneDBoxes2(terrain1, decentralized_policy_map1_file)
 
     world.render()
-
-    #createNewLogFile(world)
-
-    # world.show_automatic = not world.show_automatic
-    # for shappy in world.shappy_group:
-    #     # if shappy.type == "Coolaborative":
-    #     shappy.auto = not shappy.auto
-    #     shappy.calculate = True
 
     # main loop
     while running:
         world.update()
         world.render()
 
-    #    collaborator.update()
-
         if len(world.box_group) == 0:
-            #policy_comparator.receive_world_simulation_run(world.simulation_run_states)
             running = False
 
         # event handling, gets all event from the event queue
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                #policy_comparator.receive_world_simulation_run(world.simulation_run_states)
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
               posx, posy = pygame.mouse.get_pos()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_1:
+                if event.key == pygame.K_RETURN:
                     world.show_automatic = not world.show_automatic
                     for shappy in world.shappy_group:
-                       # if shappy.type == "Coolaborative":
                         shappy.auto = not shappy.auto
                         shappy.calculate = True
-                if event.key == pygame.K_2:
-                    for shappy in world.shappy_group:
-                        shappy.go_ahead = True
 
-    #Policy_comparator_oneDBoxes([collaborative_policy_file, non_collaborative_policy_file]). \
-     #   receive_world_simulation_run2(world.simulation_run_states)
 
 if __name__ == "__main__":
     # call the main function

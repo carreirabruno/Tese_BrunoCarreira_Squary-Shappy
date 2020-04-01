@@ -79,7 +79,7 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
         self.gamma = 0.9
         self.learning_rate = 0.1  # alpha
 
-        self.max_epsilon = 1
+        self.max_epsilon = 0.9
         self.min_epsilon = 0.01
         self.epsilon = self.max_epsilon
 
@@ -271,13 +271,15 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
 
     def create_stating_states(self):
         existing_starting_states = [self.start_state]
+        existing_starting_maps = [self.start_map]
 
         map_copy = copy.deepcopy(self.map)
-        if 3 in map_copy or 4 in map_copy:
+        if 3 in map_copy:
             map_copy = np.where(map_copy == 3, 0, map_copy)
             map_copy = np.where(map_copy == 4, 0, map_copy)
 
         filled_positions = []
+        boxes_positions_temp = []
         for i in range(len(map_copy)):
             if map_copy[i] == 1 or map_copy[i] == 2:
                 filled_positions.append(i)
@@ -288,44 +290,65 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
             pos1 = random.randint(1, len(temp_map) - 1)
             while pos1 in filled_positions:
                 pos1 = random.randint(1, len(temp_map) - 1)
-            filled_positions.append(pos1)  # Os shappys começam sempre em sitios diferentes
+            #filled_positions.append(pos1)  # Os shappys começam sempre em sitios diferentes
             pos2 = random.randint(1, len(temp_map) - 1)
             while pos2 in filled_positions:
                 pos2 = random.randint(1, len(temp_map) - 1)
-            filled_positions.remove(pos1)
 
             if pos1 < pos2:
                 temp_map[pos1] = 3
                 temp_map[pos2] = 4
-            else:
+            elif pos1 > pos2:
                 temp_map[pos2] = 3
                 temp_map[pos1] = 4
+            else:
+                temp_map[pos1] = 7
 
-            temp_state = State(map=temp_map)
+            temp_state = []
+
+            for i in range(len(temp_map)):
+                if int(temp_map[i]) == 7:
+                    temp_state.append(i)
+                    temp_state.append(i)
+                    break
+                if int(temp_map[i]) == 3:
+                    temp_state.append(i)
+                if int(temp_map[i]) == 4:
+                    temp_state.append(i)
+            for i in range(len(temp_map)):
+                if int(temp_map[i]) == 2:
+                    temp_state.append(i)
+
             already_exists = False
             for state in existing_starting_states:
-                comparison = state.map == temp_state.map
-                if comparison.all():
+                equal = True
+                for i in range(len(state)):
+                    if len(temp_state) != len(state) or temp_state[i] != state[i]:
+                        equal = False
+                if equal:
                     already_exists = True
 
             if not already_exists:
+                existing_starting_maps.append(temp_map)
                 existing_starting_states.append(temp_state)
 
-        return existing_starting_states
+        return existing_starting_states, existing_starting_maps
 
     def create_policy(self):
 
         total_episodes = 3000
 
-        #starting_states = self.create_stating_states()
-        starting_states = [self.start_state]
+        starting_states, starting_maps = self.create_stating_states()
+
+        #starting_states = [self.start_state]
         # TRAIN
         rewards = []
         for i_state in range(len(starting_states)):
+            # print(starting_states[i_state], starting_maps[i_state])
             for episode in range(total_episodes):
 
                 self.current_state = starting_states[i_state]
-                self.current_map = self.start_map
+                self.current_map = starting_maps[i_state]
 
                 print("State ", i_state, "/", len(starting_states)-1, " Episode ", episode)
 
@@ -346,6 +369,17 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
                     self.current_state = new_state
 
                     self.current_map = new_map
+
+                    print(self.current_state, actions)
+
+                # if episode == 500:
+                #     self.epsilon = 0.5
+                # elif episode == 900:
+                #      self.epsilon = 0.3
+                # elif episode == 1500:
+                #      self.epsilon = 0.1
+                # elif episode == 2800:
+                #     self.epsilon = 0.01
 
                 if episode == 500:
                     self.epsilon = 0.5

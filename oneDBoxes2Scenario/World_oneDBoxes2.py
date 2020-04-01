@@ -37,6 +37,26 @@ class World_oneDBoxes2(object):
         self.show_automatic = False
         self.time_interval = time.time()
 
+        self.current_map = []
+        for line in self.terrain.matrix:
+            for i in range(len(line)):
+                if line[i] == 3:
+                    for letter in line:
+                        self.current_map.append(int(letter))
+                    break
+
+        self.current_state = []
+        for i in range(len(self.current_map)):
+            if int(self.current_map[i]) == 3:
+                self.current_state.append(i)
+            if self.type_of_policy == "centralized":
+                if int(self.current_map[i]) == 4:
+                    self.current_state.append(i)
+        for i in range(len(self.current_map)):
+            if int(self.current_map[i]) == 2:
+                self.current_state.append(i)
+
+
         # create walls
         for column in range(len(self.terrain.matrix[0])):
             for line in range(len(self.terrain.matrix)):
@@ -57,24 +77,16 @@ class World_oneDBoxes2(object):
             for line in range(len(self.terrain.matrix)):
                 if self.terrain.matrix[line][column] == 3:
                     shappy = Shappy_oneDBoxes2(column * self.screen_ratio, line * self.screen_ratio, self, 3,
-                                                self.terrain.matrix, self.screen_width, self.screen_height,
-                                                False, self.policy, self.type_of_policy)
+                                                self.current_map, self.screen_width, self.screen_height,
+                                                False, self.policy, self.type_of_policy, self.current_state)
                     self.shappy_group.add(shappy)
                 if self.terrain.matrix[line][column] == 4:
                     shappy = Shappy_oneDBoxes2(column * self.screen_ratio, line * self.screen_ratio, self, 4,
-                                                self.terrain.matrix, self.screen_width, self.screen_height,
-                                                False, self.policy, self.type_of_policy)
+                                                self.current_map, self.screen_width, self.screen_height,
+                                                False, self.policy, self.type_of_policy, self.current_state)
                     self.shappy_group.add(shappy)
 
-        self.current_state = []
-        for line in self.terrain.matrix:
-            for i in range(len(line)):
-                if line[i] == 2:
-                    for letter in line:
-                        self.current_state.append(int(letter))
-                    break
-
-        self.simulation_run_states = [self.current_state]
+        #self.simulation_run_states = [self.current_state]
 
         self.initial_number_of_boxes = len(self.box_group)
 
@@ -103,7 +115,6 @@ class World_oneDBoxes2(object):
                 self.box_group.remove(box)
 
     def update(self):
-
         if time.time() - self.time_interval > 1:
             self.time_interval = time.time()
 
@@ -117,8 +128,6 @@ class World_oneDBoxes2(object):
 
             self.set_new_terrain_matrix(shappy3_state, shappy4_state)
 
-            self.simulation_run_states.append(self.current_state)
-
             self.score = abs(self.initial_number_of_boxes - len(self.box_group))
 
             self.last_update = time.time()
@@ -130,14 +139,31 @@ class World_oneDBoxes2(object):
         return policy
 
     def set_new_terrain_matrix(self, shappy3_state, shappy4_state):
-        self.current_state = shappy3_state
+        min_range = -1
+        if self.type_of_policy == "centralized":
+            min_range = 2
+            self.current_state = shappy3_state
+            self.current_state[1] = shappy4_state[1]
+            for i in range(2, len(shappy3_state)):
+                if shappy4_state[0] == self.current_state[i]:
+                    self.current_state.remove(self.current_state[i])
+                    break
 
-        for i in range(len(self.current_state)):
-            if self.current_state[i] == shappy4_state[i]:
-                pass
-            elif self.current_state[i] == 3 and shappy4_state[i] == 4:
-                self.current_state[i] = 7
-            elif self.current_state[i] != 3 and shappy4_state[i] == 4:
-                self.current_state[i] = 4
-            elif self.current_state[i] == 4 and shappy4_state[i] != 4:
-                self.current_state[i] = shappy4_state[i]
+        elif self.type_of_policy == "decentralized":
+            min_range = 1
+            self.current_state = shappy3_state
+            for i in range(1, len(shappy3_state)):
+                if shappy4_state[0] == self.current_state[i]:
+                    self.current_state.remove(self.current_state[i])
+                    break
+
+        for i in range(len(self.current_map)):
+            if self.current_map[i] == 2 or self.current_map[i] == 3 or self.current_map[i] == 4:
+                self.current_map[i] = 0
+
+        self.current_map[shappy3_state[0]] = 3
+        self.current_map[shappy4_state[0]] = 4
+
+        for i in range(min_range, len(self.current_state)):
+            self.current_map[self.current_state[i]] = 2
+

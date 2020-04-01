@@ -445,11 +445,10 @@ class MDP_Centralized_policy_maker_oneDBoxes(object):
 
     def create_policy(self):
 
-        #total_episodes = 3000  # tenho que aumentar isto para 100000 :(
-        total_episodes = 5000
+        total_episodes = 1000
 
-        #starting_states = self.create_stating_states()
-        starting_states = [self.start_state]
+        starting_states = self.create_stating_states()
+        #starting_states = [self.start_state]
         # TRAIN
         rewards = []
         for i_state in range(len(starting_states)):
@@ -457,7 +456,7 @@ class MDP_Centralized_policy_maker_oneDBoxes(object):
 
                 self.current_state = starting_states[i_state]
                 # self.calculate_best_possible_paths()
-                print("State ", i_state, " Episode ", episode)
+                print("State ", i_state, "/", len(starting_states)-1, " Episode ", episode)
                 #print("Episode ", episode)
                 #print(self.epsilon)
                 episode_rewards = []
@@ -479,24 +478,14 @@ class MDP_Centralized_policy_maker_oneDBoxes(object):
 
                     self.current_state = new_state
 
-                if episode == 1000:
+                if episode == 100:
                     self.epsilon = 0.5
-                elif episode == 2000:
+                elif episode == 300:
                      self.epsilon = 0.3
-                elif episode == 3000:
+                elif episode == 500:
                      self.epsilon = 0.1
-                elif episode == 4500:
-                    self.imprimir = True
+                elif episode == 900:
                     self.epsilon = 0.01
-                # elif episode == 2990:
-                # if episode == 1:
-                #     self.epsilon = 0
-                # for line in self.Q_table:
-                #     print(line, self.Q(line))
-                    # self.epsilon = 0
-                # self.epsilon = self.epsilon - self.decay_rate
-                # if self.epsilon < self.min_epsilon:
-                #     self.epsilon = self.min_epsilon
 
                 rewards.append(np.mean(episode_rewards))
 

@@ -14,8 +14,8 @@ def get_center(sprite):
 
 class Shappy_oneDBoxes2(pygame.sprite.Sprite):
 
-    def __init__(self, x_pos, y_pos, world, color, terrain_matrix, screen_width, screen_height,
-                 auto, policy, type_of_policy):
+    def __init__(self, x_pos, y_pos, world, color, current_map, screen_width, screen_height,
+                 auto, policy, type_of_policy, current_state):
 
         pygame.sprite.Sprite.__init__(self)
         self.x_pos = x_pos
@@ -23,12 +23,13 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
         self.old_x_pos = x_pos
         self.old_y_pos = y_pos
         self.world = world
-        self.terrain_matrix = terrain_matrix
+        self.current_map = current_map
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.auto = auto
         self.policy = policy
         self.type_of_policy = type_of_policy
+        self.current_state = current_state
 
         self.color = color
 
@@ -54,12 +55,6 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
         self.time_interval = time.time()
 
         self.current_state = []
-
-        self.my_number = color
-        if self.my_number == 3:
-            self.other_number = 4
-        else:
-            self.other_number = 3
 
     def update(self, current_state):
         self.current_state = copy.deepcopy(current_state)
@@ -92,35 +87,38 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
         return self.current_state
 
     def lefty(self):
-        if self.current_state[(int(self.x_pos / self.world.screen_ratio) - 1)] != 1:
-            self.current_state[int(self.x_pos / self.world.screen_ratio)] = 0
+        if self.current_map[(int(self.x_pos / self.world.screen_ratio) - 1)] != 1:
+
             self.x_pos -= 1 * self.world.screen_ratio
 
-            if self.current_state[int(self.x_pos / self.world.screen_ratio)] == 2:
+            if self.current_map[int(self.x_pos / self.world.screen_ratio)] == 2:
                 self.world.box_group_remove(int(self.x_pos / self.world.screen_ratio),
                                             int(self.y_pos / self.world.screen_ratio))
 
-            self.current_state[int(self.x_pos / self.world.screen_ratio)] = self.color
+                self.current_state.remove(int(self.x_pos / self.world.screen_ratio))
 
+            self.current_state[0] = int(self.x_pos / self.world.screen_ratio)
 
     def righty(self):
-        if self.current_state[(int(self.x_pos / self.world.screen_ratio) + 1)] != 1:
-            self.current_state[int(self.x_pos / self.world.screen_ratio)] = 0
+        if self.current_map[(int(self.x_pos / self.world.screen_ratio) + 1)] != 1:
+
             self.x_pos += 1 * self.world.screen_ratio
 
-            if self.current_state[int(self.x_pos / self.world.screen_ratio)] == 2:
+            if self.current_map[int(self.x_pos / self.world.screen_ratio)] == 2:
                 self.world.box_group_remove(int(self.x_pos / self.world.screen_ratio),
                                             int(self.y_pos / self.world.screen_ratio))
 
-            self.current_state[int(self.x_pos / self.world.screen_ratio)] = self.color
+                self.current_state.remove(int(self.x_pos / self.world.screen_ratio))
+
+            self.current_state[0] = int(self.x_pos / self.world.screen_ratio)
 
     def auto_movement(self, type):
-        if type == "Centralized":
+        if type == "centralized":
             actions = -1
             for state in self.policy:
                 equal = True
                 for i in range(len(state[0])):
-                    if self.current_state[i] != state[0][i]:
+                    if len(self.current_state) != len(state[0]) or self.current_state[i] != state[0][i]:
                         equal = False
                 if equal:
                     actions = np.argmax(state[1])
@@ -140,19 +138,15 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
                     self.lefty()
                 elif actions == 1 or actions == 4 or actions == 7:
                     self.righty()
-        elif type == "Decentralized":
 
-            for i in range(len(self.current_state)):
-                if self.current_state[i] == 4:
-                    self.current_state[i] = 0
-                elif self.current_state[i] == 7:
-                    self.current_state[i] = 3
+        elif type == "decentralized":
+            self.current_state[0] = int(self.x_pos/self.world.screen_ratio)
 
             actions = -1
             for state in self.policy:
                 equal = True
                 for i in range(len(state[0])):
-                    if self.current_state[i] != state[0][i]:
+                    if len(self.current_state) != len(state[0]) or self.current_state[i] != state[0][i]:
                         equal = False
                 if equal:
                     actions = np.argmax(state[1])

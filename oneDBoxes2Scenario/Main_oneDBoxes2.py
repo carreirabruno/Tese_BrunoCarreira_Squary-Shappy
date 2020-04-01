@@ -13,16 +13,14 @@ def main():
     decentralized_policy_map1_file = "oneDBoxes2_MDP_decentralized_policy_map1.pickle"
     decentralized_policy_map2_file = "oneDBoxes2_MDP_decentralized_policy_map2.pickle"
 
-
     terrain1 = Terrain_oneDBoxes2("oneDBoxes2_map1.txt")
     terrain2 = Terrain_oneDBoxes2("oneDBoxes2_map2.txt")
 
-
     #create the policy
-    # policy_maker_map1 = MDP_Centralized_policy_maker_oneDBoxes2(terrain1.matrix, centralized_policy_map2_file)
-    # policy_maker_map2 = MDP_Centralized_policy_maker_oneDBoxes2(terrain2.matrix, centralized_policy_map2_file)
+    # centralized_policy_maker_map1 = MDP_Centralized_policy_maker_oneDBoxes2(terrain1.matrix, centralized_policy_map1_file)
+    # centralized_policy_maker_map2 = MDP_Centralized_policy_maker_oneDBoxes2(terrain2.matrix, centralized_policy_map2_file)
 
-    decentralized_policy_maker1 = MDP_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, decentralized_policy_map1_file)
+    # decentralized_policy_maker1 = MDP_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, decentralized_policy_map1_file)
     # decentralized_policy_maker2 = MDP_Decentralized_policy_maker_oneDBoxes2(terrain2.matrix, decentralized_policy_map2_file)
 
 
@@ -39,7 +37,11 @@ def main():
     os.environ['SDL_VIDEO_CENTERED'] = '0'
 
     #create world
-    world = World_oneDBoxes2(terrain1, decentralized_policy_map1_file)
+    world = World_oneDBoxes2(terrain1, centralized_policy_map1_file)
+    # world = World_oneDBoxes2(terrain2, centralized_policy_map2_file)
+
+    # world = World_oneDBoxes2(terrain1, decentralized_policy_map1_file)
+    # world = World_oneDBoxes2(terrain2, decentralized_policy_map2_file)
 
     world.render()
 

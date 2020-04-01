@@ -42,7 +42,7 @@ def main():
     os.environ['SDL_VIDEO_CENTERED'] = '0'
 
     #create world
-    world = World_oneDBoxes(terrain3, individual_base_policy3_file, "Decentralized")
+    world = World_oneDBoxes(terrain3, base_policy3_file, "Centralized")
 
     #create the collaboration analyser
     #collaborator = Collaborator_oneDBoxes(world, False)

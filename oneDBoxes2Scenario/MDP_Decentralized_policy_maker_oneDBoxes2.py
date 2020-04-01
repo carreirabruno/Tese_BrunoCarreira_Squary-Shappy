@@ -76,13 +76,10 @@ class MDP_Decentralized_policy_maker_oneDBoxes2(object):
         self.gamma = 0.9
         self.learning_rate = 0.1  # alpha
 
-        self.max_epsilon = 1
+        self.max_epsilon = 0.9
         self.min_epsilon = 0.01
         self.epsilon = self.max_epsilon
         self.decay_rate = 0.001
-
-        self.n_states = len(self.map) * len(boxes)
-        self.n_states *= self.n_states
 
         self.Q_table = dict()
 
@@ -165,27 +162,29 @@ class MDP_Decentralized_policy_maker_oneDBoxes2(object):
 
     def create_stating_states(self):
         existing_starting_states = [self.start_state]
+        existing_starting_maps = [self.start_map]
 
         map_copy = copy.deepcopy(self.map)
         if 3 in map_copy:
             map_copy = np.where(map_copy == 3, 0, map_copy)
 
         filled_positions = []
-        boxes_positions = []
+        boxes_positions_temp = []
         for i in range(len(map_copy)):
             if map_copy[i] == 1:
                 filled_positions.append(i)
             if map_copy[i] == 2:
-                boxes_positions.append([i])
+                boxes_positions_temp.append(i)
 
-        boxes_positions.append([boxes_positions[0][0],boxes_positions[1][0]])
-        boxes_positions.append([boxes_positions[0][0], boxes_positions[2][0]])
-        boxes_positions.append([boxes_positions[1][0], boxes_positions[2][0]])
+        boxes_positions = [boxes_positions_temp, [boxes_positions_temp[0], boxes_positions_temp[1]],
+                           [boxes_positions_temp[0], boxes_positions_temp[2]], [boxes_positions_temp[1], boxes_positions_temp[2]],
+                           [boxes_positions_temp[0]], [boxes_positions_temp[1]], [boxes_positions_temp[2]]]
+
         different_boxes_map = [map_copy]
         for pos in boxes_positions:
             temp_map = copy.deepcopy(map_copy)
             for ind_pos in pos:
-                temp_map[pos] = 0
+                temp_map[ind_pos] = 0
             different_boxes_map.append(temp_map)
 
         for ind_map in different_boxes_map:
@@ -198,31 +197,50 @@ class MDP_Decentralized_policy_maker_oneDBoxes2(object):
 
                 temp_map[pos] = 3
 
-                temp_state = temp_map
+                temp_state = []
+
+                for i in range(len(temp_map)):
+                    if temp_map[i] == 3:
+                        temp_state.append(i)
+                for i in range(len(temp_map)):
+                    if temp_map[i] == 2:
+                        temp_state.append(i)
+
                 already_exists = False
                 for state in existing_starting_states:
-                    comparison = state == temp_state
-                    if comparison.all():
+                    equal = True
+                    for i in range(len(state)):
+                        if len(temp_state) != len(state) or temp_state[i] != state[i]:
+                            equal = False
+                    if equal:
                         already_exists = True
 
                 if not already_exists:
+                    existing_starting_maps.append(temp_map)
                     existing_starting_states.append(temp_state)
 
-        return existing_starting_states
+        return existing_starting_states, existing_starting_maps
 
     def create_policy(self):
 
         total_episodes = 1000
 
-        #starting_states = self.create_stating_states()
-        starting_states = [self.start_state]
+        starting_states, starting_maps = self.create_stating_states()
+        #starting_states = [self.start_state]
+        # second_state = copy.deepcopy(self.start_state)
+        # second_state[0] = 7
+        # second_map = copy.deepcopy(self.start_map)
+        # second_map[5] = 0
+        # second_map[7] = 3
+        # starting_states = [self.start_state, second_state]
+        # starting_maps = [self.start_map, second_map]
+
         # TRAIN
         rewards = []
         for i_state in range(len(starting_states)):
             for episode in range(total_episodes):
-
                 self.current_state = starting_states[i_state]
-                self.current_map = self.start_map
+                self.current_map = starting_maps[i_state]
 
                 print("State ", i_state, "/", len(starting_states)-1, " Episode ", episode)
 
@@ -251,6 +269,15 @@ class MDP_Decentralized_policy_maker_oneDBoxes2(object):
                      self.epsilon = 0.1
                 elif episode == 900:
                     self.epsilon = 0.01
+
+                # if episode == 500:
+                #     self.epsilon = 0.5
+                # elif episode == 900:
+                #      self.epsilon = 0.3
+                # elif episode == 1500:
+                #      self.epsilon = 0.1
+                # elif episode == 2800:
+                #     self.epsilon = 0.01
 
                 rewards.append(np.mean(episode_rewards))
 

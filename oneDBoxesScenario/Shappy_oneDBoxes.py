@@ -407,6 +407,7 @@ class Shappy_oneDBoxes(pygame.sprite.Sprite):
                 elif actions == 1 or actions == 4 or actions == 7:
                     self.righty()
         elif type == "Decentralized":
+
             for i in range(len(self.current_state)):
                 if self.current_state[i] == 4:
                     self.current_state[i] = 0

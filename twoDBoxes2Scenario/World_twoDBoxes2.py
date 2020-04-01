@@ -129,7 +129,7 @@ class World_twoDBoxes2(object):
 
     def update(self):
 
-        if time.time() - self.time_interval > 0.1:
+        if time.time() - self.time_interval > 3:
             self.time_interval = time.time()
 
             shappy3_state = []
@@ -169,6 +169,10 @@ class World_twoDBoxes2(object):
                     self.current_state[i][j] = 4
                 elif self.current_state[i][j] == 4 and shappy4_state[i][j] != 4:
                     self.current_state[i][j] = shappy4_state[i][j]
+                for box in self.box_group:
+                    if i == box.x_pos/self.screen_ratio and j == box.y_pos/self.screen_ratio:
+                        self.current_state[i][j] = 2
+
 
     def print_array(self, array):
         for line in array:

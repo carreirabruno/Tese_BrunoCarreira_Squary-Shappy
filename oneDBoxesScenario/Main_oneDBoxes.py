@@ -14,16 +14,18 @@ def main():
     base_policy3_file = "oneDBoxes_MDP_base_policy3.pickle"
 
     individual_base_policy2_file = "oneDBoxes_MDP_base_policy2_individual.pickle"
+    individual_base_policy3_file = "oneDBoxes_MDP_base_policy3_individual.pickle"
 
-    terrain2 = Terrain_oneDBoxes("twoDMovingBoxes_map1.txt")
+    terrain2 = Terrain_oneDBoxes("oneDBoxes_map2.txt")
     terrain3 = Terrain_oneDBoxes("oneDBoxes_map3.txt")
 
 
     #create the policy
-    #policy_maker_map2 = MDP_Centralized_policy_maker_oneDBoxes(terrain2.matrix, base_policy2_file)
+    # policy_maker_map2 = MDP_Centralized_policy_maker_oneDBoxes(terrain2.matrix, base_policy2_file)
     # policy_maker_map3 = MDP_Centralized_policy_maker_oneDBoxes(terrain3.matrix, base_policy3_file)
 
-    # decentralized_policy_maker = MDP_Decentralized_policy_maker_oneDBoxes(terrain2.matrix, individual_base_policy2_file)
+    # decentralized_policy_maker2 = MDP_Decentralized_policy_maker_oneDBoxes(terrain2.matrix, individual_base_policy2_file)
+    # decentralized_policy_maker3 = MDP_Decentralized_policy_maker_oneDBoxes(terrain3.matrix, individual_base_policy3_file)
 
     #winsound.Beep(600, 500)
 
@@ -40,7 +42,7 @@ def main():
     os.environ['SDL_VIDEO_CENTERED'] = '0'
 
     #create world
-    world = World_oneDBoxes(terrain2, individual_base_policy2_file, "Decentralized")
+    world = World_oneDBoxes(terrain3, individual_base_policy3_file, "Decentralized")
 
     #create the collaboration analyser
     #collaborator = Collaborator_oneDBoxes(world, False)

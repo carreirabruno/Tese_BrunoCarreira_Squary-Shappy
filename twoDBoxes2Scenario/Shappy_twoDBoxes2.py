@@ -50,10 +50,14 @@ class Shappy_twoDBoxes2(pygame.sprite.Sprite):
         self.current_state = []
 
         self.in_my_radius = False
-        self.nearby_box_pos = []
+        self.nearby_boxes_pos = []
+
+        self.boxes_positions = []
 
     def update(self, current_state):
-        self.current_state = copy.deepcopy(current_state)
+        if self.color == 3:
+            self.check_nearby_boxes(current_state)
+        self.set_current_state(current_state)
 
         if not self.auto:
             self.calculate = False
@@ -68,10 +72,7 @@ class Shappy_twoDBoxes2(pygame.sprite.Sprite):
                 if keys[pygame.K_s]:
                     self.downy()
                 if keys[pygame.K_1]:
-                    self.world.send_message(self.color, "Blue pos is [" + str(self.x_pos) + "," + str(self.y_pos) + "]")
-                if self.check_nearby_boxes():
-                    if keys[pygame.K_2]:
-                        self.world.send_message(self.color, "Box pos in [" + str(self.nearby_box_pos[0]) + "," + str(self.nearby_box_pos[1]) + "]")
+                    self.world.send_message(self.color, "Blue pos is [" + str(int(self.x_pos/self.world.screen_ratio)) + "," + str(int(self.y_pos/self.world.screen_ratio)) + "]")
 
             elif self.color == 4:
                 if keys[pygame.K_LEFT]:
@@ -84,9 +85,6 @@ class Shappy_twoDBoxes2(pygame.sprite.Sprite):
                     self.downy()
                 if keys[pygame.K_KP1]:
                     self.world.send_message(self.color, "Red pos is [" + str(self.x_pos) + "," + str(self.y_pos) + "]")
-                if self.check_nearby_boxes():
-                    if keys[pygame.K_KP2]:
-                        self.world.send_message(self.color, "Box pos in [" + str(self.nearby_box_pos[0]) + "," + str(self.nearby_box_pos[1]) + "]")
 
         elif self.auto:
             self.auto_movement()
@@ -297,15 +295,23 @@ class Shappy_twoDBoxes2(pygame.sprite.Sprite):
         for line in array:
             print(line)
 
-    def check_nearby_boxes(self):
+    def check_nearby_boxes(self, current_state):
         converted_x_pos = int(self.x_pos / self.world.screen_ratio)
         converted_y_pos = int(self.y_pos / self.world.screen_ratio)
-        for i in range(max(0, converted_y_pos - self.fov_radius), min(int(self.screen_height/self.world.screen_ratio), converted_y_pos + self.fov_radius + 1)):
-            for j in range(max(0, converted_x_pos - self.fov_radius), min(int(self.screen_width/self.world.screen_ratio), converted_x_pos + self.fov_radius + 1)):
-                if self.current_state[i][j] == 2:
-                    self.nearby_box_pos = [j, i]
-                    return True
-        return False
+        print(current_state[1][3], "adeus")
+        for i in range(max(0, converted_x_pos - self.fov_radius), min(int(self.screen_height/self.world.screen_ratio), converted_x_pos + self.fov_radius + 1)):
+            for j in range(max(0, converted_y_pos - self.fov_radius), min(int(self.screen_width/self.world.screen_ratio), converted_y_pos + self.fov_radius + 1)):
+
+                if current_state[i][j] == 2:
+                    print(i, j, "ola")
+                    # if len(self.nearby_boxes_pos) == 0:
+                    #     self.nearby_boxes_pos.append([i, j])
+                    # else:
+                    #     for item in self.nearby_boxes_pos:
+                    #         print(self.nearby_boxes_pos)
+                    #         if item[0] != i and item[1] != j:
+                    #             print("add ", i, j)
+                    #             self.nearby_boxes_pos.append([i, j])
 
     def get_center(self):
         return self.rect.x + self.rect.width / 2, self.rect.y + self.rect.height / 2
@@ -326,3 +332,17 @@ class Shappy_twoDBoxes2(pygame.sprite.Sprite):
     #                     print(message)
     #
     #     self.world.send_message(self.color, message)
+
+    def set_current_state(self, current_state):
+        self.current_state = copy.deepcopy(current_state)
+
+        for i in range(len(self.current_state)):
+            for j in range(len(self.current_state[i])):
+                if self.current_state[i][j] == 2:
+                    self.current_state[i][j] = 0
+        for box_pos in self.nearby_boxes_pos:
+            self.current_state[box_pos[0]][box_pos[1]] = 2
+
+        if self.color == 3:
+            self.print_array(self.current_state)
+            print()

@@ -270,6 +270,7 @@ class MDP_Decentralized_policy_maker_oneDBoxes(object):
 
                 rewards.append(np.mean(episode_rewards))
 
+
     def write_in_txt(self, policy_file):
         new_Q_table = []
         for line in self.Q_table:

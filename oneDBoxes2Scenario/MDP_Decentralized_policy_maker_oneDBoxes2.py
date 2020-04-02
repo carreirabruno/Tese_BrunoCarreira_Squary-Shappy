@@ -47,6 +47,7 @@ class MDP_Decentralized_policy_maker_oneDBoxes2(object):
         self.n_actions = len(self.ACTIONS)
 
         self.shappy_pos = -1
+        self.shappy4_pos = -1
         for i in range(len(self.map)):
 
             if self.map[i] == 7:
@@ -54,6 +55,7 @@ class MDP_Decentralized_policy_maker_oneDBoxes2(object):
             elif self.map[i] == 3:
                 self.shappy_pos = i
             elif self.map[i] == 4:
+                self.shappy4_pos = i
                 self.map[i] = 0
 
         boxes = []
@@ -176,9 +178,14 @@ class MDP_Decentralized_policy_maker_oneDBoxes2(object):
             if map_copy[i] == 2:
                 boxes_positions_temp.append(i)
 
-        boxes_positions = [boxes_positions_temp, [boxes_positions_temp[0], boxes_positions_temp[1]],
-                           [boxes_positions_temp[0], boxes_positions_temp[2]], [boxes_positions_temp[1], boxes_positions_temp[2]],
-                           [boxes_positions_temp[0]], [boxes_positions_temp[1]], [boxes_positions_temp[2]]]
+        boxes_positions = []
+        for i in range(1, len(boxes_positions_temp) + 1):
+            temp_comb = combinations(boxes_positions_temp, i)
+            for item in temp_comb:
+                temp_array = []
+                for j in range(len(item)):
+                    temp_array.append(item[j])
+                boxes_positions.append(temp_array)
 
         different_boxes_map = [map_copy]
         for pos in boxes_positions:
@@ -226,12 +233,12 @@ class MDP_Decentralized_policy_maker_oneDBoxes2(object):
         total_episodes = 1000
 
         starting_states, starting_maps = self.create_stating_states()
-        #starting_states = [self.start_state]
+
         # second_state = copy.deepcopy(self.start_state)
-        # second_state[0] = 7
+        # second_state[0] = self.shappy4_pos
         # second_map = copy.deepcopy(self.start_map)
-        # second_map[5] = 0
-        # second_map[7] = 3
+        # second_map[self.start_state[0]] = 0
+        # second_map[second_state[0]] = 3
         # starting_states = [self.start_state, second_state]
         # starting_maps = [self.start_map, second_map]
 

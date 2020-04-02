@@ -254,6 +254,7 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
                 break
             if new_map[i] == 3:
                 new_state.append(i)
+        for i in range(len(new_map)):
             if new_map[i] == 4:
                 new_state.append(i)
         for i in range(len(new_map)):
@@ -336,11 +337,11 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
 
     def create_policy(self):
 
-        total_episodes = 3000
+        total_episodes = 5000
 
-        starting_states, starting_maps = self.create_stating_states()
-
-        #starting_states = [self.start_state]
+#        starting_states, starting_maps = self.create_stating_states()
+        starting_states = [self.start_state]
+        starting_maps = [self.start_map]
         # TRAIN
         rewards = []
         for i_state in range(len(starting_states)):
@@ -370,7 +371,7 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
 
                     self.current_map = new_map
 
-                    print(self.current_state, actions)
+                    #print(self.current_state, actions)
 
                 # if episode == 500:
                 #     self.epsilon = 0.5
@@ -383,11 +384,11 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
 
                 if episode == 500:
                     self.epsilon = 0.5
-                elif episode == 900:
+                elif episode == 100:
                      self.epsilon = 0.3
                 elif episode == 1500:
                      self.epsilon = 0.1
-                elif episode == 2800:
+                elif episode == 4800:
                     self.epsilon = 0.01
 
                 rewards.append(np.mean(episode_rewards))

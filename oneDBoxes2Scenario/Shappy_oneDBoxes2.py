@@ -97,8 +97,6 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
 
                 self.current_state.remove(int(self.x_pos / self.world.screen_ratio))
 
-            self.current_state[0] = int(self.x_pos / self.world.screen_ratio)
-
     def righty(self):
         if self.current_map[(int(self.x_pos / self.world.screen_ratio) + 1)] != 1:
 
@@ -109,8 +107,6 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
                                             int(self.y_pos / self.world.screen_ratio))
 
                 self.current_state.remove(int(self.x_pos / self.world.screen_ratio))
-
-            self.current_state[0] = int(self.x_pos / self.world.screen_ratio)
 
     def auto_movement(self, type):
         if type == "centralized":
@@ -131,6 +127,8 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
                     self.lefty()
                 elif actions == 5 or actions == 6 or actions == 7:
                     self.righty()
+                self.current_state[0] = int(self.x_pos / self.world.screen_ratio)
+
             elif self.color == 4:
                 if actions == 2 or actions == 5:
                     pass
@@ -138,8 +136,10 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
                     self.lefty()
                 elif actions == 1 or actions == 4 or actions == 7:
                     self.righty()
+                self.current_state[1] = int(self.x_pos / self.world.screen_ratio)
 
         elif type == "decentralized":
+            self.current_state.remove(self.current_state[0])
             self.current_state[0] = int(self.x_pos/self.world.screen_ratio)
 
             actions = -1
@@ -157,6 +157,8 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
                 self.lefty()
             elif actions == 2:
                 self.righty()
+
+            self.current_state[0] = int(self.x_pos / self.world.screen_ratio)
 
         # # Actions
         # STAY_LEFT = 0

@@ -87,6 +87,8 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
 
         self.imprimir = False
 
+        self.number_boxes = 0
+
         self.create_policy()
         self.write_in_txt(policy_file)
 
@@ -188,15 +190,14 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
         new_map = copy.deepcopy(map)
 
 
-        # Criar as rewards
-        if map[new_first_shappy_pos] == self.BOX:
-            new_reward += 10
-        else:
-            new_reward += 0
-        if map[new_second_shappy_pos] == self.BOX:
-            new_reward += 10
-        else:
-            new_reward += 0
+        # if map[new_first_shappy_pos] == self.BOX:
+        #     new_reward += 10
+        # else:
+        #     new_reward += 0
+        # if map[new_second_shappy_pos] == self.BOX:
+        #     new_reward += 10
+        # else:
+        #     new_reward += 0
 
         # Só mexe o 1 - Mesmo sitio -> Separados
         if old_second_shappy_pos == new_second_shappy_pos and old_first_shappy_pos == old_second_shappy_pos \
@@ -260,6 +261,10 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
         for i in range(len(new_map)):
             if new_map[i] == 2:
                 new_state.append(i)
+
+        # Criar as rewards
+        new_number_of_boxes = self.current_number_of_boxes(new_map)
+        new_reward = (self.number_boxes - new_number_of_boxes) * 10
 
         return new_state, new_map, new_reward
 
@@ -337,7 +342,7 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
 
     def create_policy(self):
 
-        total_episodes = 5000
+        total_episodes = 100000
 
 #        starting_states, starting_maps = self.create_stating_states()
         starting_states = [self.start_state]
@@ -346,18 +351,21 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
         rewards = []
         for i_state in range(len(starting_states)):
             # print(starting_states[i_state], starting_maps[i_state])
+
             for episode in range(total_episodes):
 
                 self.current_state = starting_states[i_state]
                 self.current_map = starting_maps[i_state]
 
-                print("State ", i_state, "/", len(starting_states)-1, " Episode ", episode)
+                print("State ", i_state, "/", len(starting_states)-1, " Episode ", episode, "/", total_episodes)
 
                 episode_rewards = []
 
                 while True:
                     if len(self.current_state) == 2:
                         break
+
+                    self.number_boxes = self.current_number_of_boxes(self.current_map)
 
                     actions = self.choose_actions(self.current_state)
 
@@ -382,13 +390,31 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
                 # elif episode == 2800:
                 #     self.epsilon = 0.01
 
-                if episode == 500:
+                # if episode == 800:
+                #     self.epsilon = 0.5
+                # elif episode == 1500:
+                #      self.epsilon = 0.3
+                # elif episode == 2500:
+                #      self.epsilon = 0.1
+                # elif episode == 4800:
+                #     self.epsilon = 0.01
+
+                # if episode == 1000:
+                #     self.epsilon = 0.5
+                # elif episode == 2000:
+                #      self.epsilon = 0.3
+                # elif episode == 3500:
+                #      self.epsilon = 0.1
+                # elif episode == 8000:
+                #     self.epsilon = 0.01
+
+                if episode == 4000:
                     self.epsilon = 0.5
-                elif episode == 100:
+                elif episode == 9000:
                      self.epsilon = 0.3
-                elif episode == 1500:
+                elif episode == 30000:
                      self.epsilon = 0.1
-                elif episode == 4800:
+                elif episode == 990000:
                     self.epsilon = 0.01
 
                 rewards.append(np.mean(episode_rewards))
@@ -400,3 +426,10 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
         with open(policy_file, "wb") as fp:  # Unpickling
             pickle.dump(new_Q_table, fp)
             fp.close()
+
+    def current_number_of_boxes(self, mapa):
+        counter = 0
+        for item in mapa:
+            if item == 2:
+                counter += 1
+        return counter

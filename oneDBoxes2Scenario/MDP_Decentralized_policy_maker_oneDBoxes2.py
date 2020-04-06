@@ -230,7 +230,7 @@ class MDP_Decentralized_policy_maker_oneDBoxes2(object):
 
     def create_policy(self):
 
-        total_episodes = 1000
+        total_episodes = 3000
 
         starting_states, starting_maps = self.create_stating_states()
 
@@ -268,23 +268,23 @@ class MDP_Decentralized_policy_maker_oneDBoxes2(object):
                     self.current_state = new_state
                     self.current_map = new_map
 
-                if episode == 100:
-                    self.epsilon = 0.5
-                elif episode == 300:
-                     self.epsilon = 0.3
-                elif episode == 500:
-                     self.epsilon = 0.1
-                elif episode == 900:
-                    self.epsilon = 0.01
-
-                # if episode == 500:
+                # if episode == 100:
                 #     self.epsilon = 0.5
-                # elif episode == 900:
+                # elif episode == 300:
                 #      self.epsilon = 0.3
-                # elif episode == 1500:
+                # elif episode == 500:
                 #      self.epsilon = 0.1
-                # elif episode == 2800:
+                # elif episode == 900:
                 #     self.epsilon = 0.01
+
+                if episode == 500:
+                    self.epsilon = 0.5
+                elif episode == 900:
+                     self.epsilon = 0.3
+                elif episode == 1500:
+                     self.epsilon = 0.1
+                elif episode == 2800:
+                    self.epsilon = 0.01
 
                 rewards.append(np.mean(episode_rewards))
 

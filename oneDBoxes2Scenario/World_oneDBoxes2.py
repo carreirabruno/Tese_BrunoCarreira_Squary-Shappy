@@ -19,6 +19,7 @@ class World_oneDBoxes2(object):
         temp_type = policy_file.replace("oneDBoxes2_MDP_", "")
         temp_type = temp_type.replace("_policy_map1.pickle", "")
         temp_type = temp_type.replace("_policy_map2.pickle", "")
+        temp_type = temp_type.replace("_policy_map3.pickle", "")
         self.type_of_policy = temp_type
 
         self.screen_width = len(self.terrain.matrix[0]) * self.screen_ratio
@@ -49,13 +50,12 @@ class World_oneDBoxes2(object):
         for i in range(len(self.current_map)):
             if int(self.current_map[i]) == 3:
                 self.current_state.append(i)
-            if self.type_of_policy == "centralized":
-                if int(self.current_map[i]) == 4:
-                    self.current_state.append(i)
+            #if self.type_of_policy == "centralized":
+            if int(self.current_map[i]) == 4:
+                self.current_state.append(i)
         for i in range(len(self.current_map)):
             if int(self.current_map[i]) == 2:
                 self.current_state.append(i)
-
 
         # create walls
         for column in range(len(self.terrain.matrix[0])):
@@ -116,8 +116,8 @@ class World_oneDBoxes2(object):
 
     def update(self):
         if time.time() - self.time_interval > 1:
-            self.time_interval = time.time()
 
+            self.time_interval = time.time()
             shappy3_state = []
             shappy4_state = []
             for shappy in self.shappy_group:
@@ -132,6 +132,10 @@ class World_oneDBoxes2(object):
 
             self.last_update = time.time()
 
+            return self.current_state
+
+        return None
+
     def get_policy(self, policy_file):
         fp = open(policy_file, "rb")  # Unpickling
         policy = pickle.load(fp)
@@ -139,30 +143,55 @@ class World_oneDBoxes2(object):
         return policy
 
     def set_new_terrain_matrix(self, shappy3_state, shappy4_state):
-        min_range = -1
+
+        if len(shappy3_state) == len(self.current_state) and len(shappy4_state) == len(self.current_state):
+            equal = True
+            for i in range(len(self.current_state)):
+                if shappy3_state[i] != shappy4_state[i] or shappy3_state[i] != self.current_state[i]:
+                    equal = False
+            if equal:
+                return
+
+        min_range = 2
         if self.type_of_policy == "centralized":
-            min_range = 2
             self.current_state = shappy3_state
-            self.current_state[1] = shappy4_state[1]
             for i in range(2, len(shappy3_state)):
-                if shappy4_state[0] == self.current_state[i]:
+                if shappy4_state[1] == self.current_state[i]:
                     self.current_state.remove(self.current_state[i])
                     break
+            self.current_state[1] = shappy4_state[1]
+
+            for i in range(len(self.current_map)):
+                if self.current_map[i] == 2 or self.current_map[i] == 3 or self.current_map[i] == 4:
+                    self.current_map[i] = 0
+
+            self.current_map[shappy3_state[0]] = 3
+            self.current_map[shappy4_state[1]] = 4
 
         elif self.type_of_policy == "decentralized":
-            min_range = 1
-            self.current_state = shappy3_state
-            for i in range(1, len(shappy3_state)):
-                if shappy4_state[0] == self.current_state[i]:
+            self.current_state = [0]
+            for item in shappy4_state:
+                self.current_state.append(item)
+
+            for i in range(2, len(self.current_state)):
+                if shappy3_state[0] == self.current_state[i]:
                     self.current_state.remove(self.current_state[i])
                     break
+            self.current_state[0] = shappy3_state[0]
 
-        for i in range(len(self.current_map)):
-            if self.current_map[i] == 2 or self.current_map[i] == 3 or self.current_map[i] == 4:
-                self.current_map[i] = 0
+            for i in range(len(self.current_map)):
+                if self.current_map[i] == 2 or self.current_map[i] == 3 or self.current_map[i] == 4:
+                    self.current_map[i] = 0
 
-        self.current_map[shappy3_state[0]] = 3
-        self.current_map[shappy4_state[0]] = 4
+            self.current_map[shappy3_state[0]] = 3
+            self.current_map[shappy4_state[0]] = 4
+
+        #     min_range = 1
+        #     self.current_state = shappy3_state
+        #     for i in range(1, len(self.current_state)):
+        #         if shappy4_state[0] == self.current_state[i]:
+        #             self.current_state.remove(self.current_state[i])
+        #             break
 
         for i in range(min_range, len(self.current_state)):
             self.current_map[self.current_state[i]] = 2

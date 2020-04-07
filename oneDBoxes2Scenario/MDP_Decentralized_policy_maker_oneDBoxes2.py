@@ -137,10 +137,6 @@ class MDP_Decentralized_policy_maker_oneDBoxes2(object):
             new_reward += 10
         else:
             new_reward += 0
-        if map[new_shappy_pos] == self.BOX:
-            new_reward += 10
-        else:
-            new_reward += 0
 
         new_map[old_shappy_pos] = self.EMPTY
         new_map[new_shappy_pos] = self.SHAPPY

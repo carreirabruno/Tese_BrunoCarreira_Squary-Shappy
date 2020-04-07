@@ -92,7 +92,7 @@ def main():
 
     # analyser = Analyser_oneDBoxes2(terrain1.matrix, simulation_states, policies_map1)
     # analyser = Analyser_oneDBoxes2(terrain2.matrix, simulation_states, policies_map2)
-    # analyser = Analyser_oneDBoxes2(terrain3.matrix, simulation_states, policies_map3)
+    analyser = Analyser_oneDBoxes2(terrain3.matrix, simulation_states, policies_map3)
 
 
 if __name__ == "__main__":

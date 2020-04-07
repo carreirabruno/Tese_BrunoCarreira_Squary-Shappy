@@ -15,7 +15,7 @@ class World_oneDBoxes2(object):
 
         self.terrain = terrain
 
-        self.policy, self.policy2 = self.get_policy(policy_file)
+        self.policy = self.get_policy(policy_file)
         temp_type = policy_file.replace("oneDBoxes2_MDP_", "")
         temp_type = temp_type.replace("_policy_map1.pickle", "")
         temp_type = temp_type.replace("_policy_map2.pickle", "")
@@ -83,7 +83,7 @@ class World_oneDBoxes2(object):
                 if self.terrain.matrix[line][column] == 4:
                     shappy = Shappy_oneDBoxes2(column * self.screen_ratio, line * self.screen_ratio, self, 4,
                                                 self.current_map, self.screen_width, self.screen_height,
-                                                False, self.policy2, self.type_of_policy, self.current_state)
+                                                False, self.policy, self.type_of_policy, self.current_state)
                     self.shappy_group.add(shappy)
 
         #self.simulation_run_states = [self.current_state]
@@ -138,9 +138,9 @@ class World_oneDBoxes2(object):
 
     def get_policy(self, policy_file):
         fp = open(policy_file, "rb")  # Unpickling
-        policy, policy2 = pickle.load(fp)
+        policy = pickle.load(fp)
         fp.close()
-        return policy, policy2
+        return policy
 
     def set_new_terrain_matrix(self, shappy3_state, shappy4_state):
 

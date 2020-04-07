@@ -162,11 +162,17 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
 
         elif type == "peer_aware_decentralized":
             if self.color == 3:
+                # for line in self.policy:
+                #     print("  3  ", line)
+                # print(self.current_state)
                 pass
             elif self.color == 4:
-                pass
-
-
+                # for line in self.policy:
+                #     print("  4  ", line)
+                # quit()
+                self.current_state[1] = self.current_state[0]
+                self.current_state[0] = int(self.x_pos/self.world.screen_ratio)
+                # print(self.current_state)
 
             actions = -1
             for state in self.policy:
@@ -189,7 +195,7 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
             if self.color == 3:
                 self.current_state[0] = int(self.x_pos / self.world.screen_ratio)
             elif self.color == 4:
-                # self.current_state[0] = self.current_state[1]
+                self.current_state[0] = self.current_state[1]
                 self.current_state[1] = int(self.x_pos / self.world.screen_ratio)
 
         # # Actions

@@ -344,15 +344,15 @@ class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
         #             existing_starting_maps.append(temp_map)
         #             existing_starting_states.append(temp_state)
 
-        # second_map = copy.copy(self.start_map)
-        # second_map[self.shappy3_pos] = 4
-        # second_map[self.shappy4_pos] = 3
-        # second_state = copy.copy(self.start_state)
-        # second_state[0] = self.shappy4_pos
-        # second_state[1] = self.shappy3_pos
-        #
-        # existing_starting_states.append(second_state)
-        # existing_starting_maps.append(second_map)
+        second_map = copy.copy(self.start_map)
+        second_map[self.shappy3_pos] = 4
+        second_map[self.shappy4_pos] = 3
+        second_state = copy.copy(self.start_state)
+        second_state[0] = self.shappy4_pos
+        second_state[1] = self.shappy3_pos
+
+        existing_starting_states.append(second_state)
+        existing_starting_maps.append(second_map)
 
         return existing_starting_states, existing_starting_maps
 
@@ -377,25 +377,15 @@ class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
                     if len(self.current_state) == 2:
                         break
 
-                    # print(self.current_map, self.current_state)
                     self.number_boxes = self.current_number_of_boxes(self.current_map)
 
                     action3 = self.choose_actions(self.current_state)
 
                     action4 = self.choose_actions2(self.current_state)
-                    # print(action3, action4)
 
                     new_state, new_map, reward = self.take_actions(self.current_state, self.current_map, action3, action4)
 
                     self.learn(self.current_state, action3, action4, reward, new_state)
-
-                    # print(new_map, new_state)
-                    #
-                    # print()
-                    #
-                    #
-                    #
-                    # quit()
 
                     episode_rewards.append(reward)
 
@@ -444,11 +434,11 @@ class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
         new_Q_table = []
         for line in self.Q_table:
             new_Q_table.append([line.state, self.Q(line)])
-        new_Q_table2 = []
-        for line in self.Q_tableTwo:
-            new_Q_table2.append([line.state, self.Q2(line)])
+        # new_Q_table2 = []
+        # for line in self.Q_tableTwo:
+        #     new_Q_table2.append([line.state, self.Q2(line)])
         with open(policy_file, "wb") as fp:  # pickling
-            pickle.dump((new_Q_table, new_Q_table2), fp)
+            pickle.dump(new_Q_table, fp)
             fp.close()
 
     def current_number_of_boxes(self, mapa):

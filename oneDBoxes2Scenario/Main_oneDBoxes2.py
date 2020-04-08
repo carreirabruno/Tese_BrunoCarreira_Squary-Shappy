@@ -61,8 +61,8 @@ def main():
     # world = World_oneDBoxes2(terrain2, peer_aware_decentralized_policy_map2_file)
 
     # world = World_oneDBoxes2(terrain3, centralized_policy_map3_file)
-    # world = World_oneDBoxes2(terrain3, decentralized_policy_map3_file)
-    world = World_oneDBoxes2(terrain3, peer_aware_decentralized_policy_map3_file)
+    world = World_oneDBoxes2(terrain3, decentralized_policy_map3_file)
+    # world = World_oneDBoxes2(terrain3, peer_aware_decentralized_policy_map3_file)
 
     world.render()
     simulation_states = []

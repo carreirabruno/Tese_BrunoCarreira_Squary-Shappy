@@ -1,4 +1,4 @@
-DATE_06-04-2020___TIME_16-59-29 
-States:[1, 8, 3, 4][1, 8, 3, 4][2, 8, 3, 4][3, 8, 4][4, 8]centralized policy  -  70.0decentralized policy  -  30.0
-DATE_06-04-2020___TIME_16-59-43 
-States:[1, 8, 3, 4][2, 7, 3, 4][3, 6, 4][4, 5]centralized policy  -  33.333333333333336decentralized policy  -  66.66666666666667
+DATE_08-04-2020___TIME_01-06-31 
+States:[2, 3, 1, 5, 6, 8][1, 4, 5, 6, 8][1, 5, 6, 8][1, 6, 8][1, 7, 8][1, 8]centralized policy  -  100.0  -  83.33333333333333decentralized policy  -  20.0  -  16.666666666666668
+DATE_08-04-2020___TIME_01-06-37 
+States:[2, 3, 1, 5, 6, 8][1, 4, 5, 6, 8][2, 5, 6, 8][3, 6, 8][4, 7, 8][5, 8]centralized policy  -  20.0  -  16.666666666666668decentralized policy  -  100.0  -  83.33333333333333

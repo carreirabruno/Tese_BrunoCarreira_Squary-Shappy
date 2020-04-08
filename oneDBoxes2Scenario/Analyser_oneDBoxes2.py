@@ -78,45 +78,45 @@ class Analyser_oneDBoxes2(object):
                     for j in range(len(policy)):
                         if self.simulation_states[i - 1] in policy[j]:
                             if np.argmax(policy[j][1]) == 0:
-                                if action_shappy3 == 0:
-                                    equal_moves += 0.5
-                                if action_shappy4 == 1:
-                                    equal_moves += 0.5
+                                if action_shappy3 == 0 and action_shappy4 == 1:
+                                    equal_moves += 1
+                                # if action_shappy4 == 1:
+                                #     equal_moves += 0.5
                             elif np.argmax(policy[j][1]) == 1:
-                                if action_shappy3 == 0:
-                                    equal_moves += 0.5
-                                if action_shappy4 == 2:
-                                    equal_moves += 0.5
+                                if action_shappy3 == 0 and action_shappy4 == 2:
+                                    equal_moves += 1
+                                # if action_shappy4 == 2:
+                                #     equal_moves += 0.5
                             elif np.argmax(policy[j][1]) == 2:
-                                if action_shappy3 == 1:
-                                    equal_moves += 0.5
-                                if action_shappy4 == 0:
-                                    equal_moves += 0.5
+                                if action_shappy3 == 1 and action_shappy4 == 0:
+                                    equal_moves += 1
+                                # if action_shappy4 == 0:
+                                #     equal_moves += 0.5
                             elif np.argmax(policy[j][1]) == 3:
-                                if action_shappy3 == 1:
-                                    equal_moves += 0.5
-                                if action_shappy4 == 1:
-                                    equal_moves += 0.5
+                                if action_shappy3 == 1 and action_shappy4 == 1:
+                                    equal_moves += 1
+                                # if action_shappy4 == 1:
+                                #     equal_moves += 0.5
                             elif np.argmax(policy[j][1]) == 4:
-                                if action_shappy3 == 1:
-                                    equal_moves += 0.5
-                                if action_shappy4 == 2:
-                                    equal_moves += 0.5
+                                if action_shappy3 == 1 and action_shappy4 == 2:
+                                    equal_moves += 1
+                                # if action_shappy4 == 2:
+                                #     equal_moves += 0.5
                             elif np.argmax(policy[j][1]) == 5:
-                                if action_shappy3 == 2:
-                                    equal_moves += 0.5
-                                if action_shappy4 == 0:
-                                    equal_moves += 0.5
+                                if action_shappy3 == 2 and action_shappy4 == 0:
+                                    equal_moves += 1
+                                # if action_shappy4 == 0:
+                                #     equal_moves += 0.5
                             elif np.argmax(policy[j][1]) == 6:
-                                if action_shappy3 == 2:
-                                    equal_moves += 0.5
-                                if action_shappy4 == 1:
-                                    equal_moves += 0.5
+                                if action_shappy3 == 2 and action_shappy4 == 1:
+                                    equal_moves += 1
+                                # if action_shappy4 == 1:
+                                #     equal_moves += 0.5
                             elif np.argmax(policy[j][1]) == 7:
-                                if action_shappy3 == 2:
-                                    equal_moves += 0.5
-                                if action_shappy4 == 2:
-                                    equal_moves += 0.5
+                                if action_shappy3 == 2 and action_shappy4 == 2:
+                                    equal_moves += 1
+                                # if action_shappy4 == 2:
+                                #     equal_moves += 0.5
 
                     # if action_shappy3 == 0 and action_shappy4 == 1:
                     #    combined_action = 0
@@ -141,31 +141,36 @@ class Analyser_oneDBoxes2(object):
                     #             equal_moves += 1
 
                 elif policy_type == "decentralized":
-                    for j in range(len(policy)):
-                        temp_state3 = copy.copy(self.simulation_states[i - 1])
-                        temp_state4 = copy.copy(self.simulation_states[i - 1])
-                        temp_state3.remove(temp_state3[1])
-                        temp_state4.remove(temp_state4[0])
+                    right_move = False
+                    temp_state3 = copy.copy(self.simulation_states[i - 1])
+                    temp_state4 = copy.copy(self.simulation_states[i - 1])
+                    temp_state3.remove(temp_state3[1])
+                    temp_state4.remove(temp_state4[0])
 
+                    for j in range(len(policy)):
                         if len(temp_state3) == len(policy[j][0]):
                             if self.compare_equal_equal_sized_arrays(temp_state3, policy[j][0]):
                                 if np.argmax(policy[j][1]) == action_shappy3:
-                                    equal_moves += 0.5
+                                    # equal_moves += 0.5
+                                    right_move = True
+                                    break
+                    for j in range(len(policy)):
                         if len(temp_state4) == len(policy[j][0]):
                             if self.compare_equal_equal_sized_arrays(temp_state4, policy[j][0]):
-                                if np.argmax(policy[j][1]) == action_shappy4:
-                                    equal_moves += 0.5
+                                if np.argmax(policy[j][1]) == action_shappy4 and right_move:
+                                    equal_moves += 1
+                                    break
 
             sum_equal_moves += equal_moves
-            # normalized_equal_moves = (equal_moves/(len(self.simulation_states) - 1)) * 100
-            data.append([self.simulation_states, policy_type, equal_moves])
+            normalized_equal_moves = (equal_moves/(len(self.simulation_states) - 1)) * 100
+            data.append([self.simulation_states, policy_type, normalized_equal_moves, equal_moves])
 
         #sum_equal_moves = (len(self.simulation_states)-1) * 2
         # float(x - minX) * float(100 - 0) / (maxX - minX)
 
         for item in data:
-            scaled_zero_to_ten = (item[2] * 100) / sum_equal_moves
-            item[2] = scaled_zero_to_ten
+            scaled_zero_to_ten = (item[3] * 100) / sum_equal_moves
+            item[3] = scaled_zero_to_ten
 
         self.write_in_txt(data)
 
@@ -182,7 +187,7 @@ class Analyser_oneDBoxes2(object):
         for state in data[0][0]:
             f.write("%s\r" % state)
         for item in data:
-            f.write("%s policy  -  %s\r" % (item[1], item[2]))
+            f.write("%s policy  -  %s  -  %s\r" % (item[1], item[2], item[3]))
         f.write("\n")
         f.close()
 

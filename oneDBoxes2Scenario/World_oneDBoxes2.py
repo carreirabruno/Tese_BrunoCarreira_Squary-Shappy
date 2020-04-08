@@ -78,12 +78,12 @@ class World_oneDBoxes2(object):
                 if self.terrain.matrix[line][column] == 3:
                     shappy = Shappy_oneDBoxes2(column * self.screen_ratio, line * self.screen_ratio, self, 3,
                                                 self.current_map, self.screen_width, self.screen_height,
-                                                False, self.policy, self.type_of_policy, self.current_state)
+                                                True, self.policy, self.type_of_policy, self.current_state)
                     self.shappy_group.add(shappy)
                 if self.terrain.matrix[line][column] == 4:
                     shappy = Shappy_oneDBoxes2(column * self.screen_ratio, line * self.screen_ratio, self, 4,
                                                 self.current_map, self.screen_width, self.screen_height,
-                                                False, self.policy, self.type_of_policy, self.current_state)
+                                                True, self.policy, self.type_of_policy, self.current_state)
                     self.shappy_group.add(shappy)
 
         #self.simulation_run_states = [self.current_state]
@@ -115,7 +115,7 @@ class World_oneDBoxes2(object):
                 self.box_group.remove(box)
 
     def update(self):
-        if time.time() - self.time_interval > 1:
+        if time.time() - self.time_interval > 0.1:
 
             self.time_interval = time.time()
             shappy3_state = []

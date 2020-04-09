@@ -15,12 +15,15 @@ class World_oneDBoxes2(object):
 
         self.terrain = terrain
 
-        self.policy = self.get_policy(policy_file)
         temp_type = policy_file.replace("oneDBoxes2_MDP_", "")
         temp_type = temp_type.replace("_policy_map1.pickle", "")
         temp_type = temp_type.replace("_policy_map2.pickle", "")
         temp_type = temp_type.replace("_policy_map3.pickle", "")
         self.type_of_policy = temp_type
+
+        self.policy = []
+        self.policy2 = []
+        self.get_policy(policy_file)
 
         self.screen_width = len(self.terrain.matrix[0]) * self.screen_ratio
         self.screen_height = len(self.terrain.matrix) * self.screen_ratio
@@ -81,9 +84,14 @@ class World_oneDBoxes2(object):
                                                 True, self.policy, self.type_of_policy, self.current_state)
                     self.shappy_group.add(shappy)
                 if self.terrain.matrix[line][column] == 4:
-                    shappy = Shappy_oneDBoxes2(column * self.screen_ratio, line * self.screen_ratio, self, 4,
-                                                self.current_map, self.screen_width, self.screen_height,
-                                                True, self.policy, self.type_of_policy, self.current_state)
+                    if self.type_of_policy == "peer_aware_decentralized" or self.type_of_policy == "peer_communication_decentralized":
+                        shappy = Shappy_oneDBoxes2(column * self.screen_ratio, line * self.screen_ratio, self, 4,
+                                                    self.current_map, self.screen_width, self.screen_height,
+                                                    True, self.policy2, self.type_of_policy, self.current_state)
+                    else:
+                        shappy = Shappy_oneDBoxes2(column * self.screen_ratio, line * self.screen_ratio, self, 4,
+                                                   self.current_map, self.screen_width, self.screen_height,
+                                                   True, self.policy, self.type_of_policy, self.current_state)
                     self.shappy_group.add(shappy)
 
         #self.simulation_run_states = [self.current_state]
@@ -115,7 +123,7 @@ class World_oneDBoxes2(object):
                 self.box_group.remove(box)
 
     def update(self):
-        if time.time() - self.time_interval > 0.1:
+        if time.time() - self.time_interval > 1:
 
             self.time_interval = time.time()
             shappy3_state = []
@@ -138,9 +146,11 @@ class World_oneDBoxes2(object):
 
     def get_policy(self, policy_file):
         fp = open(policy_file, "rb")  # Unpickling
-        policy = pickle.load(fp)
+        if self.type_of_policy == "peer_aware_decentralized" or self.type_of_policy == "peer_communication_decentralized":
+            self.policy, self.policy2 = pickle.load(fp)
+        else:
+            self.policy = pickle.load(fp)
         fp.close()
-        return policy
 
     def set_new_terrain_matrix(self, shappy3_state, shappy4_state):
 
@@ -153,7 +163,7 @@ class World_oneDBoxes2(object):
                 return
 
         min_range = 2
-        if self.type_of_policy == "centralized" or self.type_of_policy == "peer_aware_decentralized":
+        if self.type_of_policy == "centralized" or self.type_of_policy == "peer_aware_decentralized" or self.type_of_policy == "peer_communication_decentralized":
             self.current_state = shappy3_state
             for i in range(2, len(shappy3_state)):
                 if shappy4_state[1] == self.current_state[i]:

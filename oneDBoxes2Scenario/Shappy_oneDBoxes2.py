@@ -56,6 +56,14 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
 
         self.current_state = []
 
+        for line in policy:
+            print(self.color, line)
+        print()
+
+
+
+        self.I_Know = False
+
     def update(self, current_state):
         self.current_state = copy.deepcopy(current_state)
         if not self.auto:
@@ -107,6 +115,13 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
                                             int(self.y_pos / self.world.screen_ratio))
 
                 self.current_state.remove(int(self.x_pos / self.world.screen_ratio))
+
+    def communicaty(self):
+        for shappy in self.world.shappy_group:
+            if shappy.color != self.color:
+                shappy.I_Know = True
+        print("Communicated", self.color)
+
 
     def auto_movement(self, type):
         if type == "centralized":
@@ -161,18 +176,18 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
             self.current_state[0] = int(self.x_pos / self.world.screen_ratio)
 
         elif type == "peer_aware_decentralized":
-            if self.color == 3:
-                # for line in self.policy:
-                #     print("  3  ", line)
-                # print(self.current_state)
-                pass
-            elif self.color == 4:
-                # for line in self.policy:
-                #     print("  4  ", line)
-                # quit()
-                self.current_state[1] = self.current_state[0]
-                self.current_state[0] = int(self.x_pos/self.world.screen_ratio)
-                # print(self.current_state)
+            # if self.color == 3:
+            #     # for line in self.policy:
+            #     #     print("  3  ", line)
+            #     # print(self.current_state)
+            #     pass
+            # elif self.color == 4:
+            #     # for line in self.policy:
+            #     #     print("  4  ", line)
+            #     # quit()
+            #     self.current_state[1] = self.current_state[0]
+            #     self.current_state[0] = int(self.x_pos/self.world.screen_ratio)
+            #     # print(self.current_state)
 
             actions = -1
             for state in self.policy:
@@ -193,11 +208,51 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
                 self.righty()
 
             if self.color == 3:
+                # print(actions)
                 self.current_state[0] = int(self.x_pos / self.world.screen_ratio)
             elif self.color == 4:
-                self.current_state[0] = self.current_state[1]
+                # self.current_state[0] = self.current_state[1]
                 self.current_state[1] = int(self.x_pos / self.world.screen_ratio)
 
+        elif type == "peer_communication_decentralized":
+            if self.color == 3 and not self.I_Know:
+                self.current_state[1] = -1
+            elif self.color == 4 and not self.I_Know:
+                self.current_state[0] = -1
+
+            print(self.color, self.current_state)
+
+            actions = -1
+            for state in self.policy:
+                equal = True
+                for i in range(len(state[0])):
+                    if len(self.current_state) != len(state[0]) or self.current_state[i] != state[0][i]:
+                        equal = False
+                if equal:
+                    actions = np.argmax(state[1])
+                    # print(self.color, self.current_map, self.current_state, state)
+                    break
+
+            print(actions)
+
+            if actions == 0:
+                pass
+            elif actions == 1:
+                self.lefty()
+            elif actions == 2:
+                self.righty()
+            elif actions == 3:
+                self.communicaty()
+
+            if self.color == 3:
+                # print(actions)
+                self.current_state[0] = int(self.x_pos / self.world.screen_ratio)
+            elif self.color == 4:
+                # self.current_state[0] = self.current_state[1]
+                self.current_state[1] = int(self.x_pos / self.world.screen_ratio)
+
+
+            print()
         # # Actions
         # STAY_LEFT = 0
         # STAY_RIGHT = 1

@@ -1,4 +1,6 @@
-DATE_08-04-2020___TIME_01-06-31 
-States:[2, 3, 1, 5, 6, 8][1, 4, 5, 6, 8][1, 5, 6, 8][1, 6, 8][1, 7, 8][1, 8]centralized policy  -  100.0  -  83.33333333333333decentralized policy  -  20.0  -  16.666666666666668
-DATE_08-04-2020___TIME_01-06-37 
-States:[2, 3, 1, 5, 6, 8][1, 4, 5, 6, 8][2, 5, 6, 8][3, 6, 8][4, 7, 8][5, 8]centralized policy  -  20.0  -  16.666666666666668decentralized policy  -  100.0  -  83.33333333333333
+DATE_09-04-2020___TIME_14-33-23 
+States:[2, 3, 1, 5, 6, 8][1, 4, 5, 6, 8][1, 5, 6, 8][1, 6, 8][1, 7, 8][1, 8]centralized policy  -  100.0  -  45.45454545454545decentralized policy  -  20.0  -  9.090909090909092peer_aware_decentralized policy  -  100.0  -  45.45454545454545
+DATE_09-04-2020___TIME_14-33-35 
+States:[2, 3, 1, 5, 6, 8][1, 4, 5, 6, 8][2, 5, 6, 8][3, 6, 8][4, 7, 8][5, 8]centralized policy  -  20.0  -  14.285714285714286decentralized policy  -  100.0  -  71.42857142857143peer_aware_decentralized policy  -  20.0  -  14.285714285714286
+DATE_09-04-2020___TIME_14-33-48 
+States:[2, 3, 1, 5, 6, 8][1, 4, 5, 6, 8][1, 5, 6, 8][1, 6, 8][1, 7, 8][1, 8]centralized policy  -  100.0  -  45.45454545454545decentralized policy  -  20.0  -  9.090909090909092peer_aware_decentralized policy  -  100.0  -  45.45454545454545

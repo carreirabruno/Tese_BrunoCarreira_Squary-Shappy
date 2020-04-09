@@ -41,13 +41,19 @@ class Analyser_oneDBoxes2(object):
         sum_equal_moves = 0
         for policy_file in self.map_policies:
             equal_moves = 0
-            fp = open(policy_file, "rb")  # Unpickling
-            policy = pickle.load(fp)
-            fp.close()
             filename = policy_file.replace("oneDBoxes2_MDP_", "")
             policy_type = filename.replace("_policy_map1.pickle", "")
             policy_type = policy_type.replace("_policy_map2.pickle", "")
             policy_type = policy_type.replace("_policy_map3.pickle", "")
+
+            if policy_type == "peer_aware_decentralized":
+                fp = open(policy_file, "rb")  # Unpickling
+                policy, policy2 = pickle.load(fp)
+                fp.close()
+            else:
+                fp = open(policy_file, "rb")  # Unpickling
+                policy = pickle.load(fp)
+                fp.close()
 
             self.map_type = filename.replace(policy_type+"_policy_", "")
             self.map_type = self.map_type.replace(".pickle", "")
@@ -159,6 +165,33 @@ class Analyser_oneDBoxes2(object):
                             if self.compare_equal_equal_sized_arrays(temp_state4, policy[j][0]):
                                 if np.argmax(policy[j][1]) == action_shappy4 and right_move:
                                     equal_moves += 1
+                                    break
+
+                elif policy_type == "peer_aware_decentralized":
+                    right_move = False
+                    temp_state3 = copy.copy(self.simulation_states[i - 1])
+                    temp_state4 = copy.copy(self.simulation_states[i - 1])
+                    # temp_state4[0] = temp_state3[1]
+                    # temp_state4[1] = temp_state3[0]
+
+                    # print("3 ", temp_state3, self.simulation_states[i])
+                    # print("4 ", temp_state4)
+                    for j in range(len(policy)):
+                        if len(temp_state3) == len(policy[j][0]):
+                            if self.compare_equal_equal_sized_arrays(temp_state3, policy[j][0]):
+                                # print("action3 ", action_shappy3)
+                                # print("action3 ", action_shappy3, " policy ", policy[j])
+                                if np.argmax(policy[j][1]) == action_shappy3:
+                                    # print("33 ", policy[j])
+                                    # equal_moves += 0.5
+                                    right_move = True
+                                    break
+                    for j in range(len(policy2)):
+                        if len(temp_state4) == len(policy2[j][0]):
+                            if self.compare_equal_equal_sized_arrays(temp_state4, policy2[j][0]):
+                                if np.argmax(policy2[j][1]) == action_shappy4 and right_move:
+                                    equal_moves += 1
+                                    # print("44 ", policy[j])
                                     break
 
             sum_equal_moves += equal_moves

@@ -123,7 +123,7 @@ class World_oneDBoxes2(object):
                 self.box_group.remove(box)
 
     def update(self):
-        if time.time() - self.time_interval > 1:
+        if time.time() - self.time_interval > 0.1:
 
             self.time_interval = time.time()
             shappy3_state = []

@@ -1,0 +1,8 @@
+DATE_13-04-2020___TIME_13-41-39 
+States:[1, 8, 5][1, 7, 5][1, 6, 5][1, 5]centralized policy  -  100.0  -  33.333333333333336decentralized policy  -  0.0  -  0.0peer_aware_decentralized policy  -  100.0  -  33.333333333333336peer_communication_decentralized policy  -  100.0  -  33.333333333333336
+DATE_13-04-2020___TIME_13-41-44 
+States:[1, 8, 5][2, 7, 5][3, 6, 5][4, 5]centralized policy  -  0.0  -  0.0decentralized policy  -  100.0  -  50.0peer_aware_decentralized policy  -  66.66666666666666  -  33.333333333333336peer_communication_decentralized policy  -  33.33333333333333  -  16.666666666666668
+DATE_13-04-2020___TIME_13-41-49 
+States:[1, 8, 5][1, 7, 5][1, 6, 5][1, 5]centralized policy  -  100.0  -  33.333333333333336decentralized policy  -  0.0  -  0.0peer_aware_decentralized policy  -  100.0  -  33.333333333333336peer_communication_decentralized policy  -  100.0  -  33.333333333333336
+DATE_13-04-2020___TIME_13-41-53 
+States:[1, 8, 5][1, 7, 5][1, 6, 5][1, 5]centralized policy  -  100.0  -  33.333333333333336decentralized policy  -  0.0  -  0.0peer_aware_decentralized policy  -  100.0  -  33.333333333333336peer_communication_decentralized policy  -  100.0  -  33.333333333333336

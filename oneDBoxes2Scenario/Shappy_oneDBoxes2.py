@@ -56,11 +56,9 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
 
         self.current_state = []
 
-        for line in policy:
-            print(self.color, line)
-        print()
-
-
+        # for line in policy:
+        #     print(self.color, line)
+        # print()
 
         self.I_Know = False
 
@@ -120,7 +118,7 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
         for shappy in self.world.shappy_group:
             if shappy.color != self.color:
                 shappy.I_Know = True
-        print("Communicated", self.color)
+        # print(self.color, "Communicated")
 
 
     def auto_movement(self, type):
@@ -176,11 +174,11 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
             self.current_state[0] = int(self.x_pos / self.world.screen_ratio)
 
         elif type == "peer_aware_decentralized":
-            # if self.color == 3:
-            #     # for line in self.policy:
-            #     #     print("  3  ", line)
-            #     # print(self.current_state)
-            #     pass
+            if self.color == 3:
+                # for line in self.policy:
+                #     print("  3  ", line)
+                # print(self.current_state)
+                pass
             # elif self.color == 4:
             #     # for line in self.policy:
             #     #     print("  4  ", line)
@@ -216,9 +214,16 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
 
         elif type == "peer_communication_decentralized":
             if self.color == 3 and not self.I_Know:
+                # for pol in self.policy:
+                #     if np.argmax(pol[1]) == 3:
+                #         print(" 3 -- ", pol)
                 self.current_state[1] = -1
             elif self.color == 4 and not self.I_Know:
+                # for pol in self.policy:
+                #     if np.argmax(pol[1]) == 3:
+                #         print(" 4 -- ", pol)
                 self.current_state[0] = -1
+                # quit()
 
             print(self.color, self.current_state)
 
@@ -242,7 +247,10 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
             elif actions == 2:
                 self.righty()
             elif actions == 3:
-                self.communicaty()
+                if self.color == 1:
+                    pass
+                else:
+                    self.communicaty()
 
             if self.color == 3:
                 # print(actions)
@@ -251,14 +259,4 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
                 # self.current_state[0] = self.current_state[1]
                 self.current_state[1] = int(self.x_pos / self.world.screen_ratio)
 
-
-            print()
-        # # Actions
-        # STAY_LEFT = 0
-        # STAY_RIGHT = 1
-        # LEFT_STAY = 2
-        # LEFT_LEFT = 3
-        # LEFT_RIGHT = 4
-        # RIGHT_STAY = 5
-        # RIGHT_LEFT = 6
-        # RIGHT_RIGHT = 7
+            # print()

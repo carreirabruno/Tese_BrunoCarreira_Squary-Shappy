@@ -46,7 +46,7 @@ class Analyser_oneDBoxes2(object):
             policy_type = policy_type.replace("_policy_map2.pickle", "")
             policy_type = policy_type.replace("_policy_map3.pickle", "")
 
-            if policy_type == "peer_aware_decentralized":
+            if policy_type == "peer_aware_decentralized" or policy_type == "peer_communication_decentralized":
                 fp = open(policy_file, "rb")  # Unpickling
                 policy, policy2 = pickle.load(fp)
                 fp.close()
@@ -57,6 +57,9 @@ class Analyser_oneDBoxes2(object):
 
             self.map_type = filename.replace(policy_type+"_policy_", "")
             self.map_type = self.map_type.replace(".pickle", "")
+
+            communication_3_knows = False
+            communication_4_knows = False
 
             for i in range(1,len(self.simulation_states)):
                 old_pos_shappy3 = self.simulation_states[i-1][0]
@@ -171,28 +174,69 @@ class Analyser_oneDBoxes2(object):
                     right_move = False
                     temp_state3 = copy.copy(self.simulation_states[i - 1])
                     temp_state4 = copy.copy(self.simulation_states[i - 1])
-                    # temp_state4[0] = temp_state3[1]
-                    # temp_state4[1] = temp_state3[0]
 
-                    # print("3 ", temp_state3, self.simulation_states[i])
-                    # print("4 ", temp_state4)
                     for j in range(len(policy)):
                         if len(temp_state3) == len(policy[j][0]):
                             if self.compare_equal_equal_sized_arrays(temp_state3, policy[j][0]):
-                                # print("action3 ", action_shappy3)
-                                # print("action3 ", action_shappy3, " policy ", policy[j])
                                 if np.argmax(policy[j][1]) == action_shappy3:
-                                    # print("33 ", policy[j])
                                     # equal_moves += 0.5
                                     right_move = True
                                     break
+                                elif (action_shappy3 == 0 and temp_state3[0] == 1 and np.argmax(policy[j][1]) == 1) or (action_shappy3 == 0 and temp_state3[0] == 8 and np.argmax(policy[j][1]) == 2):
+                                    right_move = True
+                                    break
+
                     for j in range(len(policy2)):
                         if len(temp_state4) == len(policy2[j][0]):
                             if self.compare_equal_equal_sized_arrays(temp_state4, policy2[j][0]):
                                 if np.argmax(policy2[j][1]) == action_shappy4 and right_move:
                                     equal_moves += 1
-                                    # print("44 ", policy[j])
                                     break
+                                elif (action_shappy4 == 0 and temp_state4[1] == 1 and np.argmax(policy[j][1]) == 1) or (action_shappy4 == 0 and temp_state4[1] == 8 and np.argmax(policy[j][1]) == 2):
+                                    equal_moves += 1
+                                    break
+
+                elif policy_type == "peer_communication_decentralized":
+                    right_move = False
+                    temp_state3 = copy.copy(self.simulation_states[i - 1])
+                    temp_state4 = copy.copy(self.simulation_states[i - 1])
+                    if not communication_3_knows:
+                        temp_state3[1] = -1
+                    if not communication_4_knows:
+                        temp_state4[0] = -1
+
+                    for j in range(len(policy)):
+                        if len(temp_state3) == len(policy[j][0]):
+                            if self.compare_equal_equal_sized_arrays(temp_state3, policy[j][0]):
+                                if np.argmax(policy[j][1]) == 3 and action_shappy3 == 0:
+                                    action_shappy3 = 3
+                                if np.argmax(policy[j][1]) == action_shappy3:
+
+                                    # equal_moves += 0.5
+                                    right_move = True
+                                    break
+                                elif (action_shappy3 == 0 and temp_state3[0] == 1 and np.argmax(policy[j][1]) == 1) or (action_shappy3 == 0 and temp_state3[0] == 8 and np.argmax(policy[j][1]) == 2):
+                                    right_move = True
+                                    break
+                                elif (action_shappy3 == 0 and temp_state3[0] == 1 and np.argmax(policy[j][1]) == 1) or (action_shappy3 == 0 and temp_state3[0] == 8 and np.argmax(policy[j][1]) == 2):
+                                    right_move = True
+                                    break
+                    for j in range(len(policy2)):
+                        if len(temp_state4) == len(policy2[j][0]):
+                            if self.compare_equal_equal_sized_arrays(temp_state4, policy2[j][0]):
+                                if np.argmax(policy2[j][1]) == 3 and action_shappy4 == 0:
+                                    action_shappy4 = 3
+                                if np.argmax(policy2[j][1]) == action_shappy4 and right_move:
+                                    equal_moves += 1
+                                    break
+                                elif (action_shappy4 == 0 and temp_state4[1] == 1 and np.argmax(policy[j][1]) == 1) or (action_shappy4 == 0 and temp_state4[1] == 8 and np.argmax(policy[j][1]) == 2):
+                                    equal_moves += 1
+                                    break
+
+                    if action_shappy3 == 3:
+                        communication_4_knows = True
+                    if action_shappy4 == 3:
+                        communication_3_knows = True
 
             sum_equal_moves += equal_moves
             normalized_equal_moves = (equal_moves/(len(self.simulation_states) - 1)) * 100
@@ -209,7 +253,7 @@ class Analyser_oneDBoxes2(object):
 
     def write_in_txt(self, data):
 
-        filename = "oneDBoxes_CollaborationResults_" + self.map_type + ".txt"
+        filename = "oneDBoxes_CollaborationResults2_" + self.map_type + ".txt"
         f = open(filename, "a+")
 
         datetime_object = datetime.datetime.now()

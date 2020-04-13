@@ -263,14 +263,16 @@ class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
         new_number_of_boxes = self.current_number_of_boxes(new_map)
         new_reward = (self.number_boxes - new_number_of_boxes) * 10
 
+        new_reward3 = new_reward
+        new_reward4 = new_reward
         # if map[new_state[0]] == self.BOX:
-        #     new_reward += 10
+        #     new_reward3 += 10
         # if map[new_state[1]] == self.BOX:
-        #     new_reward += 10
+        #     new_reward4 += 10
 
-        return new_state, new_map, new_reward
+        return new_state, new_map, new_reward3, new_reward4
 
-    def learn(self, state, action3, action4, reward, new_state):
+    def learn2(self, state, action3, action4, reward, new_state):
         state_obj = State(state)
         new_state_obj = State(new_state)
 
@@ -279,6 +281,17 @@ class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
 
         self.Q2(state_obj)[action4] = self.Q2(state_obj, action4) + self.learning_rate * \
                                 (reward + self.gamma * np.max(self.Q2(new_state_obj)) - self.Q2(state_obj, action4))
+
+    def learn(self, old_state, new_state, action3, action4, reward3, reward4):
+        old_state_obj = State(old_state)
+        new_state_obj = State(new_state)
+
+        self.Q(old_state_obj)[action3] = self.Q(old_state_obj, action3) + self.learning_rate * \
+                                (reward3 + self.gamma * np.max(self.Q(new_state_obj)) - self.Q(old_state_obj, action3))
+
+        self.Q2(old_state_obj)[action4] = self.Q2(old_state_obj, action4) + self.learning_rate * \
+                                (reward4 + self.gamma * np.max(self.Q2(new_state_obj)) - self.Q2(old_state_obj, action4))
+
 
     def create_stating_states(self):
         existing_starting_states = [self.start_state]
@@ -383,11 +396,12 @@ class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
 
                     action4 = self.choose_actions2(self.current_state)
 
-                    new_state, new_map, reward = self.take_actions(self.current_state, self.current_map, action3, action4)
+                    new_state, new_map, reward3, reward4 = self.take_actions(self.current_state, self.current_map, action3, action4)
 
-                    self.learn(self.current_state, action3, action4, reward, new_state)
+                    # self.learn(self.current_state, action3, action4, reward, new_state)
+                    self.learn(self.current_state, new_state, action3, action4, reward3, reward4)
 
-                    episode_rewards.append(reward)
+                    episode_rewards.append(reward3)
 
                     self.current_state = new_state
                     self.current_map = new_map
@@ -427,6 +441,19 @@ class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
                      self.epsilon = 0.1
                 elif episode == 8000:
                     self.epsilon = 0.01
+
+                # if episode == int(total_episodes/12):
+                #     self.epsilon = 0.5
+                #     # print("                                        " , self.epsilon)
+                # elif episode == int(total_episodes/8):
+                #     self.epsilon = 0.3
+                #     # print("                                        " , self.epsilon)
+                # elif episode == int(total_episodes/5):
+                #     self.epsilon = 0.1
+                #     # print("                                        " , self.epsilon)
+                # elif episode == int(total_episodes - (total_episodes/10)):
+                #     self.epsilon = 0.01
+                #     # print("                                        ", self.epsilon)
 
                 # if episode == 4000:
                 #     self.epsilon = 0.5

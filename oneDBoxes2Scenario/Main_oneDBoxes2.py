@@ -18,14 +18,16 @@ def main():
     centralized_policy_map2_file = "oneDBoxes2_MDP_centralized_policy_map2.pickle"
     decentralized_policy_map2_file = "oneDBoxes2_MDP_decentralized_policy_map2.pickle"
     peer_aware_decentralized_policy_map2_file = "oneDBoxes2_MDP_peer_aware_decentralized_policy_map2.pickle"
+    peer_communication_decentralized_policy_map2_file = "oneDBoxes2_MDP_peer_communication_decentralized_policy_map2.pickle"
 
     centralized_policy_map3_file = "oneDBoxes2_MDP_centralized_policy_map3.pickle"
     decentralized_policy_map3_file = "oneDBoxes2_MDP_decentralized_policy_map3.pickle"
     peer_aware_decentralized_policy_map3_file = "oneDBoxes2_MDP_peer_aware_decentralized_policy_map3.pickle"
+    peer_communication_decentralized_policy_map3_file = "oneDBoxes2_MDP_peer_communication_decentralized_policy_map3.pickle"
 
-    policies_map1 = [centralized_policy_map1_file, decentralized_policy_map1_file, peer_aware_decentralized_policy_map1_file]
-    policies_map2 = [centralized_policy_map2_file, decentralized_policy_map2_file, peer_aware_decentralized_policy_map2_file]
-    policies_map3 = [centralized_policy_map3_file, decentralized_policy_map3_file, peer_aware_decentralized_policy_map3_file]
+    policies_map1 = [centralized_policy_map1_file, decentralized_policy_map1_file, peer_aware_decentralized_policy_map1_file, peer_communication_decentralized_policy_map1_file]
+    policies_map2 = [centralized_policy_map2_file, decentralized_policy_map2_file, peer_aware_decentralized_policy_map2_file, peer_communication_decentralized_policy_map2_file]
+    policies_map3 = [centralized_policy_map3_file, decentralized_policy_map3_file, peer_aware_decentralized_policy_map3_file, peer_communication_decentralized_policy_map3_file]
 
     terrain1 = Terrain_oneDBoxes2("oneDBoxes2_map1.txt")
     terrain2 = Terrain_oneDBoxes2("oneDBoxes2_map2.txt")
@@ -35,16 +37,18 @@ def main():
     # centralized_policy_maker_map1 = MDP_Centralized_policy_maker_oneDBoxes2(terrain1.matrix, centralized_policy_map1_file)
     # decentralized_policy_maker1 = MDP_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, decentralized_policy_map1_file)
     # peer_aware_decentralized_policy_maker1 = MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, peer_aware_decentralized_policy_map1_file)
-    peer_communication_decentralized_policy_maker1 = MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, peer_communication_decentralized_policy_map1_file)
-
+    # peer_communication_decentralized_policy_maker1 = MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, peer_communication_decentralized_policy_map1_file)
 
     # centralized_policy_maker_map2 = MDP_Centralized_policy_maker_oneDBoxes2(terrain2.matrix, centralized_policy_map2_file)
     # decentralized_policy_maker2 = MDP_Decentralized_policy_maker_oneDBoxes2(terrain2.matrix, decentralized_policy_map2_file)
     # peer_aware_decentralized_policy_maker2 = MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(terrain2.matrix, peer_aware_decentralized_policy_map2_file)
+    # peer_communication_decentralized_policy_maker2 = MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(terrain2.matrix, peer_communication_decentralized_policy_map2_file)
 
     # centralized_policy_maker_map3 = MDP_Centralized_policy_maker_oneDBoxes2(terrain3.matrix, centralized_policy_map3_file)
     # decentralized_policy_maker3 = MDP_Decentralized_policy_maker_oneDBoxes2(terrain3.matrix, decentralized_policy_map3_file)
     # peer_aware_decentralized_policy_maker3 = MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(terrain3.matrix, peer_aware_decentralized_policy_map3_file)
+    # peer_communication_decentralized_policy_maker3 = MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(terrain3.matrix, peer_communication_decentralized_policy_map3_file)
+
 
     # define a variable to control the main loop
     running = True
@@ -64,10 +68,12 @@ def main():
     # world = World_oneDBoxes2(terrain2, centralized_policy_map2_file)
     # world = World_oneDBoxes2(terrain2, decentralized_policy_map2_file)
     # world = World_oneDBoxes2(terrain2, peer_aware_decentralized_policy_map2_file)
+    # world = World_oneDBoxes2(terrain2, peer_communication_decentralized_policy_map2_file)
 
     # world = World_oneDBoxes2(terrain3, centralized_policy_map3_file)
     # world = World_oneDBoxes2(terrain3, decentralized_policy_map3_file)
     # world = World_oneDBoxes2(terrain3, peer_aware_decentralized_policy_map3_file)
+    # world = World_oneDBoxes2(terrain3, peer_communication_decentralized_policy_map3_file)
 
     world.render()
     simulation_states = []
@@ -95,7 +101,7 @@ def main():
                         shappy.auto = not shappy.auto
                         shappy.calculate = True
 
-    # analyser = Analyser_oneDBoxes2(terrain1.matrix, simulation_states, policies_map1)
+    analyser = Analyser_oneDBoxes2(terrain1.matrix, simulation_states, policies_map1)
     # analyser = Analyser_oneDBoxes2(terrain2.matrix, simulation_states, policies_map2)
     # analyser = Analyser_oneDBoxes2(terrain3.matrix, simulation_states, policies_map3)
 

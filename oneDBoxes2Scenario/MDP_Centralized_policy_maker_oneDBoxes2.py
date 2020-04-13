@@ -408,14 +408,27 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
                 # elif episode == 8000:
                 #     self.epsilon = 0.01
 
-                if episode == 4000:
+                # if episode == 4000:
+                #     self.epsilon = 0.5
+                # elif episode == 9000:
+                #      self.epsilon = 0.3
+                # elif episode == 30000:
+                #      self.epsilon = 0.1
+                # elif episode == 990000:
+                #     self.epsilon = 0.01
+
+                if episode == int(total_episodes/12):
                     self.epsilon = 0.5
-                elif episode == 9000:
-                     self.epsilon = 0.3
-                elif episode == 30000:
-                     self.epsilon = 0.1
-                elif episode == 990000:
+                    # print("                                        " , self.epsilon)
+                elif episode == int(total_episodes/8):
+                    self.epsilon = 0.3
+                    # print("                                        " , self.epsilon)
+                elif episode == int(total_episodes/5):
+                    self.epsilon = 0.1
+                    # print("                                        " , self.epsilon)
+                elif episode == int(total_episodes - (total_episodes/10)):
                     self.epsilon = 0.01
+                    # print("                                        ", self.epsilon)
 
                 rewards.append(np.mean(episode_rewards))
 

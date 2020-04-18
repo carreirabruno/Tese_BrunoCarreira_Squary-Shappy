@@ -20,7 +20,7 @@ class State:
     def __str__(self):
         return f"{self.state}"
 
-class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
+class MDP_Individual_Decentralized_policy_maker_oneDBoxes2(object):
 
     def __init__(self, terrain_matrix, policy_file):
 
@@ -131,133 +131,122 @@ class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
             state_obj = State(state)
             return np.argmax(self.Q2(state_obj))
 
-    def take_actions(self, state, map, action3, action4):
-        old_me_shappy_pos = state[0]
-        old_peer_shappy_pos = state[1]
+    def take_actions(self, state_shappy3, action3, state_shappy4, action4, map):
+        old_shappy3_pos = state_shappy3[0]
+        old_shappy4_pos = state_shappy4[0]
 
         def get_new_shappy_position(map, action3, action4):
+            new_shappy3_pos = -1
             if action3 == self.STAY:
-                new_me_shappy_pos = old_me_shappy_pos
+                new_shappy3_pos = old_shappy3_pos
             elif action3 == self.LEFT:
-                if map[old_me_shappy_pos - 1] == self.WALL:  # colidiu com uma self.WALL
-                    new_me_shappy_pos = old_me_shappy_pos
+                if map[old_shappy3_pos - 1] == self.WALL:  # colidiu com uma self.WALL
+                    new_shappy3_pos = old_shappy3_pos
                 else:
-                    new_me_shappy_pos = old_me_shappy_pos - 1
+                    new_shappy3_pos = old_shappy3_pos - 1
             elif action3 == self.RIGHT:
-                if map[old_me_shappy_pos + 1] == self.WALL:  # colidiu com uma self.WALL
-                    new_me_shappy_pos = old_me_shappy_pos
+                if map[old_shappy3_pos + 1] == self.WALL:  # colidiu com uma self.WALL
+                    new_shappy3_pos = old_shappy3_pos
                 else:
-                    new_me_shappy_pos = old_me_shappy_pos + 1
+                    new_shappy3_pos = old_shappy3_pos + 1
             else:
                 raise ValueError(f"Unknown action {action3}")
 
-            random.seed()
-            #peer_action = np.random.randint(0, len(self.ACTIONS))
-            peer_action = action4
-            new_peer_shappy_pos = -1
-            if peer_action == self.STAY:
-                new_peer_shappy_pos = old_peer_shappy_pos
-            elif peer_action == self.LEFT:
-                if map[old_peer_shappy_pos - 1] == self.WALL:  # colidiu com uma self.WALL
-                    new_peer_shappy_pos = old_peer_shappy_pos
+            new_shappy4_pos = -1
+            if action4 == self.STAY:
+                new_shappy4_pos = old_shappy4_pos
+            elif action4 == self.LEFT:
+                if map[old_shappy4_pos - 1] == self.WALL:  # colidiu com uma self.WALL
+                    new_shappy4_pos = old_shappy4_pos
                 else:
-                    new_peer_shappy_pos = old_peer_shappy_pos - 1
-            elif peer_action == self.RIGHT:
-                if map[old_peer_shappy_pos + 1] == self.WALL:  # colidiu com uma self.WALL
-                    new_peer_shappy_pos = old_peer_shappy_pos
+                    new_shappy4_pos = old_shappy4_pos - 1
+            elif action4 == self.RIGHT:
+                if map[old_shappy4_pos + 1] == self.WALL:  # colidiu com uma self.WALL
+                    new_shappy4_pos = old_shappy4_pos
                 else:
-                    new_peer_shappy_pos = old_peer_shappy_pos + 1
+                    new_shappy4_pos = old_shappy4_pos + 1
+            else:
+                raise ValueError(f"Unknown action {action4}")
 
-            return new_me_shappy_pos, new_peer_shappy_pos
+            return new_shappy3_pos, new_shappy4_pos
 
         new_reward = 0
-        new_me_shappy_pos, new_peer_shappy_pos = get_new_shappy_position(map, action3, action4)
+        new_shappy3_pos, new_shappy4_pos = get_new_shappy_position(map, action3, action4)
 
         new_map = copy.deepcopy(map)
 
         # # Criar as rewards
-        new_reward3 = 0
-        new_reward4 = 0
-
-        # # Joint Rewards
-        # if map[new_me_shappy_pos] == self.BOX or map[new_peer_shappy_pos] == self.BOX:
-        #     new_reward3 += 10
-        #     new_reward4 += 10
+        # new_reward3 = 0
+        # new_reward4 = 0
+        # if map[new_shappy3_pos] == self.BOX:
+        #     new_reward3 = 10
         # else:
-        #     if new_me_shappy_pos != old_me_shappy_pos:
-        #         new_reward3 += -1
-        #     if new_peer_shappy_pos != old_peer_shappy_pos:
-        #         new_reward4 += -1
+        #     new_reward3 = -1
+        # if map[new_shappy4_pos] == self.BOX:
+        #     new_reward4 = 10
+        # else:
+        #     new_reward4 = -1
 
-        # # Split Rewards
-        if map[new_me_shappy_pos] == self.BOX:
-            new_reward3 += 10
-        else:
-            new_reward3 += -1
-        if map[new_peer_shappy_pos] == self.BOX:
-            new_reward4 += 10
-        else:
-            new_reward4 += -1
 
         # Só mexe o 1 - Mesmo sitio -> Separados
-        if old_peer_shappy_pos == new_peer_shappy_pos and old_me_shappy_pos == old_peer_shappy_pos \
-                and new_me_shappy_pos != new_peer_shappy_pos:
-            new_map[old_me_shappy_pos] = self.PEER_SHAPPY
-            new_map[new_me_shappy_pos] = self.ME_SHAPPY
+        if old_shappy4_pos == new_shappy4_pos and old_shappy3_pos == old_shappy4_pos \
+                and new_shappy3_pos != new_shappy4_pos:
+            new_map[old_shappy3_pos] = self.PEER_SHAPPY
+            new_map[new_shappy3_pos] = self.ME_SHAPPY
 
         # Só mexe o 1 - Separados -> Mesmo sitio
-        if old_peer_shappy_pos == new_peer_shappy_pos and old_me_shappy_pos != old_peer_shappy_pos \
-                and new_me_shappy_pos == new_peer_shappy_pos:
-            new_map[old_me_shappy_pos] = self.EMPTY
-            new_map[new_me_shappy_pos] = self.BOTH_SHAPPYS
+        if old_shappy4_pos == new_shappy4_pos and old_shappy3_pos != old_shappy4_pos \
+                and new_shappy3_pos == new_shappy4_pos:
+            new_map[old_shappy3_pos] = self.EMPTY
+            new_map[new_shappy3_pos] = self.BOTH_SHAPPYS
 
         # Só mexe o 1 - Separados -> Separados
-        if old_peer_shappy_pos == new_peer_shappy_pos and old_me_shappy_pos != old_peer_shappy_pos \
-                and new_me_shappy_pos != new_peer_shappy_pos:
-            new_map[old_me_shappy_pos] = self.EMPTY
-            new_map[new_me_shappy_pos] = self.ME_SHAPPY
+        if old_shappy4_pos == new_shappy4_pos and old_shappy3_pos != old_shappy4_pos \
+                and new_shappy3_pos != new_shappy4_pos:
+            new_map[old_shappy3_pos] = self.EMPTY
+            new_map[new_shappy3_pos] = self.ME_SHAPPY
 
         # Só mexe o 2 - Mesmo sitio -> Separados
-        elif old_me_shappy_pos == new_me_shappy_pos and old_me_shappy_pos == old_peer_shappy_pos \
-                and new_me_shappy_pos != new_peer_shappy_pos:
-            new_map[old_peer_shappy_pos] = self.ME_SHAPPY
-            new_map[new_peer_shappy_pos] = self.PEER_SHAPPY
+        elif old_shappy3_pos == new_shappy3_pos and old_shappy3_pos == old_shappy4_pos \
+                and new_shappy3_pos != new_shappy4_pos:
+            new_map[old_shappy4_pos] = self.ME_SHAPPY
+            new_map[new_shappy4_pos] = self.PEER_SHAPPY
 
         # Só mexe o 2 - Separados -> Mesmo sitio
-        elif old_me_shappy_pos == new_me_shappy_pos and old_me_shappy_pos != old_peer_shappy_pos \
-                and new_me_shappy_pos == new_peer_shappy_pos:
-            new_map[old_peer_shappy_pos] = self.EMPTY
-            new_map[new_peer_shappy_pos] = self.BOTH_SHAPPYS
+        elif old_shappy3_pos == new_shappy3_pos and old_shappy3_pos != old_shappy4_pos \
+                and new_shappy3_pos == new_shappy4_pos:
+            new_map[old_shappy4_pos] = self.EMPTY
+            new_map[new_shappy4_pos] = self.BOTH_SHAPPYS
 
         # Só mexe o 2 - Separados -> Separados
-        elif old_me_shappy_pos == new_me_shappy_pos and old_me_shappy_pos != old_peer_shappy_pos \
-                and new_me_shappy_pos != new_peer_shappy_pos:
-            new_map[old_peer_shappy_pos] = self.EMPTY
-            new_map[new_peer_shappy_pos] = self.PEER_SHAPPY
+        elif old_shappy3_pos == new_shappy3_pos and old_shappy3_pos != old_shappy4_pos \
+                and new_shappy3_pos != new_shappy4_pos:
+            new_map[old_shappy4_pos] = self.EMPTY
+            new_map[new_shappy4_pos] = self.PEER_SHAPPY
 
         # Mexem os dois - Mesmo sitio -> Mesmo sitio
-        elif old_me_shappy_pos == old_peer_shappy_pos and new_me_shappy_pos == new_peer_shappy_pos:
-            new_map[old_me_shappy_pos] = self.EMPTY
-            new_map[new_me_shappy_pos] = self.BOTH_SHAPPYS
+        elif old_shappy3_pos == old_shappy4_pos and new_shappy3_pos == new_shappy4_pos:
+            new_map[old_shappy3_pos] = self.EMPTY
+            new_map[new_shappy3_pos] = self.BOTH_SHAPPYS
 
         # Mexem os dois - Separados -> Mesmo sitio
-        elif old_me_shappy_pos != old_peer_shappy_pos and new_me_shappy_pos == new_peer_shappy_pos:
-            new_map[old_me_shappy_pos] = self.EMPTY
-            new_map[old_peer_shappy_pos] = self.EMPTY
-            new_map[new_me_shappy_pos] = self.BOTH_SHAPPYS
+        elif old_shappy3_pos != old_shappy4_pos and new_shappy3_pos == new_shappy4_pos:
+            new_map[old_shappy3_pos] = self.EMPTY
+            new_map[old_shappy4_pos] = self.EMPTY
+            new_map[new_shappy3_pos] = self.BOTH_SHAPPYS
 
         # Mexem os dois - Mesmo sitio -> Separados
-        elif old_me_shappy_pos == old_peer_shappy_pos and new_me_shappy_pos != new_peer_shappy_pos:
-            new_map[old_me_shappy_pos] = self.EMPTY
-            new_map[new_me_shappy_pos] = self.ME_SHAPPY
-            new_map[new_peer_shappy_pos] = self.PEER_SHAPPY
+        elif old_shappy3_pos == old_shappy4_pos and new_shappy3_pos != new_shappy4_pos:
+            new_map[old_shappy3_pos] = self.EMPTY
+            new_map[new_shappy3_pos] = self.ME_SHAPPY
+            new_map[new_shappy4_pos] = self.PEER_SHAPPY
 
         # Mexem os dois - Separados -> Separados
-        elif old_me_shappy_pos != old_peer_shappy_pos and new_me_shappy_pos != new_peer_shappy_pos:
-            new_map[old_me_shappy_pos] = self.EMPTY
-            new_map[old_peer_shappy_pos] = self.EMPTY
-            new_map[new_me_shappy_pos] = self.ME_SHAPPY
-            new_map[new_peer_shappy_pos] = self.PEER_SHAPPY
+        elif old_shappy3_pos != old_shappy4_pos and new_shappy3_pos != new_shappy4_pos:
+            new_map[old_shappy3_pos] = self.EMPTY
+            new_map[old_shappy4_pos] = self.EMPTY
+            new_map[new_shappy3_pos] = self.ME_SHAPPY
+            new_map[new_shappy4_pos] = self.PEER_SHAPPY
 
         new_state = []
         for i in range(len(new_map)):
@@ -276,40 +265,36 @@ class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
             if new_map[i] == 2:
                 new_state.append(i)
 
+        new_shappy3_state = copy.copy(new_state)
+        new_shappy3_state.remove(new_shappy3_state[1])
+        new_shappy4_state = copy.copy(new_state)
+        new_shappy4_state.remove(new_shappy4_state[0])
+
         # Criar as rewards
-        # new_number_of_boxes = self.current_number_of_boxes(new_map)
-        # if self.number_boxes != new_number_of_boxes:
-        #     new_reward = (self.number_boxes - new_number_of_boxes) * 10
-        #     new_reward3 = new_reward
-        #     new_reward4 = new_reward
-        # else:
-        #     new_reward3 = -1
-        #     new_reward4 = -1
+        new_number_of_boxes = self.current_number_of_boxes(new_map)
+        if self.number_boxes != new_number_of_boxes:
+            new_reward = (self.number_boxes - new_number_of_boxes) * 10
+            new_reward3 = new_reward
+            new_reward4 = new_reward
+        else:
+            new_reward3 = -1
+            new_reward4 = -1
 
+        return new_shappy3_state, new_shappy4_state, new_map, new_reward3, new_reward4
 
-        # print(new_map, action3, new_reward3, action4, new_reward4)
+    def learn(self, old_state3, new_state3, action3, old_state4, new_state4, action4, reward3, reward4):
+        old_state3_obj = State(old_state3)
+        new_state3_obj = State(new_state3)
 
-        return new_state, new_map, new_reward3, new_reward4
+        old_state4_obj = State(old_state4)
+        new_state4_obj = State(new_state4)
 
-    def learn2(self, state, action3, action4, reward, new_state):
-        state_obj = State(state)
-        new_state_obj = State(new_state)
+        self.Q(old_state3_obj)[action3] = self.Q(old_state3_obj, action3) + self.learning_rate * \
+                                (reward3 + self.gamma * np.max(self.Q(new_state3_obj)) - self.Q(old_state3_obj, action3))
 
-        self.Q(state_obj)[action3] = self.Q(state_obj, action3) + self.learning_rate * \
-                                (reward + self.gamma * np.max(self.Q(new_state_obj)) - self.Q(state_obj, action3))
+        self.Q2(old_state4_obj)[action4] = self.Q2(old_state4_obj, action4) + self.learning_rate * \
+                                (reward4 + self.gamma * np.max(self.Q2(new_state4_obj)) - self.Q2(old_state4_obj, action4))
 
-        self.Q2(state_obj)[action4] = self.Q2(state_obj, action4) + self.learning_rate * \
-                                (reward + self.gamma * np.max(self.Q2(new_state_obj)) - self.Q2(state_obj, action4))
-
-    def learn(self, old_state, new_state, action3, action4, reward3, reward4):
-        old_state_obj = State(old_state)
-        new_state_obj = State(new_state)
-
-        self.Q(old_state_obj)[action3] = self.Q(old_state_obj, action3) + self.learning_rate * \
-                                (reward3 + self.gamma * np.max(self.Q(new_state_obj)) - self.Q(old_state_obj, action3))
-
-        self.Q2(old_state_obj)[action4] = self.Q2(old_state_obj, action4) + self.learning_rate * \
-                                (reward4 + self.gamma * np.max(self.Q2(new_state_obj)) - self.Q2(old_state_obj, action4))
 
     def create_stating_states(self):
         existing_starting_states = [self.start_state]
@@ -389,7 +374,7 @@ class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
 
     def create_policy(self):
 
-        total_episodes = 100000
+        total_episodes = 10000
 
         starting_states, starting_maps = self.create_stating_states()
 
@@ -400,12 +385,17 @@ class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
                 self.current_state = starting_states[i_state]
                 self.current_map = starting_maps[i_state]
 
-                print("State ", i_state, "/", len(starting_states)-1, " Episode ", episode, "/", total_episodes)
+                shappy3_state = copy.copy(self.current_state)
+                shappy3_state.remove(shappy3_state[1])
+                shappy4_state = copy.copy(self.current_state)
+                shappy4_state.remove(shappy4_state[0])
+
+                print("State ", i_state, "/", len(starting_states), " Episode ", episode, "/", total_episodes)
 
                 episode_rewards = []
 
                 while True:
-                    if len(self.current_state) == 2:
+                    if len(shappy3_state) == 1 and len(shappy4_state) == 1:
                         break
 
                     self.number_boxes = self.current_number_of_boxes(self.current_map)
@@ -414,14 +404,15 @@ class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
 
                     action4 = self.choose_actions2(self.current_state)
 
-                    new_state, new_map, reward3, reward4 = self.take_actions(self.current_state, self.current_map, action3, action4)
+                    new_shappy3_state, new_shappy4_state, new_map, reward3, reward4 = self.take_actions(shappy3_state, action3, shappy4_state, action4, self.current_map)
 
-                    # self.learn(self.current_state, action3, action4, reward, new_state)
-                    self.learn(self.current_state, new_state, action3, action4, reward3, reward4)
-
+                    self.learn(shappy3_state, new_shappy3_state, action3, shappy4_state, new_shappy4_state, action4, reward3, reward4)
                     episode_rewards.append(reward3)
+                    episode_rewards.append(reward4)
 
-                    self.current_state = new_state
+                    shappy3_state = new_shappy3_state
+                    shappy4_state = new_shappy4_state
+
                     self.current_map = new_map
 
                 # if episode == 100:
@@ -451,27 +442,29 @@ class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
                 # elif episode == 8000:
                 #     self.epsilon = 0.01
 
-                # if episode == 800:
-                #     self.epsilon = 0.5
-                # elif episode == 1400:
-                #      self.epsilon = 0.3
-                # elif episode == 2000:
-                #      self.epsilon = 0.1
+                if episode == 1000:
+                    self.epsilon = 0.5
+                elif episode == 2500:
+                     self.epsilon = 0.3
+                elif episode == 5000:
+                     self.epsilon = 0.1
                 # elif episode == 8000:
                 #     self.epsilon = 0.01
 
-                if episode == int(total_episodes/12):
-                    self.epsilon = 0.5
-                    # print("                                        " , self.epsilon)
-                elif episode == int(total_episodes/8):
-                    self.epsilon = 0.3
-                    # print("                                        " , self.epsilon)
-                elif episode == int(total_episodes/5):
-                    self.epsilon = 0.1
-                    # print("                                        " , self.epsilon)
-                elif episode == int(total_episodes - (total_episodes/10)):
-                    self.epsilon = 0.01
-                    # print("                                        ", self.epsilon)
+                # if episode == int(total_episodes / 12):
+                #     self.epsilon = 0.5
+                #     # print("                                        " , self.epsilon)
+                # elif episode == int(total_episodes / 8):
+                #     self.epsilon = 0.3
+                #     # print("                                        " , self.epsilon)
+                # elif episode == int(total_episodes / 5):
+                #     self.epsilon = 0.1
+                #     # print("                                        " , self.epsilon)
+                # elif episode == int(total_episodes - (total_episodes / 10)):
+                #     self.epsilon = 0.01
+                #     # print("                                        ", self.epsilon)
+                # elif episode == int(total_episodes - (total_episodes / 100)):
+                #     self.epsilon = 0
 
                 # if episode == 4000:
                 #     self.epsilon = 0.5

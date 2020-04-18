@@ -21,6 +21,18 @@ class World_oneDBoxes2(object):
         temp_type = temp_type.replace("_policy_map3.pickle", "")
         self.type_of_policy = temp_type
 
+        print(self.type_of_policy)
+
+        if self.type_of_policy == "individual_decentralized_split_rewards" or self.type_of_policy == "individual_decentralized_joint_rewards":
+            self.type_of_policy = "individual_decentralized"
+        elif self.type_of_policy == "peer_aware_decentralized_split_rewards" or self.type_of_policy == "peer_aware_decentralized_joint_rewards":
+            self.type_of_policy = "peer_aware_decentralized"
+        elif self.type_of_policy == "peer_communication_decentralized_split_rewards" or self.type_of_policy == "peer_communication_decentralized_joint_rewards":
+            self.type_of_policy = "peer_communication_decentralized"
+
+        print(self.type_of_policy)
+
+
         self.policy = []
         self.policy2 = []
         self.get_policy(policy_file)
@@ -39,6 +51,14 @@ class World_oneDBoxes2(object):
         self.wall_group = pygame.sprite.Group()
 
         self.show_automatic = False
+
+        self.blue_communicated = False
+        self.blue_message = "teste"
+        self.blue_timer = time.time()
+        self.red_communicated = False
+        self.red_message = "teste"
+        self.red_timer = time.time()
+
         self.time_interval = time.time()
 
         self.current_map = []
@@ -81,17 +101,17 @@ class World_oneDBoxes2(object):
                 if self.terrain.matrix[line][column] == 3:
                     shappy = Shappy_oneDBoxes2(column * self.screen_ratio, line * self.screen_ratio, self, 3,
                                                 self.current_map, self.screen_width, self.screen_height,
-                                                True, self.policy, self.type_of_policy, self.current_state)
+                                                False, self.policy, self.type_of_policy, self.current_state)
                     self.shappy_group.add(shappy)
                 if self.terrain.matrix[line][column] == 4:
-                    if self.type_of_policy == "peer_aware_decentralized" or self.type_of_policy == "peer_communication_decentralized":
+                    if self.type_of_policy != "centralized" and self.type_of_policy != "decentralized":
                         shappy = Shappy_oneDBoxes2(column * self.screen_ratio, line * self.screen_ratio, self, 4,
                                                     self.current_map, self.screen_width, self.screen_height,
-                                                    True, self.policy2, self.type_of_policy, self.current_state)
+                                                    False, self.policy2, self.type_of_policy, self.current_state)
                     else:
                         shappy = Shappy_oneDBoxes2(column * self.screen_ratio, line * self.screen_ratio, self, 4,
                                                    self.current_map, self.screen_width, self.screen_height,
-                                                   True, self.policy, self.type_of_policy, self.current_state)
+                                                   False, self.policy, self.type_of_policy, self.current_state)
                     self.shappy_group.add(shappy)
 
         #self.simulation_run_states = [self.current_state]
@@ -113,6 +133,13 @@ class World_oneDBoxes2(object):
             automatic_rend = self.font.render("Automatic", 1, (255, 255, 255))
             self.screen.blit(automatic_rend, (self.screen_width / 2 - 30, 5))
 
+        if self.blue_communicated:
+            automatic_rend = self.font.render(self.blue_message, 1, (0, 0, 255))
+            self.screen.blit(automatic_rend, (50, self.screen_height / 3))
+        if self.red_communicated:
+            automatic_rend = self.font.render(self.red_message, 1, (255, 0, 0))
+            self.screen.blit(automatic_rend, (self.screen_width/2 + 30, self.screen_height / 3))
+
         pygame.display.flip()
 
     def box_group_remove(self, input_x_pos, input_y_pos):
@@ -123,8 +150,9 @@ class World_oneDBoxes2(object):
                 self.box_group.remove(box)
 
     def update(self):
-        if time.time() - self.time_interval > 0.1:
-
+        if time.time() - self.time_interval > 1:
+            self.blue_communicated = False
+            self.red_communicated = False
             self.time_interval = time.time()
             shappy3_state = []
             shappy4_state = []
@@ -146,7 +174,7 @@ class World_oneDBoxes2(object):
 
     def get_policy(self, policy_file):
         fp = open(policy_file, "rb")  # Unpickling
-        if self.type_of_policy == "peer_aware_decentralized" or self.type_of_policy == "peer_communication_decentralized":
+        if self.type_of_policy == "peer_aware_decentralized" or self.type_of_policy == "peer_communication_decentralized" or self.type_of_policy == "individual_decentralized":
             self.policy, self.policy2 = pickle.load(fp)
         else:
             self.policy = pickle.load(fp)
@@ -178,7 +206,7 @@ class World_oneDBoxes2(object):
             self.current_map[shappy3_state[0]] = 3
             self.current_map[shappy4_state[1]] = 4
 
-        elif self.type_of_policy == "decentralized":
+        elif self.type_of_policy == "decentralized" or self.type_of_policy == "individual_decentralized":
             self.current_state = [0]
             for item in shappy4_state:
                 self.current_state.append(item)
@@ -190,11 +218,13 @@ class World_oneDBoxes2(object):
             self.current_state[0] = shappy3_state[0]
 
             for i in range(len(self.current_map)):
-                if self.current_map[i] == 2 or self.current_map[i] == 3 or self.current_map[i] == 4:
+                if self.current_map[i] == 3 or self.current_map[i] == 4:
                     self.current_map[i] = 0
 
             self.current_map[shappy3_state[0]] = 3
             self.current_map[shappy4_state[0]] = 4
+
+
 
         #     min_range = 1
         #     self.current_state = shappy3_state
@@ -206,3 +236,10 @@ class World_oneDBoxes2(object):
         for i in range(min_range, len(self.current_state)):
             self.current_map[self.current_state[i]] = 2
 
+    def message_blue(self, message):
+        self.blue_communicated = True
+        self.blue_message = "My pos: " + message
+
+    def message_red(self, message):
+        self.red_communicated = True
+        self.red_message = "My pos: " + message

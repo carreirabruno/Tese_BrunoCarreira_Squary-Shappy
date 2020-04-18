@@ -8,6 +8,7 @@ from oneDBoxes2Scenario.MDP_Peer_Communication_Decentralized_policy_maker_oneDBo
 from oneDBoxes2Scenario.World_oneDBoxes2 import *
 from oneDBoxes2Scenario.Terrain_oneDBoxes2 import *
 from oneDBoxes2Scenario.Analyser_oneDBoxes2 import *
+from oneDBoxes2Scenario.Comparator_oneDBoxes2 import *
 
 def main():
 
@@ -37,13 +38,21 @@ def main():
     peer_communication_decentralized_split_rewards_policy_map3_file = "oneDBoxes2_MDP_peer_communication_decentralized_split_rewards_policy_map3.pickle"
 
 
-    # policies_map1 = [centralized_policy_map1_file, decentralized_policy_map1_file, peer_aware_decentralized_policy_map1_file, peer_communication_decentralized_policy_map1_file]
+    policies_map1 = [centralized_policy_map1_file, individual_decentralized_joint_rewards_policy_map1_file,
+                     individual_decentralized_split_rewards_policy_map1_file,
+                     peer_aware_decentralized_joint_rewards_policy_map1_file,
+                     peer_aware_decentralized_split_rewards_policy_map1_file,
+                     peer_communication_decentralized_joint_rewards_policy_map1_file,
+                     peer_communication_decentralized_split_rewards_policy_map1_file]
     # policies_map2 = [centralized_policy_map2_file, decentralized_policy_map2_file, peer_aware_decentralized_policy_map2_file, peer_communication_decentralized_policy_map2_file]
     # policies_map3 = [centralized_policy_map3_file, decentralized_policy_map3_file, peer_aware_decentralized_policy_map3_file, peer_communication_decentralized_policy_map3_file]
 
     terrain1 = Terrain_oneDBoxes2("oneDBoxes2_map1.txt")
     terrain2 = Terrain_oneDBoxes2("oneDBoxes2_map2.txt")
     terrain3 = Terrain_oneDBoxes2("oneDBoxes2_map3.txt")
+
+    comparator_map1 = Comparator_oneDBoxes2(terrain1.matrix, policies_map1)
+    quit()
 
     #create the policy
 
@@ -53,7 +62,7 @@ def main():
     # peer_aware_decentralized_joint_rewards_policy_maker1 = MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, peer_aware_decentralized_joint_rewards_policy_map1_file)
     # peer_aware_decentralized_split_rewards_policy_maker1 = MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, peer_aware_decentralized_split_rewards_policy_map1_file)
     # peer_communication_decentralized_joint_rewards_policy_maker1 = MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, peer_communication_decentralized_joint_rewards_policy_map1_file)
-    peer_communication_decentralized_split_rewards_policy_maker1 = MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, peer_communication_decentralized_split_rewards_policy_map1_file)
+    # peer_communication_decentralized_split_rewards_policy_maker1 = MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, peer_communication_decentralized_split_rewards_policy_map1_file)
 
     # centralized_policy_maker_map2 = MDP_Centralized_policy_maker_oneDBoxes2(terrain2.matrix, centralized_policy_map2_file)
     # individual_decentralized_joint_rewards_policy_maker2 = MDP_Individual_Decentralized_policy_maker_oneDBoxes2(terrain2.matrix, individual_decentralized_joint_rewards_policy_map2_file)
@@ -85,10 +94,10 @@ def main():
     # world = World_oneDBoxes2(terrain1, centralized_policy_map1_file)
     # world = World_oneDBoxes2(terrain1, individual_decentralized_joint_rewards_policy_map1_file)
     # world = World_oneDBoxes2(terrain1, individual_decentralized_split_rewards_policy_map1_file)
-    # world = World_oneDBoxes2(terrain1, peer_aware_decentralized_joint_rewards_policy_map1_file)
+    world = World_oneDBoxes2(terrain1, peer_aware_decentralized_joint_rewards_policy_map1_file)
     # world = World_oneDBoxes2(terrain1, peer_aware_decentralized_split_rewards_policy_map1_file)
     # world = World_oneDBoxes2(terrain1, peer_communication_decentralized_joint_rewards_policy_map1_file)
-    world = World_oneDBoxes2(terrain1, peer_communication_decentralized_split_rewards_policy_map1_file)
+    # world = World_oneDBoxes2(terrain1, peer_communication_decentralized_split_rewards_policy_map1_file)
 
 
     # world = World_oneDBoxes2(terrain2, centralized_policy_map2_file)

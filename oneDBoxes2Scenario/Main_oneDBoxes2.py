@@ -91,11 +91,11 @@ def main():
     #create world
     # world = World_oneDBoxes2(terrain1, centralized_policy_map1_file)
     # world = World_oneDBoxes2(terrain1, individual_decentralized_joint_rewards_policy_map1_file)
-    world = World_oneDBoxes2(terrain1, individual_decentralized_split_rewards_policy_map1_file)
+    # world = World_oneDBoxes2(terrain1, individual_decentralized_split_rewards_policy_map1_file)
     # world = World_oneDBoxes2(terrain1, peer_aware_decentralized_joint_rewards_policy_map1_file)
     # world = World_oneDBoxes2(terrain1, peer_aware_decentralized_split_rewards_policy_map1_file)
     # world = World_oneDBoxes2(terrain1, peer_communication_decentralized_joint_rewards_policy_map1_file)
-    # world = World_oneDBoxes2(terrain1, peer_communication_decentralized_split_rewards_policy_map1_file)
+    world = World_oneDBoxes2(terrain1, peer_communication_decentralized_split_rewards_policy_map1_file)
 
 
     # world = World_oneDBoxes2(terrain2, centralized_policy_map2_file)

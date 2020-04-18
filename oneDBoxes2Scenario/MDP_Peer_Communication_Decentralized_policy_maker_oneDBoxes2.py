@@ -292,12 +292,6 @@ class MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(object):
         new_shappy4_state = copy.copy(self.current_state)
         new_shappy4_state[0] = shappy3_communicate
 
-        # # Criar as rewards
-        # if new_shappy3_state[1] != -1 or new_shappy4_state[0] != -1:
-        #     new_number_of_boxes = self.current_number_of_boxes(new_map)
-        #     new_reward3 = (self.number_boxes - new_number_of_boxes) * 10
-        #     new_reward4 = new_reward3
-
         return new_shappy3_state, new_shappy4_state, new_map, new_reward3, new_reward4
 
     def learn2(self, state, action3, action4, reward, new_state):
@@ -399,7 +393,7 @@ class MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(object):
 
         return existing_starting_states, existing_starting_maps
 
-    def creare_random_initial_state(self):
+    def create_random_initial_state(self):
         temp_state = self.start_state
         temp_map = self.start_map
         counter = 0
@@ -439,7 +433,6 @@ class MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(object):
             for episode in range(total_episodes):
                 self.current_state = starting_states[i_state]
                 self.current_map = starting_maps[i_state]
-                # self.current_state, self.current_map = self.creare_random_initial_state()
 
                 shappy3_state = copy.copy(self.current_state)
                 shappy3_state[1] = -1
@@ -454,23 +447,13 @@ class MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(object):
                     if len(self.current_state) == 2:
                         break
 
-                    # print("3 - ", shappy3_state, "4 - ", shappy4_state)
-
                     self.number_boxes = self.current_number_of_boxes(self.current_map)
 
                     action3 = self.choose_actions(shappy3_state)
 
                     action4 = self.choose_actions2(shappy4_state)
 
-                    # print("3 - ", action3, "4 - ", action4)
-
-                    # new_state, new_map, reward = self.take_actions(self.current_state, self.current_map, action3, action4)
-
-                    # self.learn(self.current_state, action3, action4, reward, new_state)
-
                     new_shappy3_state, new_shappy4_state, new_map, reward3, reward4 = self.take_actions(shappy3_state, action3, shappy4_state, action4, self.current_map)
-
-                    # print("3 - ", reward3, "4 - ", reward4)
 
                     self.learn(shappy3_state, new_shappy3_state, action3, shappy4_state, new_shappy4_state, action4, reward3, reward4)
                     episode_rewards.append(reward3)
@@ -568,6 +551,7 @@ class MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(object):
         new_Q_table = []
         for line in self.Q_table:
             new_Q_table.append([line.state, self.Q(line)])
+
         new_Q_table2 = []
         for line in self.Q_tableTwo:
             new_Q_table2.append([line.state, self.Q2(line)])

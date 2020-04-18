@@ -33,11 +33,8 @@ class Comparator_oneDBoxes2(object):
         self.global_matrices = []
         self.get_global_matrices_policies()
 
-        for i in range(len(self.global_matrices)):
-            for j in range(len(self.global_matrices)):
-                score = self.compare_matrices_items(self.global_matrices[i], self.global_matrices[j])
-                print(score, "  ", map_policies[i], map_policies[j])
-            print()
+        self.compare_global_policies_matrices()
+        # self.compare_optimal_policies_matrices()
 
     def get_global_matrices_policies(self):
         global_matrix = []
@@ -66,16 +63,20 @@ class Comparator_oneDBoxes2(object):
 
             else:
                 fp = open(policy_file, "rb")  # Unpickling
-                policy, policy2 = pickle.load(fp)
+                policy3, policy4 = pickle.load(fp)
                 fp.close()
 
                 matrix = []
 
                 if policy_type == "individual_decentralized":
-                    matrix = self.create_individual_matrices(policy, policy2)
+                    matrix = self.create_individual_matrices(policy3, policy4)
 
-                if policy_type == "peer_aware_decentralized":
-                    matrix = self.create_peer_aware_matrices(policy, policy2)
+                elif policy_type == "peer_aware_decentralized":
+                    matrix = self.create_peer_aware_matrices(policy3, policy4)
+
+                elif policy_type == "peer_communication_decentralized":
+                    matrix = self.create_peer_communication_matrices(policy3, policy4)
+
 
             self.global_matrices.append(matrix)
 
@@ -106,11 +107,17 @@ class Comparator_oneDBoxes2(object):
         for item3 in policy3:
             temp_item3 = copy.deepcopy(item3[0])
             temp_item3.remove(temp_item3[0])
+            # if len(temp_item3) > 4:
+            #     temp_item3.remove(temp_item3[0])
+            #     temp_item3.remove(temp_item3[1])
+            #     print(temp_item3)
             for item4 in policy4:
                 temp_item4 = copy.deepcopy(item4[0])
                 temp_item4.remove(temp_item4[0])
-
-                if self.compare_equal_equal_sized_arrays(temp_item3, temp_item4):
+                # if len(temp_item4) > 4:
+                #     temp_item4.remove(temp_item4[0])
+                #     print(temp_item4)
+                if self.compare_arrays(temp_item3, temp_item4):
                 # if temp_item3[0] == temp_item4[0]:
                     action3 = np.argmax(item3[1])
                     action4 = np.argmax(item4[1])
@@ -168,7 +175,78 @@ class Comparator_oneDBoxes2(object):
 
         return matrix
 
-    def compare_equal_equal_sized_arrays(self, array1, array2):
+    def create_peer_communication_matrices(self, policy3, policy4):
+        matrix = []
+        for item3 in policy3:
+            temp_item3 = copy.deepcopy(item3[0])
+            for item4 in policy4:
+                temp_item4 = copy.deepcopy(item4[0])
+                if -1 not in temp_item3 and -1 not in temp_item4:
+                    if self.compare_arrays(temp_item3, temp_item4):
+                        action3 = np.argmax(item3[1])
+                        action4 = np.argmax(item4[1])
+                        action = 0
+                        if action3 == 0 and action4 == 1:
+                            action = 0
+                        elif action3 == 0 and action4 == 2:
+                            action = 1
+                        elif action3 == 1 and action4 == 0:
+                            action = 2
+                        elif action3 == 1 and action4 == 1:
+                            action = 3
+                        elif action3 == 1 and action4 == 2:
+                            action = 4
+                        elif action3 == 2 and action4 == 0:
+                            action = 5
+                        elif action3 == 2 and action4 == 1:
+                            action = 6
+                        elif action3 == 2 and action4 == 2:
+                            action = 7
+
+                        matrix.append([item3[0], action])
+
+                else:
+                    temp_item3 = copy.deepcopy(item3[0])
+                    temp_item3.remove(temp_item3[0])
+                    temp_item3.remove(temp_item3[0])
+                    temp_item4.remove(temp_item4[0])
+                    temp_item4.remove(temp_item4[0])
+                    if self.compare_arrays(temp_item3, temp_item4):
+                        action3 = np.argmax(item3[1])
+                        action4 = np.argmax(item4[1])
+                        action = 0
+                        if (action3 == 0 or action3 == 3) and action4 == 1:
+                            action = 0
+                        elif (action3 == 0 or action3 == 3) and action4 == 2:
+                            action = 1
+                        elif action3 == 1 and (action4 == 0 or action4 == 3):
+                            action = 2
+                        elif action3 == 1 and action4 == 1:
+                            action = 3
+                        elif action3 == 1 and action4 == 2:
+                            action = 4
+                        elif action3 == 2 and (action4 == 0 or action4 == 3):
+                            action = 5
+                        elif action3 == 2 and action4 == 1:
+                            action = 6
+                        elif action3 == 2 and action4 == 2:
+                            action = 7
+
+                        temp_state = item4[0]
+                        temp_state[0] = item3[0][0]
+
+                        # temp_state = [item3[0][0]]
+                        # for item in item4[0]:
+                        #     temp_state.append(item)
+                        equal = False
+                        for state in matrix:
+                            if self.compare_arrays(state[0], temp_state):
+                                equal = True
+                        if not equal:
+                            matrix.append([temp_state, action])
+        return matrix
+
+    def compare_arrays(self, array1, array2):
         if len(array1) != len(array2):
             return False
         else:
@@ -176,3 +254,19 @@ class Comparator_oneDBoxes2(object):
                 if array1[i] != array2[i]:
                     return False
         return True
+
+    def compare_global_policies_matrices(self):
+        for i in range(len(self.global_matrices)):
+            # print(self.map_policies[i])
+            # for item in self.global_matrices[i]:
+            #     print(item)
+            for j in range(len(self.global_matrices)):
+                score = self.compare_matrices_items(self.global_matrices[i], self.global_matrices[j])
+                print(score, "  ", self.map_policies[i], self.map_policies[j])
+            print()
+
+    def compare_optimal_policies_matrices(self):
+        for policy in self.global_matrices:
+            state = policy[0][0]
+            print(state)
+

@@ -94,6 +94,7 @@ class MDP_Individual_Decentralized_policy_maker_oneDBoxes2(object):
         self.write_in_txt(policy_file)
 
     def Q(self, state, action=None):
+
         if state not in self.Q_table:
             self.Q_table[state] = np.zeros(self.n_actions)
             for i in range(len(self.Q_table[state])):
@@ -116,6 +117,7 @@ class MDP_Individual_Decentralized_policy_maker_oneDBoxes2(object):
         return self.Q_tableTwo[state][action]
 
     def choose_actions(self, state):
+
         random.seed()
         if random.random() < self.epsilon:  # exploration
             return np.random.randint(0, len(self.ACTIONS))
@@ -176,16 +178,28 @@ class MDP_Individual_Decentralized_policy_maker_oneDBoxes2(object):
         new_map = copy.deepcopy(map)
 
         # # Criar as rewards
-        # new_reward3 = 0
-        # new_reward4 = 0
-        # if map[new_shappy3_pos] == self.BOX:
-        #     new_reward3 = 10
+        new_reward3 = 0
+        new_reward4 = 0
+
+        # # Joint Rewards
+        # if map[new_shappy3_pos] == self.BOX or map[new_shappy4_pos] == self.BOX:
+        #     new_reward3 += 10
+        #     new_reward4 += 10
         # else:
-        #     new_reward3 = -1
-        # if map[new_shappy4_pos] == self.BOX:
-        #     new_reward4 = 10
-        # else:
-        #     new_reward4 = -1
+        #     if new_shappy3_pos != old_shappy3_pos:
+        #         new_reward3 += -1
+        #     if new_shappy4_pos != old_shappy4_pos:
+        #         new_reward4 += -1
+
+        # # Split Rewards
+        if map[new_shappy3_pos] == self.BOX:
+            new_reward3 += 10
+        else:
+            new_reward3 += -1
+        if map[new_shappy4_pos] == self.BOX:
+            new_reward4 += 10
+        else:
+            new_reward4 += -1
 
 
         # Só mexe o 1 - Mesmo sitio -> Separados
@@ -271,14 +285,14 @@ class MDP_Individual_Decentralized_policy_maker_oneDBoxes2(object):
         new_shappy4_state.remove(new_shappy4_state[0])
 
         # Criar as rewards
-        new_number_of_boxes = self.current_number_of_boxes(new_map)
-        if self.number_boxes != new_number_of_boxes:
-            new_reward = (self.number_boxes - new_number_of_boxes) * 10
-            new_reward3 = new_reward
-            new_reward4 = new_reward
-        else:
-            new_reward3 = -1
-            new_reward4 = -1
+        # new_number_of_boxes = self.current_number_of_boxes(new_map)
+        # if self.number_boxes != new_number_of_boxes:
+        #     new_reward = (self.number_boxes - new_number_of_boxes) * 10
+        #     new_reward3 = new_reward
+        #     new_reward4 = new_reward
+        # else:
+        #     new_reward3 = -1
+        #     new_reward4 = -1
 
         return new_shappy3_state, new_shappy4_state, new_map, new_reward3, new_reward4
 
@@ -294,7 +308,6 @@ class MDP_Individual_Decentralized_policy_maker_oneDBoxes2(object):
 
         self.Q2(old_state4_obj)[action4] = self.Q2(old_state4_obj, action4) + self.learning_rate * \
                                 (reward4 + self.gamma * np.max(self.Q2(new_state4_obj)) - self.Q2(old_state4_obj, action4))
-
 
     def create_stating_states(self):
         existing_starting_states = [self.start_state]
@@ -392,6 +405,8 @@ class MDP_Individual_Decentralized_policy_maker_oneDBoxes2(object):
 
                 print("State ", i_state, "/", len(starting_states), " Episode ", episode, "/", total_episodes)
 
+                self.wtf = [4,5,1,6,8]
+
                 episode_rewards = []
 
                 while True:
@@ -400,9 +415,9 @@ class MDP_Individual_Decentralized_policy_maker_oneDBoxes2(object):
 
                     self.number_boxes = self.current_number_of_boxes(self.current_map)
 
-                    action3 = self.choose_actions(self.current_state)
+                    action3 = self.choose_actions(shappy3_state)
 
-                    action4 = self.choose_actions2(self.current_state)
+                    action4 = self.choose_actions2(shappy4_state)
 
                     new_shappy3_state, new_shappy4_state, new_map, reward3, reward4 = self.take_actions(shappy3_state, action3, shappy4_state, action4, self.current_map)
 
@@ -442,29 +457,29 @@ class MDP_Individual_Decentralized_policy_maker_oneDBoxes2(object):
                 # elif episode == 8000:
                 #     self.epsilon = 0.01
 
-                if episode == 1000:
-                    self.epsilon = 0.5
-                elif episode == 2500:
-                     self.epsilon = 0.3
-                elif episode == 5000:
-                     self.epsilon = 0.1
+                # if episode == 1000:
+                #     self.epsilon = 0.5
+                # elif episode == 2500:
+                #      self.epsilon = 0.3
+                # elif episode == 5000:
+                #      self.epsilon = 0.1
                 # elif episode == 8000:
                 #     self.epsilon = 0.01
 
-                # if episode == int(total_episodes / 12):
-                #     self.epsilon = 0.5
-                #     # print("                                        " , self.epsilon)
-                # elif episode == int(total_episodes / 8):
-                #     self.epsilon = 0.3
-                #     # print("                                        " , self.epsilon)
-                # elif episode == int(total_episodes / 5):
-                #     self.epsilon = 0.1
-                #     # print("                                        " , self.epsilon)
-                # elif episode == int(total_episodes - (total_episodes / 10)):
-                #     self.epsilon = 0.01
-                #     # print("                                        ", self.epsilon)
-                # elif episode == int(total_episodes - (total_episodes / 100)):
-                #     self.epsilon = 0
+                if episode == int(total_episodes / 12):
+                    self.epsilon = 0.5
+                    # print("                                        " , self.epsilon)
+                elif episode == int(total_episodes / 8):
+                    self.epsilon = 0.3
+                    # print("                                        " , self.epsilon)
+                elif episode == int(total_episodes / 5):
+                    self.epsilon = 0.1
+                    # print("                                        " , self.epsilon)
+                elif episode == int(total_episodes - (total_episodes / 10)):
+                    self.epsilon = 0.01
+                    # print("                                        ", self.epsilon)
+                elif episode == int(total_episodes - (total_episodes / 100)):
+                    self.epsilon = 0
 
                 # if episode == 4000:
                 #     self.epsilon = 0.5
@@ -481,9 +496,11 @@ class MDP_Individual_Decentralized_policy_maker_oneDBoxes2(object):
         new_Q_table = []
         for line in self.Q_table:
             new_Q_table.append([line.state, self.Q(line)])
+
         new_Q_table2 = []
         for line in self.Q_tableTwo:
             new_Q_table2.append([line.state, self.Q2(line)])
+
         with open(policy_file, "wb") as fp:  # pickling
             pickle.dump((new_Q_table, new_Q_table2), fp)
             fp.close()
@@ -494,3 +511,12 @@ class MDP_Individual_Decentralized_policy_maker_oneDBoxes2(object):
             if item == 2:
                 counter += 1
         return counter
+
+    def compare_arrays(self, array1, array2):
+        if len(array1) != len(array2):
+            return False
+        else:
+            for i in range(len(array1)):
+                if array1[i] != array2[i]:
+                    return False
+        return True

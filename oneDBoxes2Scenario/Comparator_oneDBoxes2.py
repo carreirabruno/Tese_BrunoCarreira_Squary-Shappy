@@ -2,6 +2,7 @@ import pickle
 import numpy as np
 import copy
 
+
 class Comparator_oneDBoxes2(object):
 
     def __init__(self, terrain_matrix, map_policies):
@@ -33,7 +34,7 @@ class Comparator_oneDBoxes2(object):
         self.global_matrices = []
         # self.get_global_matrices_policies()
         # self.compare_global_policies_matrices()
-        
+
         self.optimal_matrices = []
         self.get_optimal_matrices_policies()
         self.compare_optimal_policies_matrices()
@@ -79,7 +80,6 @@ class Comparator_oneDBoxes2(object):
                 elif policy_type == "peer_communication_decentralized":
                     matrix = self.create_global_peer_communication_matrices(policy3, policy4)
 
-
             self.global_matrices.append(matrix)
 
     def compare_global_policies_matrices(self):
@@ -99,13 +99,37 @@ class Comparator_oneDBoxes2(object):
             matrix1 = copy.copy(matrix2)
             matrix2 = copy.copy(temp)
 
-        print(len(matrix1), len(matrix2))
-
         for item1 in matrix1:
             for item2 in matrix2:
                 if item1[0] == item2[0] and item1[1] == item2[1]:
                     score += 1
                     break
+        # for i in range(len(matrix1)):
+        #     if matrix1[i][0] == matrix2[i][0] and matrix1[i][1] == matrix2[i][1]:
+        #         score += 1
+
+        if len(matrix1) != 0:
+            score_percentage = (score * 100) / len(matrix1)
+        else:
+            score_percentage = 0
+        return score_percentage
+
+    def compare_matrices_items_in_order(self, matrix1, matrix2):
+        score = 0
+        if len(matrix1) < len(matrix2):
+            temp = copy.copy(matrix1)
+            matrix1 = copy.copy(matrix2)
+            matrix2 = copy.copy(temp)
+
+        for i in range(len(matrix1)):
+            if i < len(matrix2):
+                if self.compare_arrays(matrix1[i], matrix2[i]):
+                    score += 1
+        # for item1 in matrix1:
+        #     for item2 in matrix2:
+        #         if self.compare_arrays(item1, item2):
+        #             score += 1
+        #         break
         # for i in range(len(matrix1)):
         #     if matrix1[i][0] == matrix2[i][0] and matrix1[i][1] == matrix2[i][1]:
         #         score += 1
@@ -132,7 +156,7 @@ class Comparator_oneDBoxes2(object):
                 #     temp_item4.remove(temp_item4[0])
                 #     print(temp_item4)
                 if self.compare_arrays(temp_item3, temp_item4):
-                # if temp_item3[0] == temp_item4[0]:
+                    # if temp_item3[0] == temp_item4[0]:
                     action3 = np.argmax(item3[1])
                     action4 = np.argmax(item4[1])
                     action = 0
@@ -301,13 +325,54 @@ class Comparator_oneDBoxes2(object):
                 fp.close()
 
                 current_state = policy[0][0]
-                matrix = [current_state]
+                matrix = []
                 while len(current_state) > 2:
+                    old_state = copy.copy(current_state)
                     for item in policy:
+                        # old_state = copy.copy(current_state)
                         if self.compare_arrays(item[0], current_state):
-                            new_state = self.update_state(current_state, -1, -1, np.argmax(item[1]), True)
-                            matrix.append(new_state)
+                            action = np.argmax(item[1])
+                            action3 = -1
+                            action4 = -1
+                            if action == 0:
+                                action3 = 0
+                                action4 = 1
+                            elif action == 1:
+                                action3 = 0
+                                action4 = 2
+                            elif action == 2:
+                                action3 = 1
+                                action4 = 0
+                            elif action == 3:
+                                action3 = 1
+                                action4 = 1
+                            elif action == 4:
+                                action3 = 1
+                                action4 = 2
+                            elif action == 5:
+                                action3 = 2
+                                action4 = 0
+                            elif action == 6:
+                                action3 = 2
+                                action4 = 1
+                            elif action == 7:
+                                action3 = 2
+                                action4 = 2
+                            new_state = self.update_state(current_state, action3, action4, False)
+
+                            if old_state[0] == 1 and action3 == 1:
+                               action3 = 0
+                            elif old_state[0] == 8 and action3 == 2:
+                               action3 = 0
+                            if old_state[1] == 1 and action4 == 1:
+                               action4 = 0
+                            elif old_state[1] == 8 and action4 == 2:
+                               action4 = 0
+
+                            matrix.append([action3, action4])
+
                             current_state = new_state
+
                             break
 
             else:
@@ -323,8 +388,9 @@ class Comparator_oneDBoxes2(object):
                     current_state = [current_state3[0]]
                     for item in current_state4:
                         current_state.append(item)
-                    matrix = [current_state]
+                    matrix = []
                     while len(current_state) > 2:
+                        old_state = copy.copy(current_state)
                         current_state3 = copy.copy(current_state)
                         current_state3.remove(current_state3[1])
                         current_state4 = copy.copy(current_state)
@@ -335,38 +401,58 @@ class Comparator_oneDBoxes2(object):
                                 action3 = np.argmax(item[1])
                         for item in policy4:
                             if self.compare_arrays(item[0], current_state4):
-                                new_state = self.update_state(current_state, action3, np.argmax(item[1]), -1, False)
-                                matrix.append(new_state)
+                                action4 = np.argmax(item[1])
+                                new_state = self.update_state(current_state, action3, action4, False)
+
+                                if old_state[0] == 1 and action3 == 1:
+                                    action3 = 0
+                                elif old_state[0] == 8 and action3 == 2:
+                                    action3 = 0
+                                if old_state[1] == 1 and action4 == 1:
+                                    action4 = 0
+                                elif old_state[1] == 8 and action4 == 2:
+                                    action4 = 0
                                 current_state = new_state
+                                matrix.append([action3, action4])
                                 break
 
                 elif policy_type == "peer_aware_decentralized":
                     current_state = policy3[0][0]
-                    matrix = [current_state]
+                    matrix = []
                     while len(current_state) > 2:
+                        old_state = copy.copy(current_state)
                         action3 = -1
                         for item in policy3:
                             if self.compare_arrays(item[0], current_state):
                                 action3 = np.argmax(item[1])
                         for item in policy4:
                             if self.compare_arrays(item[0], current_state):
-                                new_state = self.update_state(current_state, action3, np.argmax(item[1]), -1, False)
-                                matrix.append(new_state)
+                                action4 = np.argmax(item[1])
+                                new_state = self.update_state(current_state, action3, action4, False)
+
+                                if old_state[0] == 1 and action3 == 1:
+                                    action3 = 0
+                                elif old_state[0] == 8 and action3 == 2:
+                                    action3 = 0
+                                if old_state[1] == 1 and action4 == 1:
+                                    action4 = 0
+                                elif old_state[1] == 8 and action4 == 2:
+                                    action4 = 0
                                 current_state = new_state
+                                matrix.append([action3, action4])
                                 break
 
                 elif policy_type == "peer_communication_decentralized":
-                    print("PASSA-SE AQUI ALGUMA COISA DE ERRRADO, VERIFICAR")
-                    
-                    current_state3 = policy3[0][0]
-                    current_state4 = policy4[0][0]
-                    current_state = current_state3
+                    current_state3 = copy.copy(policy3[0][0])
+                    current_state4 = copy.copy(policy4[0][0])
+                    current_state = copy.copy(current_state3)
                     current_state[1] = current_state4[1]
 
-                    matrix = [current_state]
+                    matrix = []
                     self.shappy3_knows = False
                     self.shappy4_knows = False
                     while len(current_state) > 2:
+                        old_state = copy.copy(current_state)
                         current_state3 = copy.copy(current_state)
                         if not self.shappy3_knows:
                             current_state3[1] = -1
@@ -381,54 +467,53 @@ class Comparator_oneDBoxes2(object):
                                 action3 = np.argmax(item[1])
                         for item in policy4:
                             if self.compare_arrays(item[0], current_state4):
-                                new_state = self.update_state(current_state, action3, np.argmax(item[1]), -1, True)
-                                matrix.append(new_state)
+                                action4 = np.argmax(item[1])
+                                new_state = self.update_state(current_state, action3, action4, True)
+
+                                if old_state[0] == 1 and action3 == 1:
+                                    action3 = 0
+                                elif old_state[0] == 8 and action3 == 2:
+                                    action3 = 0
+                                if old_state[1] == 1 and action4 == 1:
+                                    action4 = 0
+                                elif old_state[1] == 8 and action4 == 2:
+                                    action4 = 0
+                                if action3 == 3:
+                                    action3 = 0
+                                if action4 == 3:
+                                    action4 = 0
                                 current_state = new_state
+                                matrix.append([action3, action4])
                                 break
+
+
 
             self.optimal_matrices.append(matrix)
 
-    def compare_optimal_policies_matrices(self):
+    def compare_optimal_policies_matrices2(self):
         for i in range(len(self.optimal_matrices)):
             for j in range(len(self.optimal_matrices)):
                 score = self.compare_matrices_items(self.optimal_matrices[i], self.optimal_matrices[j])
                 print(score, "  ", self.map_policies[i], self.map_policies[j])
             print()
 
-    def update_state(self, current_state, action3, action4, action, centralized_or_communication):
-        if centralized_or_communication:
-            if action == -1:
-                if action3 == 4:
-                    self.shappy4_knows = True
-                    action3 = 0
-                if action4 == 4:
-                    self.shappy3_knows = True
-                    action4 = 0
-            else:
-                if action == 0:
-                    action3 = 0
-                    action4 = 1
-                elif action == 1:
-                    action3 = 0
-                    action4 = 2
-                elif action == 2:
-                    action3 = 1
-                    action4 = 0
-                elif action == 3:
-                    action3 = 1
-                    action4 = 1
-                elif action == 4:
-                    action3 = 1
-                    action4 = 2
-                elif action == 5:
-                    action3 = 2
-                    action4 = 0
-                elif action == 6:
-                    action3 = 2
-                    action4 = 1
-                elif action == 7:
-                    action3 = 2
-                    action4 = 2
+    def compare_optimal_policies_matrices(self):
+        for i in range(len(self.optimal_matrices)):
+            for line in self.optimal_matrices[i]:
+                print(line)
+            for j in range(len(self.optimal_matrices)):
+                score = self.compare_matrices_items_in_order(self.optimal_matrices[i], self.optimal_matrices[j])
+                print(score, "  ", self.map_policies[i], self.map_policies[j])
+            print()
+
+    def update_state(self, current_state, action3, action4, communication):
+        if communication:
+            if action3 == 4:
+                self.shappy4_knows = True
+                action3 = 0
+            if action4 == 4:
+                self.shappy3_knows = True
+                action4 = 0
 
         new_state = copy.copy(current_state)
         if action3 == 0:
@@ -437,7 +522,7 @@ class Comparator_oneDBoxes2(object):
             new_state[0] = new_state[0] - 1
         elif action3 == 2 and new_state[0] < 8:
             new_state[0] = new_state[0] + 1
-        
+
         if action4 == 0:
             pass
         elif action4 == 1 and new_state[1] > 1:

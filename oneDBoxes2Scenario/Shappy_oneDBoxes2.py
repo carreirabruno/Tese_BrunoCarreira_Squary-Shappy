@@ -72,11 +72,13 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
                     self.lefty()
                 if keys[pygame.K_d]:
                     self.righty()
+                self.current_state[0] = int(self.x_pos / self.world.screen_ratio)
             elif self.color == 4:
                 if keys[pygame.K_LEFT]:
                     self.lefty()
                 if keys[pygame.K_RIGHT]:
                     self.righty()
+                self.current_state[1] = int(self.x_pos / self.world.screen_ratio)
         elif self.auto:
             self.auto_movement(self.type_of_policy)
 
@@ -256,8 +258,6 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
                 self.current_state[0] = -1
                 # quit()
 
-            print(self.color, self.current_state)
-
             actions = -1
             for state in self.policy:
                 equal = True
@@ -268,9 +268,6 @@ class Shappy_oneDBoxes2(pygame.sprite.Sprite):
                     actions = np.argmax(state[1])
                     # print(self.color, self.current_map, self.current_state, state)
                     break
-
-            print(actions)
-            print()
 
             if actions == 0:
                 pass

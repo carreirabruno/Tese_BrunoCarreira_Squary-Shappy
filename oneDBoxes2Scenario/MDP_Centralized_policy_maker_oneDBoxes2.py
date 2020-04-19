@@ -184,20 +184,28 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
                 raise ValueError(f"Unknown action {action}")
             return first_shappy_pos, second_shappy_pos
 
-        new_reward = 0
         new_first_shappy_pos, new_second_shappy_pos = new_shappy_pos(map, actions)
 
         new_map = copy.deepcopy(map)
 
+        new_reward = 0
+        # # Joint Rewards
+        # if map[new_first_shappy_pos] == self.BOX or map[new_second_shappy_pos] == self.BOX:
+        #     new_reward += 10
+        # else:
+        #     if new_first_shappy_pos != old_first_shappy_pos:
+        #         new_reward += -1
+        #     if new_second_shappy_pos != old_second_shappy_pos:
+        #         new_reward += -1
+        if map[new_first_shappy_pos] == self.BOX:
+            new_reward += 10
+        if new_first_shappy_pos != old_first_shappy_pos:
+            new_reward -= 1
+        if map[new_second_shappy_pos] == self.BOX and new_first_shappy_pos != new_second_shappy_pos:
+            new_reward += 10
+        if new_second_shappy_pos != old_second_shappy_pos:
+            new_reward -= 1
 
-        # if map[new_first_shappy_pos] == self.BOX:
-        #     new_reward += 10
-        # else:
-        #     new_reward += 0
-        # if map[new_second_shappy_pos] == self.BOX:
-        #     new_reward += 10
-        # else:
-        #     new_reward += 0
 
         # Só mexe o 1 - Mesmo sitio -> Separados
         if old_second_shappy_pos == new_second_shappy_pos and old_first_shappy_pos == old_second_shappy_pos \
@@ -263,8 +271,8 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
                 new_state.append(i)
 
         # Criar as rewards
-        new_number_of_boxes = self.current_number_of_boxes(new_map)
-        new_reward = (self.number_boxes - new_number_of_boxes) * 10
+        # new_number_of_boxes = self.current_number_of_boxes(new_map)
+        # new_reward = (self.number_boxes - new_number_of_boxes) * 10
 
         return new_state, new_map, new_reward
 

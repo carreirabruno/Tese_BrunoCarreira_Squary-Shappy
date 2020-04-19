@@ -22,12 +22,14 @@ class State:
 
 class MDP_Individual_Decentralized_policy_maker_oneDBoxes2(object):
 
-    def __init__(self, terrain_matrix, policy_file):
+    def __init__(self, terrain_matrix, policy_file, joint_rewards):
 
         self.map = []
         for line in terrain_matrix:
             if 3 in line:
                 self.map = np.array(line)
+
+        self.joint_rewards = joint_rewards
 
         random.seed()
 
@@ -182,24 +184,34 @@ class MDP_Individual_Decentralized_policy_maker_oneDBoxes2(object):
         new_reward4 = 0
 
         # # Joint Rewards
-        # if map[new_shappy3_pos] == self.BOX or map[new_shappy4_pos] == self.BOX:
-        #     new_reward3 += 10
-        #     new_reward4 += 10
-        # else:
-        #     if new_shappy3_pos != old_shappy3_pos:
-        #         new_reward3 += -1
-        #     if new_shappy4_pos != old_shappy4_pos:
-        #         new_reward4 += -1
+        if self.joint_rewards:
+            # if map[new_shappy3_pos] == self.BOX and new_shappy3_pos != new_shappy4_pos:
+            #     new_reward3 += 10
+            #     new_reward4 += 10
+            #
+            # if map[new_shappy4_pos] == self.BOX and new_shappy3_pos != new_shappy4_pos:
+            #     new_reward3 += 10
+            #     new_reward4 += 10
+
+            if map[new_shappy3_pos] == self.BOX or map[new_shappy4_pos] == self.BOX:
+                new_reward3 += 10
+                new_reward4 += 10
+
+            if new_shappy3_pos != old_shappy3_pos:
+                new_reward3 -= 1
+            if new_shappy4_pos != old_shappy4_pos:
+                new_reward4 -= 1
 
         # # Split Rewards
-        if map[new_shappy3_pos] == self.BOX:
-            new_reward3 += 10
         else:
-            new_reward3 += -1
-        if map[new_shappy4_pos] == self.BOX:
-            new_reward4 += 10
-        else:
-            new_reward4 += -1
+            if map[new_shappy3_pos] == self.BOX:
+                new_reward3 += 10
+            if old_shappy3_pos != new_shappy3_pos:
+                new_reward3 -= 1
+            if map[new_shappy4_pos] == self.BOX:
+                new_reward4 += 10
+            if old_shappy4_pos != new_shappy4_pos:
+                new_reward4 -= 1
 
 
         # Só mexe o 1 - Mesmo sitio -> Separados
@@ -387,7 +399,7 @@ class MDP_Individual_Decentralized_policy_maker_oneDBoxes2(object):
 
     def create_policy(self):
 
-        total_episodes = 10000
+        total_episodes = 100000
 
         starting_states, starting_maps = self.create_stating_states()
 
@@ -478,8 +490,8 @@ class MDP_Individual_Decentralized_policy_maker_oneDBoxes2(object):
                 elif episode == int(total_episodes - (total_episodes / 10)):
                     self.epsilon = 0.01
                     # print("                                        ", self.epsilon)
-                elif episode == int(total_episodes - (total_episodes / 100)):
-                    self.epsilon = 0
+                # elif episode == int(total_episodes - (total_episodes / 100)):
+                #     self.epsilon = 0
 
                 # if episode == 4000:
                 #     self.epsilon = 0.5

@@ -21,8 +21,6 @@ class World_oneDBoxes2(object):
         temp_type = temp_type.replace("_policy_map3.pickle", "")
         self.type_of_policy = temp_type
 
-        print(self.type_of_policy)
-
         if self.type_of_policy == "individual_decentralized_split_rewards" or self.type_of_policy == "individual_decentralized_joint_rewards":
             self.type_of_policy = "individual_decentralized"
         elif self.type_of_policy == "peer_aware_decentralized_split_rewards" or self.type_of_policy == "peer_aware_decentralized_joint_rewards":
@@ -30,12 +28,20 @@ class World_oneDBoxes2(object):
         elif self.type_of_policy == "peer_communication_decentralized_split_rewards" or self.type_of_policy == "peer_communication_decentralized_joint_rewards":
             self.type_of_policy = "peer_communication_decentralized"
 
-        print(self.type_of_policy)
-
-
         self.policy = []
         self.policy2 = []
         self.get_policy(policy_file)
+
+        for line in self.policy:
+            print(line)
+        print()
+
+        for line in self.policy2:
+            print(line)
+
+        # for line in self.policy:
+        #     print(line)
+        # quit()
 
         self.screen_width = len(self.terrain.matrix[0]) * self.screen_ratio
         self.screen_height = len(self.terrain.matrix) * self.screen_ratio
@@ -161,6 +167,18 @@ class World_oneDBoxes2(object):
                     shappy3_state = shappy.update(self.current_state)
                 if shappy.color == 4:
                     shappy4_state = shappy.update(self.current_state)
+
+            # new_reward = 0
+            # if self.current_map[shappy3_state[0]] == 2:
+            #     new_reward += 10
+            # elif shappy3_state[0] != shappy4_state[0]:
+            #     new_reward -= 1
+            # if self.current_map[shappy4_state[1]] == 2 and shappy3_state[0] != shappy4_state[1]:
+            #     new_reward += 10
+            # elif shappy4_state[1] != shappy3_state[1]:
+            #     new_reward -= 1
+            # print(new_reward)
+            # print()
 
             self.set_new_terrain_matrix(shappy3_state, shappy4_state)
 

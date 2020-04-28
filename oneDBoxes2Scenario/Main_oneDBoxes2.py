@@ -3,6 +3,7 @@ import os
 from oneDBoxes2Scenario.MDP_Centralized_policy_maker_oneDBoxes2 import *
 from oneDBoxes2Scenario.MDP_Individual_Decentralized_policy_maker_oneDBoxes2 import *
 from oneDBoxes2Scenario.MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2 import *
+from oneDBoxes2Scenario.MDP_Peer_Listen_Decentralized_policy_maker_oneDBoxes2 import *
 from oneDBoxes2Scenario.MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2 import *
 from oneDBoxes2Scenario.World_oneDBoxes2 import *
 from oneDBoxes2Scenario.Terrain_oneDBoxes2 import *
@@ -16,6 +17,7 @@ def main():
     individual_decentralized_split_rewards_policy_map1_file = "oneDBoxes2_MDP_individual_decentralized_split_rewards_policy_map1.pickle"
     peer_aware_decentralized_joint_rewards_policy_map1_file = "oneDBoxes2_MDP_peer_aware_decentralized_joint_rewards_policy_map1.pickle"
     peer_aware_decentralized_split_rewards_policy_map1_file = "oneDBoxes2_MDP_peer_aware_decentralized_split_rewards_policy_map1.pickle"
+    peer_listen_decentralized_split_rewards_policy_map1_file = "oneDBoxes2_MDP_peer_listen_decentralized_split_rewards_policy_map1.pickle"
     peer_communication_decentralized_joint_rewards_policy_map1_file = "oneDBoxes2_MDP_peer_communication_decentralized_joint_rewards_policy_map1.pickle"
     peer_communication_decentralized_split_rewards_policy_map1_file = "oneDBoxes2_MDP_peer_communication_decentralized_split_rewards_policy_map1.pickle"
 
@@ -24,6 +26,7 @@ def main():
     individual_decentralized_split_rewards_policy_map2_file = "oneDBoxes2_MDP_individual_decentralized_split_rewards_policy_map2.pickle"
     peer_aware_decentralized_joint_rewards_policy_map2_file = "oneDBoxes2_MDP_peer_aware_decentralized_joint_rewards_policy_map2.pickle"
     peer_aware_decentralized_split_rewards_policy_map2_file = "oneDBoxes2_MDP_peer_aware_decentralized_split_rewards_policy_map2.pickle"
+    peer_listen_decentralized_split_rewards_policy_map2_file = "oneDBoxes2_MDP_peer_listen_decentralized_split_rewards_policy_map2.pickle"
     peer_communication_decentralized_joint_rewards_policy_map2_file = "oneDBoxes2_MDP_peer_communication_decentralized_joint_rewards_policy_map2.pickle"
     peer_communication_decentralized_split_rewards_policy_map2_file = "oneDBoxes2_MDP_peer_communication_decentralized_split_rewards_policy_map2.pickle"
 
@@ -32,6 +35,7 @@ def main():
     individual_decentralized_split_rewards_policy_map3_file = "oneDBoxes2_MDP_individual_decentralized_split_rewards_policy_map3.pickle"
     peer_aware_decentralized_joint_rewards_policy_map3_file = "oneDBoxes2_MDP_peer_aware_decentralized_joint_rewards_policy_map3.pickle"
     peer_aware_decentralized_split_rewards_policy_map3_file = "oneDBoxes2_MDP_peer_aware_decentralized_split_rewards_policy_map3.pickle"
+    peer_listen_decentralized_split_rewards_policy_map3_file = "oneDBoxes2_MDP_peer_listen_decentralized_split_rewards_policy_map3.pickle"
     peer_communication_decentralized_joint_rewards_policy_map3_file = "oneDBoxes2_MDP_peer_communication_decentralized_joint_rewards_policy_map3.pickle"
     peer_communication_decentralized_split_rewards_policy_map3_file = "oneDBoxes2_MDP_peer_communication_decentralized_split_rewards_policy_map3.pickle"
 
@@ -73,6 +77,7 @@ def main():
     # individual_decentralized_split_rewards_policy_maker1 = MDP_Individual_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, individual_decentralized_split_rewards_policy_map1_file, False)
     # peer_aware_decentralized_joint_rewards_policy_maker1 = MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, peer_aware_decentralized_joint_rewards_policy_map1_file, True)
     # peer_aware_decentralized_split_rewards_policy_maker1 = MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, peer_aware_decentralized_split_rewards_policy_map1_file, False)
+    # peer_listen_decentralized_split_rewards_policy_maker1 = MDP_Peer_Listen_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, peer_listen_decentralized_split_rewards_policy_map1_file, False)
     # peer_communication_decentralized_joint_rewards_policy_maker1 = MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, peer_communication_decentralized_joint_rewards_policy_map1_file, True)
     # peer_communication_decentralized_split_rewards_policy_maker1 = MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(terrain1.matrix, peer_communication_decentralized_split_rewards_policy_map1_file, False)
 
@@ -81,6 +86,7 @@ def main():
     # individual_decentralized_split_rewards_policy_maker2 = MDP_Individual_Decentralized_policy_maker_oneDBoxes2(terrain2.matrix, individual_decentralized_split_rewards_policy_map2_file, False)
     # peer_aware_decentralized_joint_rewards_policy_maker2 = MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(terrain2.matrix, peer_aware_decentralized_joint_rewards_policy_map2_file, True)
     # peer_aware_decentralized_split_rewards_policy_maker2 = MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(terrain2.matrix, peer_aware_decentralized_split_rewards_policy_map2_file, False)
+    # peer_listen_decentralized_split_rewards_policy_maker2 = MDP_Peer_Listen_Decentralized_policy_maker_oneDBoxes2(terrain2.matrix, peer_listen_decentralized_split_rewards_policy_map2_file, False)
     # peer_communication_decentralized_joint_rewards_policy_maker2 = MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(terrain2.matrix, peer_communication_decentralized_joint_rewards_policy_map2_file, True)
     # peer_communication_decentralized_split_rewards_policy_maker2 = MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(terrain2.matrix, peer_communication_decentralized_split_rewards_policy_map2_file, False)
 
@@ -89,6 +95,7 @@ def main():
     # individual_decentralized_split_rewards_policy_maker3 = MDP_Individual_Decentralized_policy_maker_oneDBoxes2(terrain3.matrix, individual_decentralized_split_rewards_policy_map3_file, False)
     # peer_aware_decentralized_joint_rewards_policy_maker3 = MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(terrain3.matrix, peer_aware_decentralized_joint_rewards_policy_map3_file, True)
     # peer_aware_decentralized_split_rewards_policy_maker3 = MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(terrain3.matrix, peer_aware_decentralized_split_rewards_policy_map3_file, False)
+    # peer_listen_decentralized_split_rewards_policy_maker3 = MDP_Peer_Listen_Decentralized_policy_maker_oneDBoxes2(terrain3.matrix, peer_listen_decentralized_split_rewards_policy_map3_file, False)
     # peer_communication_decentralized_joint_rewards_policy_maker3 = MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(terrain3.matrix, peer_communication_decentralized_joint_rewards_policy_map3_file, True)
     # peer_communication_decentralized_split_rewards_policy_maker3 = MDP_Peer_Communication_Decentralized_policy_maker_oneDBoxes2(terrain3.matrix, peer_communication_decentralized_split_rewards_policy_map3_file, False)
 
@@ -108,6 +115,7 @@ def main():
     # world = World_oneDBoxes2(terrain1, individual_decentralized_split_rewards_policy_map1_file)
     # world = World_oneDBoxes2(terrain1, peer_aware_decentralized_joint_rewards_policy_map1_file)
     # world = World_oneDBoxes2(terrain1, peer_aware_decentralized_split_rewards_policy_map1_file)
+    # world = World_oneDBoxes2(terrain1, peer_listen_decentralized_split_rewards_policy_map1_file)
     # world = World_oneDBoxes2(terrain1, peer_communication_decentralized_joint_rewards_policy_map1_file)
     # world = World_oneDBoxes2(terrain1, peer_communication_decentralized_split_rewards_policy_map1_file)
 
@@ -117,8 +125,9 @@ def main():
     # world = World_oneDBoxes2(terrain2, individual_decentralized_split_rewards_policy_map2_file)
     # world = World_oneDBoxes2(terrain2, peer_aware_decentralized_joint_rewards_policy_map2_file)
     # world = World_oneDBoxes2(terrain2, peer_aware_decentralized_split_rewards_policy_map2_file)
+    # world = World_oneDBoxes2(terrain2, peer_listen_decentralized_split_rewards_policy_map2_file)
     # world = World_oneDBoxes2(terrain2, peer_communication_decentralized_joint_rewards_policy_map2_file)
-    world = World_oneDBoxes2(terrain2, peer_communication_decentralized_split_rewards_policy_map2_file)
+    # world = World_oneDBoxes2(terrain2, peer_communication_decentralized_split_rewards_policy_map2_file)
 
 
     # world = World_oneDBoxes2(terrain3, centralized_policy_map3_file)
@@ -126,6 +135,7 @@ def main():
     # world = World_oneDBoxes2(terrain3, individual_decentralized_split_rewards_policy_map3_file)
     # world = World_oneDBoxes2(terrain3, peer_aware_decentralized_joint_rewards_policy_map3_file)
     # world = World_oneDBoxes2(terrain3, peer_aware_decentralized_split_rewards_policy_map3_file)
+    world = World_oneDBoxes2(terrain3, peer_listen_decentralized_split_rewards_policy_map3_file)
     # world = World_oneDBoxes2(terrain3, peer_communication_decentralized_joint_rewards_policy_map3_file)
     # world = World_oneDBoxes2(terrain3, peer_communication_decentralized_split_rewards_policy_map3_file)
 

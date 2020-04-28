@@ -27,21 +27,22 @@ class World_oneDBoxes2(object):
             self.type_of_policy = "peer_aware_decentralized"
         elif self.type_of_policy == "peer_communication_decentralized_split_rewards" or self.type_of_policy == "peer_communication_decentralized_joint_rewards":
             self.type_of_policy = "peer_communication_decentralized"
+        elif self.type_of_policy == "peer_listen_decentralized_split_rewards" or self.type_of_policy == "peer_listen_decentralized_joint_rewards":
+            self.type_of_policy = "peer_listen_decentralized"
 
         self.policy = []
         self.policy2 = []
         self.get_policy(policy_file)
 
+        print(self.type_of_policy)
+
         for line in self.policy:
-            print(line)
+            print("3 - ", line)
         print()
 
         for line in self.policy2:
-            print(line)
-
-        # for line in self.policy:
-        #     print(line)
-        # quit()
+            print("4 - ", line)
+        print()
 
         self.screen_width = len(self.terrain.matrix[0]) * self.screen_ratio
         self.screen_height = len(self.terrain.matrix) * self.screen_ratio
@@ -192,10 +193,13 @@ class World_oneDBoxes2(object):
 
     def get_policy(self, policy_file):
         fp = open(policy_file, "rb")  # Unpickling
-        if self.type_of_policy == "peer_aware_decentralized" or self.type_of_policy == "peer_communication_decentralized" or self.type_of_policy == "individual_decentralized":
-            self.policy, self.policy2 = pickle.load(fp)
-        else:
+        # if self.type_of_policy == "peer_aware_decentralized" or self.type_of_policy == "peer_communication_decentralized" or self.type_of_policy == "individual_decentralized":
+        #     self.policy, self.policy2 = pickle.load(fp)
+        if self.type_of_policy == "centralized":
             self.policy = pickle.load(fp)
+        else:
+            self.policy, self.policy2 = pickle.load(fp)
+
         fp.close()
 
     def set_new_terrain_matrix(self, shappy3_state, shappy4_state):
@@ -209,7 +213,7 @@ class World_oneDBoxes2(object):
                 return
 
         min_range = 2
-        if self.type_of_policy == "centralized" or self.type_of_policy == "peer_aware_decentralized" or self.type_of_policy == "peer_communication_decentralized":
+        if self.type_of_policy == "centralized" or self.type_of_policy == "peer_aware_decentralized" or self.type_of_policy == "peer_communication_decentralized" or self.type_of_policy == "peer_listen_decentralized":
             self.current_state = shappy3_state
             for i in range(2, len(shappy3_state)):
                 if shappy4_state[1] == self.current_state[i]:

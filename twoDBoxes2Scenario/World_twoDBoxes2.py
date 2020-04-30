@@ -17,7 +17,7 @@ class World_twoDBoxes2(object):
 
         self.terrain = terrain
 
-        temp_type = policy_file.replace("oneDBoxes2_MDP_", "")
+        temp_type = policy_file.replace("twoDBoxes2_MDP_", "")
         temp_type = temp_type.replace("_policy_map1.pickle", "")
         temp_type = temp_type.replace("_policy_map2.pickle", "")
         temp_type = temp_type.replace("_policy_map3.pickle", "")
@@ -29,17 +29,19 @@ class World_twoDBoxes2(object):
             self.type_of_policy = "peer_aware_decentralized"
         elif self.type_of_policy == "peer_communication_decentralized_split_rewards" or self.type_of_policy == "peer_communication_decentralized_joint_rewards":
             self.type_of_policy = "peer_communication_decentralized"
+        elif self.type_of_policy == "peer_listen_decentralized_split_rewards" or self.type_of_policy == "peer_listen_decentralized_joint_rewards":
+            self.type_of_policy = "peer_listen_decentralized"
 
         self.policy = []
         self.policy2 = []
         self.get_policy(policy_file)
 
         # for line in self.policy:
-        #     print(line)
+        #     print("3 - ", line)
         # print()
         #
         # for line in self.policy2:
-        #     print(line)
+        #     print("4 - ", line)
         #
         # quit()
 
@@ -169,7 +171,7 @@ class World_twoDBoxes2(object):
                 self.box_group.remove(box)
 
     def update(self):
-        if time.time() - self.time_interval > 0.2:
+        if time.time() - self.time_interval > 1:
             self.blue_communicated = False
             self.red_communicated = False
             self.time_interval = time.time()
@@ -193,10 +195,11 @@ class World_twoDBoxes2(object):
 
     def get_policy(self, policy_file):
         fp = open(policy_file, "rb")  # Unpickling
-        if self.type_of_policy == "peer_aware_decentralized" or self.type_of_policy == "peer_communication_decentralized" or self.type_of_policy == "individual_decentralized":
-            self.policy, self.policy2 = pickle.load(fp)
-        else:
+        if self.type_of_policy == "centralized":
             self.policy = pickle.load(fp)
+        else:
+            self.policy, self.policy2 = pickle.load(fp)
+
         fp.close()
 
     def set_new_terrain_matrix(self, shappy3_state, shappy4_state):
@@ -217,16 +220,16 @@ class World_twoDBoxes2(object):
                 auto_movement = False
 
         min_range = 2
-        if self.type_of_policy == "centralized" or self.type_of_policy == "peer_aware_decentralized" or \
-                self.type_of_policy == "peer_communication_decentralized" or not auto_movement:
-            self.current_state = shappy3_state
-            for i in range(2, len(shappy3_state)):
-                if self.compare_arrays(shappy4_state[1], self.current_state[i]):
-                    self.current_state.remove(self.current_state[i])
-                    break
-            self.current_state[1] = shappy4_state[1]
+        # if self.type_of_policy == "centralized" or self.type_of_policy == "peer_aware_decentralized" or \
+        #         self.type_of_policy == "peer_communication_decentralized" or not auto_movement:
+        #     self.current_state = shappy3_state
+        #     for i in range(2, len(shappy3_state)):
+        #         if self.compare_arrays(shappy4_state[1], self.current_state[i]):
+        #             self.current_state.remove(self.current_state[i])
+        #             break
+        #     self.current_state[1] = shappy4_state[1]
 
-        elif self.type_of_policy == "individual_decentralized" and auto_movement:
+        if self.type_of_policy == "individual_decentralized" and auto_movement:
             self.current_state = [0]
             for item in shappy4_state:
                 self.current_state.append(item)
@@ -236,6 +239,14 @@ class World_twoDBoxes2(object):
                     self.current_state.remove(self.current_state[i])
                     break
             self.current_state[0] = shappy3_state[0]
+
+        else:
+            self.current_state = shappy3_state
+            for i in range(2, len(shappy3_state)):
+                if self.compare_arrays(shappy4_state[1], self.current_state[i]):
+                    self.current_state.remove(self.current_state[i])
+                    break
+            self.current_state[1] = shappy4_state[1]
 
         for i in range(len(self.current_map)):
             for j in range(len(self.current_map[i])):

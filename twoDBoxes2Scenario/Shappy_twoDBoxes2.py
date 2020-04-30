@@ -41,8 +41,17 @@ class Shappy_twoDBoxes2(pygame.sprite.Sprite):
         self.next_box_x = math.inf
 
         if self.color == 3:
+            # f = open("centralized_3.txt", "w+")
+            # for item in self.policy:
+            #     f.write("%s %s \n" % (item[0],np.argmax(item[1])))
+            # f.close()
             self.image = pygame.image.load("../Images/30_30_Blue_Square.png")
         elif self.color == 4:
+            # f = open("centralized_4.txt", "w+")
+            # for item in self.policy:
+            #     f.write("%s %s \n" % (item[0],np.argmax(item[1])))
+            # f.close()
+            # quit()
             self.image = pygame.image.load("../Images/30_30_Red_Square.png")
         else:
             print("Unknown colour number: ", self.color)
@@ -170,6 +179,14 @@ class Shappy_twoDBoxes2(pygame.sprite.Sprite):
             self.world.message_red(str(int(self.x_pos / self.world.screen_ratio)))
         # print(self.color, "Communicated")
 
+    def listeny(self):
+        self.I_Know = True
+        if self.color == 3:
+            self.world.message_blue("I know")
+        elif self.color == 4:
+            self.world.message_red("I know")
+        # print(self.color, "Communicated")
+
     def auto_movement(self, type):
         if type == "centralized":
             actions = -1
@@ -183,22 +200,32 @@ class Shappy_twoDBoxes2(pygame.sprite.Sprite):
                     break
 
             if self.color == 3:
-                if actions == 0 or actions == 1:
+                if actions == 0 or actions == 1 or actions == 2 or actions == 3:
                     pass
-                elif actions == 2 or actions == 3 or actions == 4:
+                elif actions == 4 or actions == 5 or actions == 6 or actions == 7 or actions == 8:
                     self.lefty()
-                elif actions == 5 or actions == 6 or actions == 7:
+                elif actions == 9 or actions == 10 or actions == 11 or actions == 12 or actions == 13:
                     self.righty()
-                self.current_state[0] = int(self.x_pos / self.world.screen_ratio)
+                elif actions == 14 or actions == 15 or actions == 16 or actions == 17 or actions == 18:
+                    self.upy()
+                elif actions == 19 or actions == 20 or actions == 21 or actions == 22 or actions == 23:
+                    self.downy()
+                self.current_state[0] = [int(self.y_pos / self.world.screen_ratio),
+                                         int(self.x_pos / self.world.screen_ratio)]
 
             elif self.color == 4:
-                if actions == 2 or actions == 5:
+                if actions == 4 or actions == 9 or actions == 14 or actions == 19:
                     pass
-                elif actions == 0 or actions == 3 or actions == 6:
+                elif actions == 0 or actions == 5 or actions == 10 or actions == 15 or actions == 20:
                     self.lefty()
-                elif actions == 1 or actions == 4 or actions == 7:
+                elif actions == 1 or actions == 6 or actions == 11 or actions == 16 or actions == 21:
                     self.righty()
-                self.current_state[1] = int(self.x_pos / self.world.screen_ratio)
+                elif actions == 2 or actions == 7 or actions == 12 or actions == 17 or actions == 22:
+                    self.upy()
+                elif actions == 3 or actions == 8 or actions == 13 or actions == 18 or actions == 23:
+                    self.downy()
+                self.current_state[1] = [int(self.y_pos / self.world.screen_ratio),
+                                         int(self.x_pos / self.world.screen_ratio)]
 
         elif type == "individual_decentralized":
             if self.color == 3:
@@ -229,3 +256,37 @@ class Shappy_twoDBoxes2(pygame.sprite.Sprite):
 
             self.current_state[0] = [int(self.y_pos / self.world.screen_ratio),
                                      int(self.x_pos / self.world.screen_ratio)]
+
+        elif type == "peer_listen_decentralized":
+            if self.color == 3 and not self.I_Know:
+                self.current_state[1] = [-1, -1]
+            elif self.color == 4 and not self.I_Know:
+                self.current_state[0] = [-1, -1]
+                # quit()
+
+            actions = -1
+            for state in self.policy:
+                equal = True
+                for i in range(len(state[0])):
+                    if len(self.current_state) != len(state[0]) or self.current_state[i] != state[0][i]:
+                        equal = False
+                if equal:
+                    actions = np.argmax(state[1])
+                    # print(self.color, self.current_map, self.current_state, state)
+                    break
+
+            if actions == 0:
+                pass
+            elif actions == 1:
+                self.lefty()
+            elif actions == 2:
+                self.righty()
+            elif actions == 3:
+                self.listeny()
+
+            if self.color == 3:
+                self.current_state[0] = [int(self.y_pos / self.world.screen_ratio),
+                                         int(self.x_pos / self.world.screen_ratio)]
+            elif self.color == 4:
+                self.current_state[1] = [int(self.y_pos / self.world.screen_ratio),
+                                         int(self.x_pos / self.world.screen_ratio)]

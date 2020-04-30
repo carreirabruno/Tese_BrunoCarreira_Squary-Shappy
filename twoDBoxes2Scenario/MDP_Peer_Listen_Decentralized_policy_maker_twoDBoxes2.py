@@ -6,7 +6,6 @@ import math
 import pickle
 from itertools import *
 
-
 class State:
 
     def __init__(self, state):
@@ -21,8 +20,7 @@ class State:
     def __str__(self):
         return f"{self.state}"
 
-
-class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
+class MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(object):
 
     def __init__(self, terrain_matrix, policy_file, joint_rewards):
 
@@ -71,8 +69,9 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
         self.RIGHT = 2
         self.UP = 3
         self.DOWN = 4
+        self.LISTEN = 5
 
-        self.ACTIONS = [self.STAY, self.LEFT, self.RIGHT, self.UP, self.DOWN]
+        self.ACTIONS = [self.STAY, self.LEFT, self.RIGHT, self.UP, self.DOWN, self.LISTEN]
         self.n_actions = len(self.ACTIONS)
 
         self.current_state = []
@@ -88,6 +87,8 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
 
         self.Q_table = dict()
         self.Q_tableTwo = dict()
+
+        self.number_boxes = 0
 
         self.create_policy()
         self.write_in_txt(policy_file)
@@ -130,12 +131,13 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
             state_obj = State(state)
             return np.argmax(self.Q2(state_obj))
 
-    def take_actions(self, state, map, action3, action4):
-        old_shappy3_pos = state[0]
-        old_shappy4_pos = state[1]
+    def take_actions(self, state_shappy3, action3, state_shappy4, action4, map):
+        old_shappy3_pos = state_shappy3[0]
+        old_shappy4_pos = state_shappy4[1]
 
-        def get_new_shappy_position(map, action3, action4):
+        def get_new_shappy_position(map, action3, state_shappy3, action4, state_shappy4):
             new_shappy3_pos = -1
+            shappy3_listen = state_shappy3[1]
             if action3 == self.STAY:
                 new_shappy3_pos = old_shappy3_pos
             elif action3 == self.LEFT:
@@ -158,10 +160,13 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
                     new_shappy3_pos = old_shappy3_pos
                 else:
                     new_shappy3_pos = [old_shappy3_pos[0] + 1, old_shappy3_pos[1]]
+            elif action3 == self.LISTEN:
+                new_shappy3_pos = old_shappy3_pos
             else:
                 raise ValueError(f"Unknown action {action3}")
 
             new_shappy4_pos = -1
+            shappy4_listen = state_shappy4[0]
             if action4 == self.STAY:
                 new_shappy4_pos = old_shappy4_pos
             elif action4 == self.LEFT:
@@ -184,13 +189,19 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
                     new_shappy4_pos = old_shappy4_pos
                 else:
                     new_shappy4_pos = [old_shappy4_pos[0] + 1, old_shappy4_pos[1]]
+            elif action4 == self.LISTEN:
+                new_shappy4_pos = old_shappy4_pos
             else:
                 raise ValueError(f"Unknown action {action4}")
 
-            return new_shappy3_pos, new_shappy4_pos
+            if action3 == self.LISTEN:
+                shappy3_listen = new_shappy4_pos
+            if action4 == self.LISTEN:
+                shappy4_listen = new_shappy3_pos
 
-        new_reward = 0
-        new_shappy3_pos, new_shappy4_pos = get_new_shappy_position(map, action3, action4)
+            return new_shappy3_pos, shappy3_listen, new_shappy4_pos, shappy4_listen
+
+        new_shappy3_pos, shappy3_listen, new_shappy4_pos, shappy4_listen = get_new_shappy_position(map, action3, state_shappy3, action4, state_shappy4)
 
         new_map = copy.deepcopy(map)
 
@@ -286,47 +297,45 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
             new_map[new_shappy3_pos[0]][new_shappy3_pos[1]] = self.SHAPPY3
             new_map[new_shappy4_pos[0]][new_shappy4_pos[1]] = self.SHAPPY4
 
-        new_state = []
+        self.current_state = []
         for i in range(len(new_map)):
             for j in range(len(new_map[i])):
                 if int(new_map[i][j]) == 7:
-                    new_state.append([i, j])
-                    new_state.append([i, j])
+                    self.current_state.append([i, j])
+                    self.current_state.append([i, j])
                     break
                 if int(new_map[i][j]) == 3:
-                    new_state.append([i, j])
+                    self.current_state.append([i, j])
                     break
         for i in range(len(new_map)):
             for j in range(len(new_map[i])):
                 if int(new_map[i][j]) == 4:
-                    new_state.append([i, j])
+                    self.current_state.append([i, j])
                     break
         for i in range(len(new_map)):
             for j in range(len(new_map[i])):
                 if int(new_map[i][j]) == 2:
-                    new_state.append([i, j])
+                    self.current_state.append([i, j])
 
-        return new_state, new_map, new_reward3, new_reward4
+        new_shappy3_state = copy.copy(self.current_state)
+        new_shappy3_state[1] = shappy3_listen
+        new_shappy4_state = copy.copy(self.current_state)
+        new_shappy4_state[0] = shappy4_listen
 
-    def learn2(self, state, action3, action4, reward, new_state):
-        state_obj = State(state)
-        new_state_obj = State(new_state)
+        return new_shappy3_state, new_shappy4_state, new_map, new_reward3, new_reward4
 
-        self.Q(state_obj)[action3] = self.Q(state_obj, action3) + self.learning_rate * \
-                                (reward + self.gamma * np.max(self.Q(new_state_obj)) - self.Q(state_obj, action3))
+    def learn(self, old_state3, new_state3, action3, old_state4, new_state4, action4, reward3, reward4):
+        old_state3_obj = State(old_state3)
+        new_state3_obj = State(new_state3)
 
-        self.Q2(state_obj)[action4] = self.Q2(state_obj, action4) + self.learning_rate * \
-                                (reward + self.gamma * np.max(self.Q2(new_state_obj)) - self.Q2(state_obj, action4))
+        old_state4_obj = State(old_state4)
+        new_state4_obj = State(new_state4)
 
-    def learn(self, old_state, new_state, action3, action4, reward3, reward4):
-        old_state_obj = State(old_state)
-        new_state_obj = State(new_state)
+        self.Q(old_state3_obj)[action3] = self.Q(old_state3_obj, action3) + self.learning_rate * \
+                                (reward3 + self.gamma * np.max(self.Q(new_state3_obj)) - self.Q(old_state3_obj, action3))
 
-        self.Q(old_state_obj)[action3] = self.Q(old_state_obj, action3) + self.learning_rate * \
-                                (reward3 + self.gamma * np.max(self.Q(new_state_obj)) - self.Q(old_state_obj, action3))
-
-        self.Q2(old_state_obj)[action4] = self.Q2(old_state_obj, action4) + self.learning_rate * \
-                                (reward4 + self.gamma * np.max(self.Q2(new_state_obj)) - self.Q2(old_state_obj, action4))
+        self.Q2(old_state4_obj)[action4] = self.Q2(old_state4_obj, action4) + self.learning_rate * \
+                                (reward4 + self.gamma * np.max(self.Q2(new_state4_obj)) - self.Q2(old_state4_obj, action4))
 
     def create_stating_states(self):
         existing_starting_states = [self.start_state]
@@ -411,16 +420,18 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
         starting_states, starting_maps = self.create_stating_states()
 
         # TRAIN
-        rewards = []
         for i_state in range(len(starting_states)):
             for episode in range(total_episodes):
                 self.current_state = starting_states[i_state]
                 self.current_map = starting_maps[i_state]
 
+                shappy3_state = copy.copy(self.current_state)
+                shappy3_state[1] = [-1, -1]
+                shappy4_state = copy.copy(self.current_state)
+                shappy4_state[0] = [-1, -1]
+
                 # print("State ", i_state, "/", len(starting_states)-1, " Episode ", episode, "/", total_episodes)
                 print((episode * 100) / total_episodes, "%")
-
-                episode_rewards = []
 
                 while True:
                     if len(self.current_state) == 2:
@@ -428,18 +439,17 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
 
                     self.number_boxes = self.current_number_of_boxes(self.current_map)
 
-                    action3 = self.choose_actions(self.current_state)
+                    action3 = self.choose_actions(shappy3_state)
 
-                    action4 = self.choose_actions2(self.current_state)
+                    action4 = self.choose_actions2(shappy4_state)
 
-                    new_state, new_map, reward3, reward4 = self.take_actions(self.current_state, self.current_map, action3, action4)
+                    new_shappy3_state, new_shappy4_state, new_map, reward3, reward4 = self.take_actions(shappy3_state, action3, shappy4_state, action4, self.current_map)
 
-                    # self.learn(self.current_state, action3, action4, reward, new_state)
-                    self.learn(self.current_state, new_state, action3, action4, reward3, reward4)
+                    self.learn(shappy3_state, new_shappy3_state, action3, shappy4_state, new_shappy4_state, action4, reward3, reward4)
 
-                    episode_rewards.append(reward3)
+                    shappy3_state = new_shappy3_state
+                    shappy4_state = new_shappy4_state
 
-                    self.current_state = new_state
                     self.current_map = new_map
 
                 # if episode == 100:
@@ -469,6 +479,23 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
                 # elif episode == 8000:
                 #     self.epsilon = 0.01
 
+                # if self.epsilon > self.min_epsilon:
+                #     self.epsilon -= (self.epsilon/total_episodes) * 5
+                # else:
+                #     self.epsilon = self.min_epsilon
+
+                if episode == int(total_episodes/20):
+                    self.epsilon = 0.5
+                elif episode == int(total_episodes/10):
+                    self.epsilon = 0.3
+                elif episode == int(total_episodes/5):
+                    self.epsilon = 0.1
+                elif episode == int(total_episodes - (total_episodes/10)):
+                    self.epsilon = 0.01
+
+                # elif episode == int(total_episodes - (total_episodes/100)):
+                #     self.epsilon = 0
+
                 # if episode == 800:
                 #     self.epsilon = 0.5
                 # elif episode == 1400:
@@ -478,39 +505,45 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
                 # elif episode == 8000:
                 #     self.epsilon = 0.01
 
-                if episode == int(total_episodes/20):
-                    self.epsilon = 0.5
-                    # print("                                        " , self.epsilon)
-                elif episode == int(total_episodes/10):
-                    self.epsilon = 0.3
-                    # print("                                        " , self.epsilon)
-                elif episode == int(total_episodes/5):
-                    self.epsilon = 0.1
-                    # print("                                        " , self.epsilon)
-                elif episode == int(total_episodes - (total_episodes/10)):
-                    self.epsilon = 0.01
-                    # print("                                        ", self.epsilon)
-                # elif episode == int(total_episodes - (total_episodes / 100)):
-                #     self.epsilon = 0
-
-                # if episode == 4000:
+                # if episode == 1000:
                 #     self.epsilon = 0.5
-                # elif episode == 9000:
+                # elif episode == 5000:
                 #      self.epsilon = 0.3
                 # elif episode == 20000:
                 #      self.epsilon = 0.1
-                # elif episode == 990000:
+                # elif episode == 99000:
                 #     self.epsilon = 0.01
+                # elif episode == 99900:
+                #     self.epsilon = 0
 
-                rewards.append(np.mean(episode_rewards))
+                # if episode == 10000:
+                #     self.epsilon = 0.5
+                # elif episode == 50000:
+                #      self.epsilon = 0.3
+                # elif episode == 200000:
+                #      self.epsilon = 0.1
+                # elif episode == 9000000:
+                #     self.epsilon = 0.01
+                # elif episode == 9990000:
+                #     self.epsilon = 0
 
     def write_in_txt(self, policy_file):
         new_Q_table = []
         for line in self.Q_table:
             new_Q_table.append([line.state, self.Q(line)])
+
         new_Q_table2 = []
         for line in self.Q_tableTwo:
             new_Q_table2.append([line.state, self.Q2(line)])
+
+        # quit()
+        # for line in new_Q_table:
+        #     print("3", line)
+        # print()
+        # for line in new_Q_table2:
+        #     print("4", line)
+        # print()
+        # quit()
 
         with open(policy_file, "wb") as fp:  # pickling
             pickle.dump((new_Q_table, new_Q_table2), fp)

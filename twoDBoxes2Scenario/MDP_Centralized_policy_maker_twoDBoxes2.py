@@ -358,13 +358,13 @@ class MDP_Centralized_policy_maker_twoDBoxes2(object):
         if self.joint_rewards:
             if map[new_shappy3_pos[0]][new_shappy3_pos[1]] == self.BOX or map[new_shappy4_pos[0]][
                                                                               new_shappy4_pos[1]] == self.BOX:
-                new_reward += 10
+                new_reward += 100
         # # Split Rewards
         # else:
         #     if map[new_shappy3_pos[0]][new_shappy3_pos[1]] == self.BOX:
-        #         new_reward += 10
+        #         new_reward += 100
         #     if map[new_shappy4_pos[0]][new_shappy4_pos[1]] == self.BOX:
-        #         new_reward4 += 10
+        #         new_reward4 += 100
 
         if not self.compare_arrays(new_shappy3_pos, old_shappy3_pos):
             new_reward -= 1
@@ -550,7 +550,7 @@ class MDP_Centralized_policy_maker_twoDBoxes2(object):
                 self.current_map = starting_maps[i_state]
 
                 # print("State ", i_state, "/", len(starting_states) - 1, " Episode ", episode, "/", total_episodes)
-                print((episode*100)/total_episodes)
+                print((episode * 100) / total_episodes, "%")
 
                 episode_rewards = []
 
@@ -629,10 +629,6 @@ class MDP_Centralized_policy_maker_twoDBoxes2(object):
         new_Q_table = []
         for line in self.Q_table:
             new_Q_table.append([line.state, self.Q(line)])
-
-        for line in new_Q_table:
-            print(line)
-        quit()
 
         with open(policy_file, "wb") as fp:  # Unpickling
             pickle.dump(new_Q_table, fp)

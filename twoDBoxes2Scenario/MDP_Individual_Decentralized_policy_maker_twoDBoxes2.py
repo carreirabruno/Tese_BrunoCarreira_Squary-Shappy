@@ -204,15 +204,15 @@ class MDP_Individual_Decentralized_policy_maker_twoDBoxes2(object):
         # # Joint Rewards
         if self.joint_rewards:
             if map[new_shappy3_pos[0]][new_shappy3_pos[1]] == self.BOX or map[new_shappy4_pos[0]][new_shappy4_pos[1]] == self.BOX:
-                new_reward3 += 10
-                new_reward4 += 10
+                new_reward3 += 100
+                new_reward4 += 100
 
         # # Split Rewards
         else:
             if map[new_shappy3_pos[0]][new_shappy3_pos[1]] == self.BOX:
-                new_reward3 += 10
+                new_reward3 += 100
             if map[new_shappy4_pos[0]][new_shappy4_pos[1]] == self.BOX:
-                new_reward4 += 10
+                new_reward4 += 100
 
         if not self.compare_arrays(new_shappy3_pos, old_shappy3_pos):
             new_reward3 -= 1
@@ -354,7 +354,7 @@ class MDP_Individual_Decentralized_policy_maker_twoDBoxes2(object):
                 shappy4_state.remove(shappy4_state[0])
 
                 # print("State ", i_state, "/", len(starting_states), " Episode ", episode, "/", total_episodes)
-                print((episode*100)/total_episodes)
+                print((episode * 100) / total_episodes, "%")
 
                 episode_rewards = []
 

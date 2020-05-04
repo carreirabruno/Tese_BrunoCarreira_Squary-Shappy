@@ -4,7 +4,7 @@ from twoDBoxes2Scenario.MDP_Centralized_policy_maker_twoDBoxes2 import *
 from twoDBoxes2Scenario.MDP_Individual_Decentralized_policy_maker_twoDBoxes2 import *
 from twoDBoxes2Scenario.MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2 import *
 from twoDBoxes2Scenario.MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2 import *
-from twoDBoxes2Scenario.Heatmap_twoDBoxes2 import *
+from twoDBoxes2Scenario.Analyser_twoDBoxes2 import *
 from twoDBoxes2Scenario.World_twoDBoxes2 import *
 from twoDBoxes2Scenario.Terrain_twoDBoxes2 import *
 import winsound
@@ -65,17 +65,17 @@ def main():
     # create world
     # world = World_twoDBoxes2(terrain1, centralized_policy_map1_file)
     # world = World_twoDBoxes2(terrain1, individual_decentralized_split_rewards_policy_map1_file)
-    world = World_twoDBoxes2(terrain1, peer_aware_decentralized_split_rewards_policy_map1_file)
+    # world = World_twoDBoxes2(terrain1, peer_aware_decentralized_split_rewards_policy_map1_file)
     # world = World_twoDBoxes2(terrain1, peer_listen_decentralized_split_rewards_policy_map1_file)
 
     # world = World_twoDBoxes2(terrain2, centralized_policy_map2_file)
     # world = World_twoDBoxes2(terrain2, individual_decentralized_split_rewards_policy_map2_file)
     # world = World_twoDBoxes2(terrain2, peer_aware_decentralized_split_rewards_policy_map2_file)
-    # world = World_twoDBoxes2(terrain2, peer_listen_decentralized_split_rewards_policy_map2_file)
+    world = World_twoDBoxes2(terrain2, peer_listen_decentralized_split_rewards_policy_map2_file)
     
     # world = World_twoDBoxes2(terrain3, centralized_policy_map3_file)
     # world = World_twoDBoxes2(terrain3, individual_decentralized_split_rewards_policy_map3_file)
-    # world = World_twoDBoxes2(terrain2, peer_aware_decentralized_split_rewards_policy_map3_file)
+    # world = World_twoDBoxes2(terrain3, peer_aware_decentralized_split_rewards_policy_map3_file)
     # world = World_twoDBoxes2(terrain3, peer_listen_decentralized_split_rewards_policy_map3_file)
 
     world.render()
@@ -105,7 +105,9 @@ def main():
                         shappy.auto = not shappy.auto
                         shappy.calculate = True
 
-    # heatmap = Heatmap_twoDBoxes2(terrain3.matrix, run_states)
+    analyser_map1 = Analyser_twoDBoxes2(terrain1.matrix, run_states)
+    # analyser_map2 = Analyser_twoDBoxes2(terrain2.matrix, run_states)
+    # analyser_map3 = Analyser_twoDBoxes2(terrain3.matrix, run_states)
 
 
 if __name__ == "__main__":

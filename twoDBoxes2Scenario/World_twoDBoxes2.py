@@ -117,17 +117,17 @@ class World_twoDBoxes2(object):
                 if self.terrain.matrix[line][column] == 3:
                     shappy = Shappy_twoDBoxes2(column * self.screen_ratio, line * self.screen_ratio, self, 3,
                                                self.current_map, self.screen_width, self.screen_height,
-                                               False, self.policy, self.type_of_policy, self.current_state)
+                                               True, self.policy, self.type_of_policy, self.current_state)
                     self.shappy_group.add(shappy)
                 if self.terrain.matrix[line][column] == 4:
                     if self.type_of_policy != "centralized":
                         shappy = Shappy_twoDBoxes2(column * self.screen_ratio, line * self.screen_ratio, self, 4,
                                                    self.current_map, self.screen_width, self.screen_height,
-                                                   False, self.policy2, self.type_of_policy, self.current_state)
+                                                   True, self.policy2, self.type_of_policy, self.current_state)
                     else:
                         shappy = Shappy_twoDBoxes2(column * self.screen_ratio, line * self.screen_ratio, self, 4,
                                                    self.current_map, self.screen_width, self.screen_height,
-                                                   False, self.policy, self.type_of_policy, self.current_state)
+                                                   True, self.policy, self.type_of_policy, self.current_state)
                     self.shappy_group.add(shappy)
 
         self.initial_number_of_boxes = len(self.box_group)
@@ -171,7 +171,7 @@ class World_twoDBoxes2(object):
                 self.box_group.remove(box)
 
     def update(self):
-        if time.time() - self.time_interval > 1:
+        if time.time() - self.time_interval > 0.2:
             self.blue_communicated = False
             self.red_communicated = False
             self.time_interval = time.time()
@@ -253,22 +253,29 @@ class World_twoDBoxes2(object):
                 if self.current_map[i][j] == 3 or self.current_map[i][j] == 4:
                     self.current_map[i][j] = 0
 
-        if self.compare_arrays(shappy3_state[0], shappy4_state[1]):
-            self.current_map[shappy3_state[0][0]][shappy3_state[0][1]] = 7
+        if self.type_of_policy == "individual_decentralized":
+            if self.compare_arrays(shappy3_state[0], shappy4_state[0]):
+                self.current_map[shappy3_state[0][0]][shappy3_state[0][1]] = 7
+            else:
+                self.current_map[shappy3_state[0][0]][shappy3_state[0][1]] = 3
+                self.current_map[shappy4_state[0][0]][shappy4_state[0][1]] = 4
         else:
-            self.current_map[shappy3_state[0][0]][shappy3_state[0][1]] = 3
-            self.current_map[shappy4_state[1][0]][shappy4_state[1][1]] = 4
+            if self.compare_arrays(shappy3_state[0], shappy4_state[1]):
+                self.current_map[shappy3_state[0][0]][shappy3_state[0][1]] = 7
+            else:
+                self.current_map[shappy3_state[0][0]][shappy3_state[0][1]] = 3
+                self.current_map[shappy4_state[1][0]][shappy4_state[1][1]] = 4
 
         for i in range(min_range, len(self.current_state)):
             self.current_map[self.current_state[i][0]][self.current_state[i][1]] = 2
 
     def message_blue(self, message):
         self.blue_communicated = True
-        self.blue_message = "My pos: " + message
+        self.blue_message = message
 
     def message_red(self, message):
         self.red_communicated = True
-        self.red_message = "My pos: " + message
+        self.red_message = message
 
     def compare_arrays(self, array1, array2):
         if len(array1) != len(array2):

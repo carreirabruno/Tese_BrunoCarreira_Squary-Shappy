@@ -552,7 +552,7 @@ class MDP_Centralized_policy_maker_twoDBoxes2(object):
                 x = random.randint(1, 8)
                 y = random.randint(1, 8)
                 for item in occupied_list:
-                    if self.compare_arrays(item, [x, y]):
+                    if self.compare_arrays(item, [x, y]) or self.start_map[x][y] == 1:
                         equal = True
                         break
                     else:

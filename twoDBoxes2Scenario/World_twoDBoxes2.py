@@ -171,7 +171,7 @@ class World_twoDBoxes2(object):
                 self.box_group.remove(box)
 
     def update(self):
-        if time.time() - self.time_interval > 0.2:
+        if time.time() - self.time_interval > 1:
             self.blue_communicated = False
             self.red_communicated = False
             self.time_interval = time.time()

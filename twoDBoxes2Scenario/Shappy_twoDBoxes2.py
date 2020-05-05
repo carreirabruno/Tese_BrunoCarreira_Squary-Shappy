@@ -71,6 +71,11 @@ class Shappy_twoDBoxes2(pygame.sprite.Sprite):
 
         self.I_Know = False
 
+        # if self.color == 4:
+        #     for item in self.policy:
+        #         print(self.color, item[0], np.argmax(item[1]))
+        #     quit()
+
     def update(self, current_state):
         self.current_state = copy.deepcopy(current_state)
         if not self.auto:
@@ -183,6 +188,7 @@ class Shappy_twoDBoxes2(pygame.sprite.Sprite):
         self.I_Know = True
         if self.color == 3:
             self.world.message_blue("I know")
+
         elif self.color == 4:
             self.world.message_red("I know")
         # print(self.color, "Communicated")
@@ -293,6 +299,7 @@ class Shappy_twoDBoxes2(pygame.sprite.Sprite):
             elif self.color == 4 and not self.I_Know:
                 self.current_state[0] = [-1, -1]
                 # quit()
+
 
             actions = -1
             for state in self.policy:

@@ -35,14 +35,14 @@ class World_oneDBoxes2(object):
         self.get_policy(policy_file)
 
         print(self.type_of_policy)
-
-        for line in self.policy:
-            print("3 - ", line)
-        print()
-
-        for line in self.policy2:
-            print("4 - ", line)
-        print()
+        #
+        # for line in self.policy:
+        #     print("3 - ", line)
+        # print()
+        #
+        # for line in self.policy2:
+        #     print("4 - ", line)
+        # print()
 
         self.screen_width = len(self.terrain.matrix[0]) * self.screen_ratio
         self.screen_height = len(self.terrain.matrix) * self.screen_ratio

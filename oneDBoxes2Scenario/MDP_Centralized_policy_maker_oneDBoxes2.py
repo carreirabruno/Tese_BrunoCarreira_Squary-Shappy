@@ -198,11 +198,11 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
         #     if new_second_shappy_pos != old_second_shappy_pos:
         #         new_reward += -1
         if map[new_first_shappy_pos] == self.BOX:
-            new_reward += 10
+            new_reward += 20
         if new_first_shappy_pos != old_first_shappy_pos:
             new_reward -= 1
         if map[new_second_shappy_pos] == self.BOX and new_first_shappy_pos != new_second_shappy_pos:
-            new_reward += 10
+            new_reward += 20
         if new_second_shappy_pos != old_second_shappy_pos:
             new_reward -= 1
 
@@ -348,9 +348,57 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
 
         return existing_starting_states, existing_starting_maps
 
+    def create_random_initial_states(self):
+        random.seed()
+        occupied_list = copy.deepcopy(self.start_state)
+        occupied_list.pop(0)
+        occupied_list.pop(0)
+
+        new_positions = []
+
+        x = -1
+        y = 7
+        for i in range(2):
+            equal = True
+            while equal:
+                random.seed()
+                x = random.randint(1, 8)
+                for item in occupied_list:
+                    if item == x or self.start_map[x] == 1:
+                        equal = True
+                        break
+                    else:
+                        equal = False
+
+            new_positions.append(x)
+            occupied_list.append(x)
+
+
+
+        if new_positions[0] < new_positions[1]:
+            shappy3_new_pos = new_positions[0]
+            shappy4_new_pos = new_positions[1]
+        else:
+            shappy3_new_pos = new_positions[1]
+            shappy4_new_pos = new_positions[0]
+
+        new_state = copy.deepcopy(self.start_state)
+        new_state[0] = shappy3_new_pos
+        new_state[1] = shappy4_new_pos
+
+        new_map = copy.deepcopy(self.start_map)
+
+        new_map[self.start_state[0]] = 0
+        new_map[self.start_state[1]] = 0
+
+        new_map[new_state[0]] = 3
+        new_map[new_state[1]] = 4
+
+        return new_state, new_map
+
     def create_policy(self):
 
-        total_episodes = 100000
+        total_episodes = 200000
 
 #        starting_states, starting_maps = self.create_stating_states()
         starting_states = [self.start_state]
@@ -362,8 +410,9 @@ class MDP_Centralized_policy_maker_oneDBoxes2(object):
 
             for episode in range(total_episodes):
 
-                self.current_state = starting_states[i_state]
-                self.current_map = starting_maps[i_state]
+                # self.current_state = starting_states[i_state]
+                # self.current_map = starting_maps[i_state]
+                self.current_state, self.current_map = self.create_random_initial_states()
 
                 print("State ", i_state, "/", len(starting_states)-1, " Episode ", episode, "/", total_episodes)
 

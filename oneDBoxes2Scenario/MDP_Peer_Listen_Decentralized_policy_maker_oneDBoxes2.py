@@ -192,27 +192,31 @@ class MDP_Peer_Listen_Decentralized_policy_maker_oneDBoxes2(object):
         # # Criar as rewards
         new_reward3 = 0
         new_reward4 = 0
+
         # # Joint Rewards
         if self.joint_rewards:
+            # if map[new_shappy3_pos] == self.BOX and new_shappy3_pos != new_shappy4_pos:
+            #     new_reward3 += 10
+            #     new_reward4 += 10
+            #
+            # if map[new_shappy4_pos] == self.BOX and new_shappy3_pos != new_shappy4_pos:
+            #     new_reward3 += 10
+            #     new_reward4 += 10
             if map[new_shappy3_pos] == self.BOX or map[new_shappy4_pos] == self.BOX:
-                new_reward3 += 10
-                new_reward4 += 10
-
-            if new_shappy3_pos != old_shappy3_pos:
-                new_reward3 -= 1
-            if new_shappy4_pos != old_shappy4_pos:
-                new_reward4 -= 1
+                new_reward3 += 20
+                new_reward4 += 20
 
         # # Split Rewards
         else:
             if map[new_shappy3_pos] == self.BOX:
-                new_reward3 += 10
-            if old_shappy3_pos != new_shappy3_pos:
-                new_reward3 += -1
+                new_reward3 += 20
             if map[new_shappy4_pos] == self.BOX:
-                new_reward4 += 10
-            if old_shappy4_pos != new_shappy4_pos:
-                new_reward4 += -1
+                new_reward4 += 20
+
+        if new_shappy3_pos != old_shappy3_pos:
+            new_reward3 -= 1
+        if new_shappy4_pos != old_shappy4_pos:
+            new_reward4 -= 1
 
 
         if old_shappy4_pos == new_shappy4_pos and old_shappy3_pos == old_shappy4_pos \
@@ -397,7 +401,7 @@ class MDP_Peer_Listen_Decentralized_policy_maker_oneDBoxes2(object):
 
         return existing_starting_states, existing_starting_maps
 
-    def create_random_initial_state(self):
+    def create_random_initial_state2(self):
         temp_state = self.start_state
         temp_map = self.start_map
         counter = 0
@@ -425,9 +429,57 @@ class MDP_Peer_Listen_Decentralized_policy_maker_oneDBoxes2(object):
 
         return temp_state, temp_map
 
+    def create_random_initial_states(self):
+        random.seed()
+        occupied_list = copy.deepcopy(self.start_state)
+        occupied_list.pop(0)
+        occupied_list.pop(0)
+
+        new_positions = []
+
+        x = -1
+        y = 7
+        for i in range(2):
+            equal = True
+            while equal:
+                random.seed()
+                x = random.randint(1, 8)
+                for item in occupied_list:
+                    if item == x or self.start_map[x] == 1:
+                        equal = True
+                        break
+                    else:
+                        equal = False
+
+            new_positions.append(x)
+            occupied_list.append(x)
+
+
+
+        if new_positions[0] < new_positions[1]:
+            shappy3_new_pos = new_positions[0]
+            shappy4_new_pos = new_positions[1]
+        else:
+            shappy3_new_pos = new_positions[1]
+            shappy4_new_pos = new_positions[0]
+
+        new_state = copy.deepcopy(self.start_state)
+        new_state[0] = shappy3_new_pos
+        new_state[1] = shappy4_new_pos
+
+        new_map = copy.deepcopy(self.start_map)
+
+        new_map[self.start_state[0]] = 0
+        new_map[self.start_state[1]] = 0
+
+        new_map[new_state[0]] = 3
+        new_map[new_state[1]] = 4
+
+        return new_state, new_map
+
     def create_policy(self):
 
-        total_episodes = 100000
+        total_episodes = 200000
 
         starting_states, starting_maps = self.create_stating_states()
 
@@ -435,8 +487,9 @@ class MDP_Peer_Listen_Decentralized_policy_maker_oneDBoxes2(object):
         rewards = []
         for i_state in range(len(starting_states)):
             for episode in range(total_episodes):
-                self.current_state = starting_states[i_state]
-                self.current_map = starting_maps[i_state]
+                # self.current_state = starting_states[i_state]
+                # self.current_map = starting_maps[i_state]
+                self.current_state, self.current_map = self.create_random_initial_states()
 
                 shappy3_state = copy.copy(self.current_state)
                 shappy3_state[1] = -1
@@ -512,8 +565,8 @@ class MDP_Peer_Listen_Decentralized_policy_maker_oneDBoxes2(object):
                 elif episode == int(total_episodes - (total_episodes/10)):
                     self.epsilon = 0.01
                     # print("                                        ", self.epsilon)
-                elif episode == int(total_episodes - (total_episodes/100)):
-                    self.epsilon = 0
+                # elif episode == int(total_episodes - (total_episodes/100)):
+                #     self.epsilon = 0
 
                 # if episode == 800:
                 #     self.epsilon = 0.5
@@ -574,3 +627,12 @@ class MDP_Peer_Listen_Decentralized_policy_maker_oneDBoxes2(object):
             if item == 2:
                 counter += 1
         return counter
+
+    def compare_arrays(self, array1, array2):
+        if len(array1) != len(array2):
+            return False
+        else:
+            for i in range(len(array1)):
+                if array1[i] != array2[i]:
+                    return False
+        return True

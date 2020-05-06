@@ -215,25 +215,20 @@ class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
             #     new_reward3 += 10
             #     new_reward4 += 10
             if map[new_shappy3_pos] == self.BOX or map[new_shappy4_pos] == self.BOX:
-                new_reward3 += 10
-                new_reward4 += 10
-
-            if new_shappy3_pos != old_shappy3_pos:
-                new_reward3 -= 1
-            if new_shappy4_pos != old_shappy4_pos:
-                new_reward4 -= 1
+                new_reward3 += 20
+                new_reward4 += 20
 
         # # Split Rewards
         else:
             if map[new_shappy3_pos] == self.BOX:
-                new_reward3 += 10
-            if old_shappy3_pos != new_shappy3_pos:
-                new_reward3 += -1
+                new_reward3 += 20
             if map[new_shappy4_pos] == self.BOX:
-                new_reward4 += 10
-            if old_shappy4_pos != new_shappy4_pos:
-                new_reward4 += -1
+                new_reward4 += 20
 
+        if new_shappy3_pos != old_shappy3_pos:
+            new_reward3 -= 1
+        if new_shappy4_pos != old_shappy4_pos:
+            new_reward4 -= 1
 
 
         # Só mexe o 1 - Mesmo sitio -> Separados
@@ -424,9 +419,57 @@ class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
 
         return existing_starting_states, existing_starting_maps
 
+    def create_random_initial_states(self):
+        random.seed()
+        occupied_list = copy.deepcopy(self.start_state)
+        occupied_list.pop(0)
+        occupied_list.pop(0)
+
+        new_positions = []
+
+        x = -1
+        y = 7
+        for i in range(2):
+            equal = True
+            while equal:
+                random.seed()
+                x = random.randint(1, 8)
+                for item in occupied_list:
+                    if item == x or self.start_map[x] == 1:
+                        equal = True
+                        break
+                    else:
+                        equal = False
+
+            new_positions.append(x)
+            occupied_list.append(x)
+
+
+
+        if new_positions[0] < new_positions[1]:
+            shappy3_new_pos = new_positions[0]
+            shappy4_new_pos = new_positions[1]
+        else:
+            shappy3_new_pos = new_positions[1]
+            shappy4_new_pos = new_positions[0]
+
+        new_state = copy.deepcopy(self.start_state)
+        new_state[0] = shappy3_new_pos
+        new_state[1] = shappy4_new_pos
+
+        new_map = copy.deepcopy(self.start_map)
+
+        new_map[self.start_state[0]] = 0
+        new_map[self.start_state[1]] = 0
+
+        new_map[new_state[0]] = 3
+        new_map[new_state[1]] = 4
+
+        return new_state, new_map
+
     def create_policy(self):
 
-        total_episodes = 100000
+        total_episodes = 200000
 
         starting_states, starting_maps = self.create_stating_states()
 
@@ -434,8 +477,9 @@ class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
         rewards = []
         for i_state in range(len(starting_states)):
             for episode in range(total_episodes):
-                self.current_state = starting_states[i_state]
-                self.current_map = starting_maps[i_state]
+                # self.current_state = starting_states[i_state]
+                # self.current_map = starting_maps[i_state]
+                self.current_state, self.current_map = self.create_random_initial_states()
 
                 print("State ", i_state, "/", len(starting_states)-1, " Episode ", episode, "/", total_episodes)
 
@@ -509,8 +553,8 @@ class MDP_Peer_Aware_Decentralized_policy_maker_oneDBoxes2(object):
                 elif episode == int(total_episodes - (total_episodes/10)):
                     self.epsilon = 0.01
                     # print("                                        ", self.epsilon)
-                elif episode == int(total_episodes - (total_episodes / 100)):
-                    self.epsilon = 0
+                # elif episode == int(total_episodes - (total_episodes / 100)):
+                #     self.epsilon = 0
 
                 # if episode == 4000:
                 #     self.epsilon = 0.5

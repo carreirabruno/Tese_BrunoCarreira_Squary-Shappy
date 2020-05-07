@@ -10,6 +10,16 @@ class Comparator_oneDBoxes2(object):
             if 3 in line:
                 self.map = line
 
+        self.start_state = []
+        for i in range(len(self.map)):
+            if self.map[i] == 3:
+                self.start_state.append(i)
+            if self.map[i] == 4:
+                self.start_state.append(i)
+        for i in range(len(self.map)):
+            if self.map[i] == 2:
+                self.start_state.append(i)
+
         self.map_policies = map_policies
 
         # #Combined Actions
@@ -35,7 +45,8 @@ class Comparator_oneDBoxes2(object):
         # self.get_global_matrices_policies()
         # self.compare_global_policies_matrices()
 
-        self.optimal_matrices = []
+        self.optimal_matrices_states = []
+        self.optimal_matrices_actions = []
         self.get_optimal_matrices_policies()
         self.compare_optimal_policies_matrices()
 
@@ -316,15 +327,19 @@ class Comparator_oneDBoxes2(object):
                 policy_type = "individual_decentralized"
             elif policy_type == "peer_aware_decentralized_split_rewards" or policy_type == "peer_aware_decentralized_joint_rewards":
                 policy_type = "peer_aware_decentralized"
+            elif policy_type == "peer_listen_decentralized_split_rewards" or policy_type == "peer_listen_decentralized_joint_rewards":
+                policy_type = "peer_listen_decentralized"
             elif policy_type == "peer_communication_decentralized_split_rewards" or policy_type == "peer_communication_decentralized_joint_rewards":
                 policy_type = "peer_communication_decentralized"
 
+
+            state_array = [self.start_state]
             if policy_type == "centralized":
                 fp = open(policy_file, "rb")  # Unpickling
                 policy = pickle.load(fp)
                 fp.close()
 
-                current_state = policy[0][0]
+                current_state = self.start_state
                 matrix = []
                 while len(current_state) > 2:
                     old_state = copy.copy(current_state)
@@ -373,6 +388,8 @@ class Comparator_oneDBoxes2(object):
 
                             current_state = new_state
 
+                            state_array.append(current_state)
+
                             break
 
             else:
@@ -383,12 +400,13 @@ class Comparator_oneDBoxes2(object):
                 matrix = []
 
                 if policy_type == "individual_decentralized":
-                    current_state3 = policy3[0][0]
-                    current_state4 = policy4[0][0]
-                    current_state = [current_state3[0]]
-                    for item in current_state4:
-                        current_state.append(item)
+                    current_state3 = self.start_state
+                    current_state4 = self.start_state
+                    current_state = self.start_state
+                    # for item in current_state4:
+                    #     current_state.append(item)
                     matrix = []
+
                     while len(current_state) > 2:
                         old_state = copy.copy(current_state)
                         current_state3 = copy.copy(current_state)
@@ -413,11 +431,13 @@ class Comparator_oneDBoxes2(object):
                                 elif old_state[1] == 8 and action4 == 2:
                                     action4 = 0
                                 current_state = new_state
+                                state_array.append(current_state)
                                 matrix.append([action3, action4])
                                 break
 
                 elif policy_type == "peer_aware_decentralized":
-                    current_state = policy3[0][0]
+                    # current_state = policy3[0][0]
+                    current_state = self.start_state
                     matrix = []
                     while len(current_state) > 2:
                         old_state = copy.copy(current_state)
@@ -439,6 +459,56 @@ class Comparator_oneDBoxes2(object):
                                 elif old_state[1] == 8 and action4 == 2:
                                     action4 = 0
                                 current_state = new_state
+                                state_array.append(current_state)
+                                matrix.append([action3, action4])
+                                break
+
+                elif policy_type == "peer_listen_decentralized":
+                    # current_state3 = copy.copy(policy3[0][0])
+                    # current_state4 = copy.copy(policy4[0][0])
+                    # current_state = copy.copy(current_state3)
+                    # current_state[1] = current_state4[1]
+
+                    current_state3 = self.start_state
+                    current_state4 = self.start_state
+                    current_state = self.start_state
+
+                    matrix = []
+                    self.shappy3_knows = False
+                    self.shappy4_knows = False
+                    while len(current_state) > 2:
+                        old_state = copy.copy(current_state)
+                        current_state3 = copy.copy(current_state)
+                        if not self.shappy3_knows:
+                            current_state3[1] = -1
+
+                        current_state4 = copy.copy(current_state)
+                        if not self.shappy4_knows:
+                            current_state4[0] = -1
+
+                        action3 = -1
+                        for item in policy3:
+                            if self.compare_arrays(item[0], current_state3):
+                                action3 = np.argmax(item[1])
+                        for item in policy4:
+                            if self.compare_arrays(item[0], current_state4):
+                                action4 = np.argmax(item[1])
+                                new_state = self.update_state(current_state, action3, action4, True)
+
+                                if old_state[0] == 1 and action3 == 1:
+                                    action3 = 0
+                                elif old_state[0] == 8 and action3 == 2:
+                                    action3 = 0
+                                if old_state[1] == 1 and action4 == 1:
+                                    action4 = 0
+                                elif old_state[1] == 8 and action4 == 2:
+                                    action4 = 0
+                                if action3 == 3:
+                                    action3 = 0
+                                if action4 == 3:
+                                    action4 = 0
+                                current_state = new_state
+                                state_array.append(current_state)
                                 matrix.append([action3, action4])
                                 break
 
@@ -486,9 +556,8 @@ class Comparator_oneDBoxes2(object):
                                 matrix.append([action3, action4])
                                 break
 
-
-
-            self.optimal_matrices.append(matrix)
+            self.optimal_matrices_actions.append(matrix)
+            self.optimal_matrices_states.append(state_array)
 
     def compare_optimal_policies_matrices2(self):
         for i in range(len(self.optimal_matrices)):
@@ -498,21 +567,29 @@ class Comparator_oneDBoxes2(object):
             print()
 
     def compare_optimal_policies_matrices(self):
-        for i in range(len(self.optimal_matrices)):
-            for line in self.optimal_matrices[i]:
-                print(line)
-            for j in range(len(self.optimal_matrices)):
-                score = self.compare_matrices_items_in_order(self.optimal_matrices[i], self.optimal_matrices[j])
+        # for line in self.optimal_matrices_states:
+        #     print(line)
+        # print()
+        # for line in self.optimal_matrices_actions:
+        #     print(line)
+        # quit()
+
+        for i in range(len(self.optimal_matrices_actions)):
+            # for line in self.optimal_matrices[i]:
+            print(self.map_policies[i])
+            for j in range(len(self.optimal_matrices_actions)):
+                score = self.compare_individual_actions(self.optimal_matrices_actions[i], self.optimal_matrices_actions[j])
+                # score = self.compare_matrices_items_in_order(self.optimal_matrices_actions[i], self.optimal_matrices_actions[j])
                 print(score, "  ", self.map_policies[i], self.map_policies[j])
             print()
 
     def update_state(self, current_state, action3, action4, communication):
         if communication:
             if action3 == 4:
-                self.shappy4_knows = True
+                self.shappy3_knows = True
                 action3 = 0
             if action4 == 4:
-                self.shappy3_knows = True
+                self.shappy4_knows = True
                 action4 = 0
 
         new_state = copy.copy(current_state)
@@ -550,3 +627,25 @@ class Comparator_oneDBoxes2(object):
         #     quit()
 
         return new_state
+
+    def compare_individual_actions(self, action_array1, action_array2):
+        if len(action_array1) > len(action_array2):
+            temp = copy.copy(action_array1)
+            action_array1 = copy.copy(action_array2)
+            action_array2 = copy.copy(temp)
+
+
+        score = 0
+        for i in range(len(action_array1)):
+            if action_array1[i][0] == action_array2[i][0]:
+                score += 0.5
+            if action_array1[i][1] == action_array2[i][1]:
+                score += 0.5
+        # print(action_array1, action_array2)
+        # print(score)
+        if len(action_array1) != 0:
+            score_percentage = (score * 1) / len(action_array1)
+        else:
+            score_percentage = 0
+        # print(score_percentage)
+        return score_percentage

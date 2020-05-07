@@ -42,24 +42,27 @@ def main():
     peer_communication_decentralized_joint_rewards_policy_map3_file = "oneDBoxes2_MDP_peer_communication_decentralized_joint_rewards_policy_map3.pickle"
     peer_communication_decentralized_split_rewards_policy_map3_file = "oneDBoxes2_MDP_peer_communication_decentralized_split_rewards_policy_map3.pickle"
 
-    policies_map1 = [centralized_policy_map1_file, individual_decentralized_joint_rewards_policy_map1_file,
+    policies_map1 = [centralized_policy_map1_file, # individual_decentralized_joint_rewards_policy_map1_file,
                      individual_decentralized_split_rewards_policy_map1_file,
-                     peer_aware_decentralized_joint_rewards_policy_map1_file,
+                     # peer_aware_decentralized_joint_rewards_policy_map1_file,
                      peer_aware_decentralized_split_rewards_policy_map1_file,
-                     peer_communication_decentralized_joint_rewards_policy_map1_file,
-                     peer_communication_decentralized_split_rewards_policy_map1_file]
-    policies_map2 = [centralized_policy_map2_file, individual_decentralized_joint_rewards_policy_map2_file,
+                     # peer_communication_decentralized_joint_rewards_policy_map1_file,
+                     # peer_communication_decentralized_split_rewards_policy_map1_file]
+                     peer_listen_decentralized_split_rewards_policy_map1_file]
+    policies_map2 = [centralized_policy_map2_file, # individual_decentralized_joint_rewards_policy_map2_file,
                      individual_decentralized_split_rewards_policy_map2_file,
-                     peer_aware_decentralized_joint_rewards_policy_map2_file,
+                     # peer_aware_decentralized_joint_rewards_policy_map2_file,
                      peer_aware_decentralized_split_rewards_policy_map2_file,
-                     peer_communication_decentralized_joint_rewards_policy_map2_file,
-                     peer_communication_decentralized_split_rewards_policy_map2_file]
-    policies_map3 = [centralized_policy_map3_file, individual_decentralized_joint_rewards_policy_map3_file,
+                     # peer_communication_decentralized_joint_rewards_policy_map2_file,
+                     # peer_communication_decentralized_split_rewards_policy_map2_file]
+                     peer_listen_decentralized_split_rewards_policy_map2_file]
+    policies_map3 = [centralized_policy_map3_file, # individual_decentralized_joint_rewards_policy_map3_file,
                      individual_decentralized_split_rewards_policy_map3_file,
-                     peer_aware_decentralized_joint_rewards_policy_map3_file,
+                     # peer_aware_decentralized_joint_rewards_policy_map3_file,
                      peer_aware_decentralized_split_rewards_policy_map3_file,
-                     peer_communication_decentralized_joint_rewards_policy_map3_file,
-                     peer_communication_decentralized_split_rewards_policy_map3_file]
+                     # peer_communication_decentralized_joint_rewards_policy_map3_file,
+                     # peer_communication_decentralized_split_rewards_policy_map3_file]
+                     peer_listen_decentralized_split_rewards_policy_map3_file]
 
     terrain1 = Terrain_oneDBoxes2("oneDBoxes2_map1.txt")
     terrain2 = Terrain_oneDBoxes2("oneDBoxes2_map2.txt")
@@ -69,6 +72,7 @@ def main():
     # comparator_map1 = Comparator_oneDBoxes2(terrain1.matrix, policies_map1)
     # print("MAP2")
     # comparator_map2 = Comparator_oneDBoxes2(terrain2.matrix, policies_map2)
+    # quit()
     # print("MAP3")
     # comparator_map3 = Comparator_oneDBoxes2(terrain3.matrix, policies_map3)
     # quit()
@@ -135,7 +139,7 @@ def main():
     # world = World_oneDBoxes2(terrain1, peer_aware_decentralized_joint_rewards_policy_map1_file)
     # world = World_oneDBoxes2(terrain1, peer_aware_decentralized_split_rewards_policy_map1_file)
     # world = World_oneDBoxes2(terrain1, peer_listen_decentralized_joint_rewards_policy_map1_file)
-    world = World_oneDBoxes2(terrain1, peer_listen_decentralized_split_rewards_policy_map1_file)
+    # world = World_oneDBoxes2(terrain1, peer_listen_decentralized_split_rewards_policy_map1_file)
     # world = World_oneDBoxes2(terrain1, peer_communication_decentralized_joint_rewards_policy_map1_file)
     # world = World_oneDBoxes2(terrain1, peer_communication_decentralized_split_rewards_policy_map1_file)
 
@@ -146,7 +150,7 @@ def main():
     # world = World_oneDBoxes2(terrain2, peer_aware_decentralized_joint_rewards_policy_map2_file)
     # world = World_oneDBoxes2(terrain2, peer_aware_decentralized_split_rewards_policy_map2_file)
     # world = World_oneDBoxes2(terrain2, peer_listen_decentralized_joint_rewards_policy_map2_file)
-    # world = World_oneDBoxes2(terrain2, peer_listen_decentralized_split_rewards_policy_map2_file)
+    world = World_oneDBoxes2(terrain2, peer_listen_decentralized_split_rewards_policy_map2_file)
     # world = World_oneDBoxes2(terrain2, peer_communication_decentralized_joint_rewards_policy_map2_file)
     # world = World_oneDBoxes2(terrain2, peer_communication_decentralized_split_rewards_policy_map2_file)
 

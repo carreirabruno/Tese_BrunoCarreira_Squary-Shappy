@@ -46,13 +46,13 @@ class Analyser_oneDBoxes2(object):
             policy_type = policy_type.replace("_policy_map2.pickle", "")
             policy_type = policy_type.replace("_policy_map3.pickle", "")
 
-            if policy_type == "peer_aware_decentralized" or policy_type == "peer_communication_decentralized":
+            if policy_type == "centralized":
                 fp = open(policy_file, "rb")  # Unpickling
-                policy, policy2 = pickle.load(fp)
+                policy = pickle.load(fp)
                 fp.close()
             else:
                 fp = open(policy_file, "rb")  # Unpickling
-                policy = pickle.load(fp)
+                policy, policy2 = pickle.load(fp)
                 fp.close()
 
             self.map_type = filename.replace(policy_type+"_policy_", "")
@@ -246,7 +246,7 @@ class Analyser_oneDBoxes2(object):
         # float(x - minX) * float(100 - 0) / (maxX - minX)
 
         for item in data:
-            scaled_zero_to_ten = (item[3] * 100) / sum_equal_moves
+            scaled_zero_to_ten = (item[3] * 1) / sum_equal_moves
             item[3] = scaled_zero_to_ten
 
         self.write_in_txt(data)

@@ -5,6 +5,9 @@ import copy
 import math
 import pickle
 from itertools import *
+import time
+import pandas as pd
+import matplotlib.pyplot as plt
 
 class State:
 
@@ -89,7 +92,6 @@ class MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(object):
         self.Q_tableTwo = dict()
 
         self.number_boxes = 0
-
         self.create_policy()
         self.write_in_txt(policy_file)
 
@@ -413,17 +415,73 @@ class MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(object):
 
         return existing_starting_states, existing_starting_maps
 
-    def create_policy(self):
+    def create_random_initial_states(self):
+        random.seed()
+        occupied_list = copy.deepcopy(self.start_state)
+        occupied_list.pop(0)
+        occupied_list.pop(0)
 
+        new_positions = []
+
+        x = -1
+        y = -1
+        for i in range(2):
+            equal = True
+            while equal:
+                random.seed()
+                x = random.randint(1, 8)
+                y = random.randint(1, 8)
+                for item in occupied_list:
+                    if self.compare_arrays(item, [x, y]) or self.start_map[x][y] == 1:
+                        equal = True
+                        break
+                    else:
+                        equal = False
+
+            new_positions.append([x, y])
+            occupied_list.append([x, y])
+
+        if new_positions[0][0] < new_positions[1][0] or (new_positions[0][0] == new_positions[1][0] and
+                                                         new_positions[0][1] < new_positions[1][1]):
+            shappy3_new_pos = new_positions[0]
+            shappy4_new_pos = new_positions[1]
+        else:
+            shappy3_new_pos = new_positions[1]
+            shappy4_new_pos = new_positions[0]
+
+        new_state = copy.deepcopy(self.start_state)
+        new_state[0] = shappy3_new_pos
+        new_state[1] = shappy4_new_pos
+
+        new_map = copy.deepcopy(self.start_map)
+
+        new_map[self.start_state[0][0]][self.start_state[0][1]] = 0
+        new_map[self.start_state[1][0]][self.start_state[1][1]] = 0
+
+        new_map[new_state[0][0]][new_state[0][1]] = 3
+        new_map[new_state[1][0]][new_state[1][1]] = 4
+
+        # for line in self.start_map:
+        #     print(line)
+        # print()
+        #
+        # for line in new_map:
+        #     print(line)
+        # quit()
+
+        return new_state, new_map
+
+    def create_policy(self):
         total_episodes = 100000
 
         starting_states, starting_maps = self.create_stating_states()
-
+        time_array = []
         # TRAIN
         for i_state in range(len(starting_states)):
             for episode in range(total_episodes):
-                self.current_state = starting_states[i_state]
-                self.current_map = starting_maps[i_state]
+                # self.current_state = starting_states[i_state]
+                # self.current_map = starting_maps[i_state]
+                self.current_state, self.current_map = self.create_random_initial_states()
 
                 shappy3_state = copy.copy(self.current_state)
                 shappy3_state[1] = [-1, -1]
@@ -432,9 +490,10 @@ class MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(object):
 
                 # print("State ", i_state, "/", len(starting_states)-1, " Episode ", episode, "/", total_episodes)
                 print((episode * 100) / total_episodes, "%")
-
+                start_time = time.time()
                 while True:
                     if len(self.current_state) == 2:
+                        time_array.append(time.time() - start_time)
                         break
 
                     self.number_boxes = self.current_number_of_boxes(self.current_map)
@@ -526,6 +585,7 @@ class MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(object):
                 #     self.epsilon = 0.01
                 # elif episode == 9990000:
                 #     self.epsilon = 0
+        self.plot_an_array(time_array)
 
     def write_in_txt(self, policy_file):
         new_Q_table = []
@@ -564,3 +624,7 @@ class MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(object):
                 if array1[i] != array2[i]:
                     return False
         return True
+
+    def plot_an_array(self, array):
+        plt.plot(array)
+        plt.show()

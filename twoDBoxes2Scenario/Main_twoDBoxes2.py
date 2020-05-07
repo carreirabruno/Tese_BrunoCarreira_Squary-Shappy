@@ -12,7 +12,7 @@ import winsound
 
 def main():
 
-    centralized_policy_map1_file = "twoDBoxes2_MDP_centralized_policy_map1_v2.pickle"
+    centralized_policy_map1_file = "twoDBoxes2_MDP_centralized_policy_map1.pickle"
     individual_decentralized_split_rewards_policy_map1_file = "twoDBoxes2_MDP_individual_decentralized_split_rewards_policy_map1.pickle"
     peer_aware_decentralized_split_rewards_policy_map1_file = "twoDBoxes2_MDP_peer_aware_decentralized_split_rewards_policy_map1.pickle"
     peer_listen_decentralized_split_rewards_policy_map1_file = "twoDBoxes2_MDP_peer_listen_decentralized_split_rewards_policy_map1.pickle"
@@ -27,16 +27,15 @@ def main():
     peer_aware_decentralized_split_rewards_policy_map3_file = "twoDBoxes2_MDP_peer_aware_decentralized_split_rewards_policy_map3.pickle"
     peer_listen_decentralized_split_rewards_policy_map3_file = "twoDBoxes2_MDP_peer_listen_decentralized_split_rewards_policy_map3.pickle"
 
-
     terrain1 = Terrain_twoDBoxes2("twoDBoxes2_map1.txt")
     terrain2 = Terrain_twoDBoxes2("twoDBoxes2_map2.txt")
     terrain3 = Terrain_twoDBoxes2("twoDBoxes2_map3.txt")
 
     # create the policy
-    centralized_policy_maker_map1 = MDP_Centralized_policy_maker_twoDBoxes2(terrain1.matrix, centralized_policy_map1_file, True)
+    # centralized_policy_maker_map1 = MDP_Centralized_policy_maker_twoDBoxes2(terrain1.matrix, centralized_policy_map1_file, True)
     # individual_decentralized_policy_maker_map1 = MDP_Individual_Decentralized_policy_maker_twoDBoxes2(terrain1.matrix, individual_decentralized_split_rewards_policy_map1_file, False)
     # peer_aware_decentralized_policy_maker_map1 = MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(terrain1.matrix, peer_aware_decentralized_split_rewards_policy_map1_file, False)
-    # peer_listen_decentralized_policy_maker_map1 = MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(terrain1.matrix, peer_listen_decentralized_split_rewards_policy_map1_file, False)
+    peer_listen_decentralized_policy_maker_map1 = MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(terrain1.matrix, peer_listen_decentralized_split_rewards_policy_map1_file, False)
 
     # centralized_policy_maker_map2 = MDP_Centralized_policy_maker_twoDBoxes2(terrain2.matrix, centralized_policy_map2_file, True)
     # individual_decentralized_policy_maker_map2 = MDP_Individual_Decentralized_policy_maker_twoDBoxes2(terrain2.matrix, individual_decentralized_split_rewards_policy_map2_file, False)
@@ -48,7 +47,7 @@ def main():
     # peer_aware_decentralized_policy_maker_map3 = MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(terrain3.matrix, peer_aware_decentralized_split_rewards_policy_map3_file, False)
     # peer_listen_decentralized_policy_maker_map3 = MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(terrain3.matrix, peer_listen_decentralized_split_rewards_policy_map3_file, False)
 
-    # quit()
+    quit()
 
     scenario1_policies = [centralized_policy_map1_file, individual_decentralized_split_rewards_policy_map1_file, peer_aware_decentralized_split_rewards_policy_map1_file, peer_listen_decentralized_split_rewards_policy_map1_file]
     scenario2_policies = [centralized_policy_map2_file, individual_decentralized_split_rewards_policy_map2_file, peer_aware_decentralized_split_rewards_policy_map2_file, peer_listen_decentralized_split_rewards_policy_map2_file]
@@ -68,10 +67,10 @@ def main():
     os.environ['SDL_VIDEO_CENTERED'] = '0'
 
     # create world
-    world = World_twoDBoxes2(terrain1, centralized_policy_map1_file)
+    # world = World_twoDBoxes2(terrain1, centralized_policy_map1_file)
     # world = World_twoDBoxes2(terrain1, individual_decentralized_split_rewards_policy_map1_file)
     # world = World_twoDBoxes2(terrain1, peer_aware_decentralized_split_rewards_policy_map1_file)
-    # world = World_twoDBoxes2(terrain1, peer_listen_decentralized_split_rewards_policy_map1_file)
+    world = World_twoDBoxes2(terrain1, peer_listen_decentralized_split_rewards_policy_map1_file)
 
     # world = World_twoDBoxes2(terrain2, centralized_policy_map2_file)
     # world = World_twoDBoxes2(terrain2, individual_decentralized_split_rewards_policy_map2_file)

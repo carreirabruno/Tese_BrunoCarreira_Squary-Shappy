@@ -83,7 +83,7 @@ class MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(object):
         self.gamma = 0.9
         self.learning_rate = 0.1  # alpha
 
-        self.max_epsilon = 0.9
+        self.max_epsilon = 0.1
         self.min_epsilon = 0.01
         self.epsilon = self.max_epsilon
         self.decay_rate = 0.001
@@ -543,14 +543,14 @@ class MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(object):
                 # else:
                 #     self.epsilon = self.min_epsilon
 
-                if episode == int(total_episodes/20):
-                    self.epsilon = 0.5
-                elif episode == int(total_episodes/10):
-                    self.epsilon = 0.3
-                elif episode == int(total_episodes/5):
-                    self.epsilon = 0.1
-                elif episode == int(total_episodes - (total_episodes/10)):
-                    self.epsilon = 0.01
+                # if episode == int(total_episodes/20):
+                #     self.epsilon = 0.5
+                # elif episode == int(total_episodes/10):
+                #     self.epsilon = 0.3
+                # elif episode == int(total_episodes/5):
+                #     self.epsilon = 0.1
+                # elif episode == int(total_episodes - (total_episodes/10)):
+                #     self.epsilon = 0.01
 
                 # elif episode == int(total_episodes - (total_episodes/100)):
                 #     self.epsilon = 0

@@ -27,6 +27,8 @@ class MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(object):
 
     def __init__(self, terrain_matrix, policy_file, joint_rewards):
 
+        # self.plot_an_array(None)
+        # quit()
         self.start_map = []
         for line in terrain_matrix:
             temp_array = []
@@ -632,5 +634,5 @@ class MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(object):
         return True
 
     def plot_an_array(self, array):
-        plt.plot(array)
+        plt.plot(array, 'o', color='black')
         plt.show()

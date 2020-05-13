@@ -621,7 +621,7 @@ class MDP_Centralized_policy_maker_twoDBoxes2(object):
                 step_count = 0
                 while True:
                     if len(self.current_state) == 2 or step_count == 64:
-                        time_array.append(time.time() - start_time)
+                        # time_array.append(time.time() - start_time)
                         step_array.append(step_count)
                         break
 
@@ -719,5 +719,5 @@ class MDP_Centralized_policy_maker_twoDBoxes2(object):
         return True
 
     def plot_an_array(self, array):
-        plt.plot(array, ',', color='black')
+        plt.plot(array, '.', color='black')
         plt.show()

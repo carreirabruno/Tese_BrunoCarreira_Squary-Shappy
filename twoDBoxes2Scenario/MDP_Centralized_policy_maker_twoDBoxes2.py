@@ -5,6 +5,7 @@ import copy
 import math
 import pickle
 from itertools import *
+import time
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -613,6 +614,8 @@ class MDP_Centralized_policy_maker_twoDBoxes2(object):
                 print((episode * 100) / total_episodes, "%")
 
                 episode_rewards = []
+
+                start_time = time.time()
 
                 step_count = 0
                 while True:

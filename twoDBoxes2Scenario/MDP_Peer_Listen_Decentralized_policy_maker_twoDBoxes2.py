@@ -477,6 +477,8 @@ class MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(object):
         total_episodes = 100000
 
         starting_states, starting_maps = self.create_stating_states()
+
+        step_array = []
         time_array = []
 
         # TRAIN
@@ -499,7 +501,8 @@ class MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(object):
                 start_time = time.time()
                 while True:
                     if len(self.current_state) == 2 or step_count == 64:
-                        time_array.append(time.time() - start_time)
+                        # time_array.append(time.time() - start_time)
+                        step_array.append(step_count)
                         break
 
                     self.number_boxes = self.current_number_of_boxes(self.current_map)
@@ -593,8 +596,9 @@ class MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(object):
                 #     self.epsilon = 0.01
                 # elif episode == 9990000:
                 #     self.epsilon = 0
-        self.plot_an_array(time_array)
-
+        # self.plot_an_array(time_array)
+        self.plot_an_array(step_array)
+        
     def write_in_txt(self, policy_file):
         new_Q_table = []
         for line in self.Q_table:

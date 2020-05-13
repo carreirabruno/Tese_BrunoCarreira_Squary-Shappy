@@ -601,6 +601,7 @@ class MDP_Centralized_policy_maker_twoDBoxes2(object):
         starting_states = [self.start_state]
         starting_maps = [self.start_map]
 
+        step_array = []
         time_array = []
         # TRAIN
         for i_state in range(len(starting_states)):
@@ -621,6 +622,7 @@ class MDP_Centralized_policy_maker_twoDBoxes2(object):
                 while True:
                     if len(self.current_state) == 2 or step_count == 64:
                         time_array.append(time.time() - start_time)
+                        step_array.append(step_count)
                         break
 
                     self.number_boxes = self.current_number_of_boxes(self.current_map)
@@ -688,7 +690,8 @@ class MDP_Centralized_policy_maker_twoDBoxes2(object):
                     self.epsilon = 0.01
                     # print("                                        ", self.epsilon)
 
-        self.plot_an_array(time_array)
+        # self.plot_an_array(time_array)
+        self.plot_an_array(step_array)
 
     def write_in_txt(self, policy_file):
         new_Q_table = []

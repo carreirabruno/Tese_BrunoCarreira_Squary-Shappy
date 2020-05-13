@@ -5,6 +5,8 @@ import copy
 import math
 import pickle
 from itertools import *
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
 class State:
@@ -597,8 +599,9 @@ class MDP_Centralized_policy_maker_twoDBoxes2(object):
 
         starting_states = [self.start_state]
         starting_maps = [self.start_map]
+
+        time_array = []
         # TRAIN
-        rewards = []
         for i_state in range(len(starting_states)):
             for episode in range(total_episodes):
 
@@ -614,6 +617,7 @@ class MDP_Centralized_policy_maker_twoDBoxes2(object):
                 step_count = 0
                 while True:
                     if len(self.current_state) == 2 or step_count == 64:
+                        time_array.append(time.time() - start_time)
                         break
 
                     self.number_boxes = self.current_number_of_boxes(self.current_map)
@@ -681,7 +685,7 @@ class MDP_Centralized_policy_maker_twoDBoxes2(object):
                     self.epsilon = 0.01
                     # print("                                        ", self.epsilon)
 
-                rewards.append(np.mean(episode_rewards))
+        self.plot_an_array(time_array)
 
     def write_in_txt(self, policy_file):
         new_Q_table = []
@@ -707,3 +711,7 @@ class MDP_Centralized_policy_maker_twoDBoxes2(object):
                 if array1[i] != array2[i]:
                     return False
         return True
+
+    def plot_an_array(self, array):
+        plt.plot(array, 'o', color='black')
+        plt.show()

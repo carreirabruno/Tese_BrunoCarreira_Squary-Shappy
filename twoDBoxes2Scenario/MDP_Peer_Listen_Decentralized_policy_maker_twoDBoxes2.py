@@ -638,5 +638,5 @@ class MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(object):
         return True
 
     def plot_an_array(self, array):
-        plt.plot(array, 'o', color='black')
+        plt.plot(array, '.', color='black')
         plt.show()

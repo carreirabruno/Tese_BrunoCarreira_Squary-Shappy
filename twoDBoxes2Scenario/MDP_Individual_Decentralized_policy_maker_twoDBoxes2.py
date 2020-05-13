@@ -1,3 +1,4 @@
+import time
 import numpy as np
 from numpy import savetxt
 import random
@@ -5,6 +6,8 @@ import copy
 import math
 import pickle
 from itertools import *
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
 class State:
@@ -81,7 +84,7 @@ class MDP_Individual_Decentralized_policy_maker_twoDBoxes2(object):
         self.gamma = 0.9
         self.learning_rate = 0.1  # alpha
 
-        self.max_epsilon = 0.9
+        self.max_epsilon = 0.1
         self.min_epsilon = 0.01
         self.epsilon = self.max_epsilon
         self.decay_rate = 0.001
@@ -341,6 +344,9 @@ class MDP_Individual_Decentralized_policy_maker_twoDBoxes2(object):
 
         starting_states, starting_maps = self.create_stating_states()
 
+        step_array = []
+        time_array = []
+
         # TRAIN
         rewards = []
         for i_state in range(len(starting_states)):
@@ -357,9 +363,14 @@ class MDP_Individual_Decentralized_policy_maker_twoDBoxes2(object):
                 print((episode * 100) / total_episodes, "%")
 
                 episode_rewards = []
+                step_count = 0
+
+                start_time = time.time()
 
                 while True:
-                    if len(shappy3_state) == 1 and len(shappy4_state) == 1:
+                    if len(shappy3_state) == 1 and len(shappy4_state) == 1 or step_count == 64:
+                        # time_array.append(time.time() - start_time)
+                        step_array.append(step_count)
                         break
 
                     # self.number_boxes = self.current_number_of_boxes(self.current_map)
@@ -378,6 +389,8 @@ class MDP_Individual_Decentralized_policy_maker_twoDBoxes2(object):
                     shappy4_state = new_shappy4_state
 
                     self.current_map = new_map
+
+                    step_count += 1
 
                 # if episode == 100:
                 #     self.epsilon = 0.5
@@ -415,17 +428,17 @@ class MDP_Individual_Decentralized_policy_maker_twoDBoxes2(object):
                 # elif episode == 8000:
                 #     self.epsilon = 0.01
 
-                if episode == int(total_episodes / 20):
-                    self.epsilon = 0.5
-                    # print("                                        " , self.epsilon)
-                elif episode == int(total_episodes / 10):
-                    self.epsilon = 0.3
-                    # print("                                        " , self.epsilon)
-                elif episode == int(total_episodes / 5):
-                    self.epsilon = 0.1
-                    # print("                                        " , self.epsilon)
-                elif episode == int(total_episodes - (total_episodes / 10)):
-                    self.epsilon = 0.01
+                # if episode == int(total_episodes / 20):
+                #     self.epsilon = 0.5
+                #     # print("                                        " , self.epsilon)
+                # elif episode == int(total_episodes / 10):
+                #     self.epsilon = 0.3
+                #     # print("                                        " , self.epsilon)
+                # elif episode == int(total_episodes / 5):
+                #     self.epsilon = 0.1
+                #     # print("                                        " , self.epsilon)
+                # elif episode == int(total_episodes - (total_episodes / 10)):
+                #     self.epsilon = 0.01
                     # print("                                        ", self.epsilon)
                 # elif episode == int(total_episodes - (total_episodes / 100)):
                 #     self.epsilon = 0
@@ -440,6 +453,9 @@ class MDP_Individual_Decentralized_policy_maker_twoDBoxes2(object):
                 #     self.epsilon = 0.01
 
                 rewards.append(np.mean(episode_rewards))
+
+        # self.plot_an_array(time_array)
+        self.plot_an_array(step_array)
 
     def write_in_txt(self, policy_file):
         new_Q_table = []
@@ -469,3 +485,8 @@ class MDP_Individual_Decentralized_policy_maker_twoDBoxes2(object):
                 if array1[i] != array2[i]:
                     return False
         return True
+
+    def plot_an_array(self, array):
+        plt.plot(array, '.', color='black')
+        plt.show()
+

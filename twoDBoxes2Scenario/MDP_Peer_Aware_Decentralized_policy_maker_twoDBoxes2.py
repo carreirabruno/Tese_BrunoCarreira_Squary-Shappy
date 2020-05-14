@@ -5,6 +5,9 @@ import copy
 import math
 import pickle
 from itertools import *
+import time
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
 class State:
@@ -81,7 +84,7 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
         self.gamma = 0.9
         self.learning_rate = 0.1  # alpha
 
-        self.max_epsilon = 0.9
+        self.max_epsilon = 0.1
         self.min_epsilon = 0.01
         self.epsilon = self.max_epsilon
         self.decay_rate = 0.001
@@ -404,26 +407,91 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
 
         return existing_starting_states, existing_starting_maps
 
+    def create_random_initial_states(self):
+        random.seed()
+        occupied_list = copy.deepcopy(self.start_state)
+        occupied_list.pop(0)
+        occupied_list.pop(0)
+
+        new_positions = []
+
+        x = -1
+        y = -1
+        for i in range(2):
+            equal = True
+            while equal:
+                random.seed()
+                x = random.randint(1, 8)
+                y = random.randint(1, 8)
+                for item in occupied_list:
+                    if self.compare_arrays(item, [x, y]) or self.start_map[x][y] == 1:
+                        equal = True
+                        break
+                    else:
+                        equal = False
+
+            new_positions.append([x, y])
+            occupied_list.append([x, y])
+
+        if new_positions[0][0] < new_positions[1][0] or (new_positions[0][0] == new_positions[1][0] and
+                                                         new_positions[0][1] < new_positions[1][1]):
+            shappy3_new_pos = new_positions[0]
+            shappy4_new_pos = new_positions[1]
+        else:
+            shappy3_new_pos = new_positions[1]
+            shappy4_new_pos = new_positions[0]
+
+        new_state = copy.deepcopy(self.start_state)
+        new_state[0] = shappy3_new_pos
+        new_state[1] = shappy4_new_pos
+
+        new_map = copy.deepcopy(self.start_map)
+
+        new_map[self.start_state[0][0]][self.start_state[0][1]] = 0
+        new_map[self.start_state[1][0]][self.start_state[1][1]] = 0
+
+        new_map[new_state[0][0]][new_state[0][1]] = 3
+        new_map[new_state[1][0]][new_state[1][1]] = 4
+
+        # for line in self.start_map:
+        #     print(line)
+        # print()
+        #
+        # for line in new_map:
+        #     print(line)
+        # quit()
+
+        return new_state, new_map
+
     def create_policy(self):
 
         total_episodes = 100000
 
         starting_states, starting_maps = self.create_stating_states()
 
+        step_array = []
+        time_array = []
+
         # TRAIN
         rewards = []
         for i_state in range(len(starting_states)):
             for episode in range(total_episodes):
-                self.current_state = starting_states[i_state]
-                self.current_map = starting_maps[i_state]
+                # self.current_state = starting_states[i_state]
+                # self.current_map = starting_maps[i_state]
+                self.current_state, self.current_map = self.create_random_initial_states()
 
                 # print("State ", i_state, "/", len(starting_states)-1, " Episode ", episode, "/", total_episodes)
                 print((episode * 100) / total_episodes, "%")
 
                 episode_rewards = []
+                step_count = 0
+
+                start_time = time.time()
 
                 while True:
-                    if len(self.current_state) == 2:
+                    if len(self.current_state) == 2 or step_count == 64:
+                        # time_array.append(time.time() - start_time)
+                        step_array.append(step_count)
                         break
 
                     self.number_boxes = self.current_number_of_boxes(self.current_map)
@@ -478,17 +546,17 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
                 # elif episode == 8000:
                 #     self.epsilon = 0.01
 
-                if episode == int(total_episodes/20):
-                    self.epsilon = 0.5
-                    # print("                                        " , self.epsilon)
-                elif episode == int(total_episodes/10):
-                    self.epsilon = 0.3
-                    # print("                                        " , self.epsilon)
-                elif episode == int(total_episodes/5):
-                    self.epsilon = 0.1
-                    # print("                                        " , self.epsilon)
-                elif episode == int(total_episodes - (total_episodes/10)):
-                    self.epsilon = 0.01
+                # if episode == int(total_episodes/20):
+                #     self.epsilon = 0.5
+                #     # print("                                        " , self.epsilon)
+                # elif episode == int(total_episodes/10):
+                #     self.epsilon = 0.3
+                #     # print("                                        " , self.epsilon)
+                # elif episode == int(total_episodes/5):
+                #     self.epsilon = 0.1
+                #     # print("                                        " , self.epsilon)
+                # elif episode == int(total_episodes - (total_episodes/10)):
+                #     self.epsilon = 0.01
                     # print("                                        ", self.epsilon)
                 # elif episode == int(total_episodes - (total_episodes / 100)):
                 #     self.epsilon = 0
@@ -503,6 +571,9 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
                 #     self.epsilon = 0.01
 
                 rewards.append(np.mean(episode_rewards))
+
+        # self.plot_an_array(time_array)
+        self.plot_an_array(step_array)
 
     def write_in_txt(self, policy_file):
         new_Q_table = []
@@ -531,3 +602,7 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
                 if array1[i] != array2[i]:
                     return False
         return True
+
+    def plot_an_array(self, array):
+        plt.plot(array, '.', color='black')
+        plt.show()

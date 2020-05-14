@@ -510,6 +510,8 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
                     self.current_state = new_state
                     self.current_map = new_map
 
+                    step_count += 1
+
                 # if episode == 100:
                 #     self.epsilon = 0.5
                 # elif episode == 300:

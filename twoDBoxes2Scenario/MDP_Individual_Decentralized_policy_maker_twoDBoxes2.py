@@ -425,7 +425,7 @@ class MDP_Individual_Decentralized_policy_maker_twoDBoxes2(object):
                 start_time = time.time()
 
                 while True:
-                    if len(shappy3_state) == 1 and len(shappy4_state) == 1 or step_count == 64:
+                    if (len(shappy3_state) == 1 and len(shappy4_state) == 1) or step_count == 64:
                         # time_array.append(time.time() - start_time)
                         step_array.append(step_count)
                         break

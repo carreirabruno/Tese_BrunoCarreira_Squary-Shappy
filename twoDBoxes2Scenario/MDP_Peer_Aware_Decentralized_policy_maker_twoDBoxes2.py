@@ -84,10 +84,10 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
         self.gamma = 0.9
         self.learning_rate = 0.1  # alpha
 
-        self.max_epsilon = 0.1
-        self.min_epsilon = 0.01
+        self.max_epsilon = 1
+        self.min_epsilon = 0.1
         self.epsilon = self.max_epsilon
-        self.decay_rate = 0.001
+        self.decay_rate = 0.0001
 
         self.Q_table = dict()
         self.Q_tableTwo = dict()
@@ -511,6 +511,9 @@ class MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(object):
                     self.current_map = new_map
 
                     step_count += 1
+
+                if self.epsilon > self.min_epsilon:
+                    self.epsilon -= self.decay_rate
 
                 # if episode == 100:
                 #     self.epsilon = 0.5

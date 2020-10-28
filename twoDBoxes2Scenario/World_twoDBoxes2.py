@@ -17,6 +17,8 @@ class World_twoDBoxes2(object):
 
         self.terrain = terrain
 
+        self.speed = 0.1
+
         temp_type = policy_file.replace("twoDBoxes2_MDP_", "")
         temp_type = temp_type.replace("_policy_map1.pickle", "")
         temp_type = temp_type.replace("_policy_map2.pickle", "")
@@ -147,8 +149,8 @@ class World_twoDBoxes2(object):
         self.box_group.draw(self.screen)
         self.wall_group.draw(self.screen)
 
-        score_rend = self.font.render("Score: " + str(self.score), 1, (255, 255, 255))
-        self.screen.blit(score_rend, (30, 0))
+        # score_rend = self.font.render("Score: " + str(self.score), 1, (255, 255, 255))
+        # self.screen.blit(score_rend, (30, 0))
 
         if self.show_automatic:
             automatic_rend = self.font.render("Automatic", 1, (255, 255, 255))
@@ -171,7 +173,7 @@ class World_twoDBoxes2(object):
                 self.box_group.remove(box)
 
     def update(self):
-        if time.time() - self.time_interval > 1:
+        if time.time() - self.time_interval > self.speed:
             self.blue_communicated = False
             self.red_communicated = False
             self.time_interval = time.time()

@@ -7,11 +7,11 @@ from twoDBoxes2Scenario.MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2 im
 from twoDBoxes2Scenario.Analyser_twoDBoxes2 import *
 from twoDBoxes2Scenario.World_twoDBoxes2 import *
 from twoDBoxes2Scenario.Terrain_twoDBoxes2 import *
+from twoDBoxes2Scenario.GraphMaker import *
 import winsound
 
 
 def main():
-
     centralized_policy_map1_file = "twoDBoxes2_MDP_centralized_policy_map1.pickle"
     individual_decentralized_split_rewards_policy_map1_file = "twoDBoxes2_MDP_individual_decentralized_split_rewards_policy_map1.pickle"
     peer_aware_decentralized_split_rewards_policy_map1_file = "twoDBoxes2_MDP_peer_aware_decentralized_split_rewards_policy_map1.pickle"
@@ -21,7 +21,7 @@ def main():
     individual_decentralized_split_rewards_policy_map2_file = "twoDBoxes2_MDP_individual_decentralized_split_rewards_policy_map2.pickle"
     peer_aware_decentralized_split_rewards_policy_map2_file = "twoDBoxes2_MDP_peer_aware_decentralized_split_rewards_policy_map2.pickle"
     peer_listen_decentralized_split_rewards_policy_map2_file = "twoDBoxes2_MDP_peer_listen_decentralized_split_rewards_policy_map2.pickle"
-    
+
     centralized_policy_map3_file = "twoDBoxes2_MDP_centralized_policy_map3.pickle"
     individual_decentralized_split_rewards_policy_map3_file = "twoDBoxes2_MDP_individual_decentralized_split_rewards_policy_map3.pickle"
     peer_aware_decentralized_split_rewards_policy_map3_file = "twoDBoxes2_MDP_peer_aware_decentralized_split_rewards_policy_map3.pickle"
@@ -34,15 +34,17 @@ def main():
     # create the policy
     # centralized_policy_maker_map1 = MDP_Centralized_policy_maker_twoDBoxes2(terrain1.matrix, centralized_policy_map1_file, True)
     # individual_decentralized_policy_maker_map1 = MDP_Individual_Decentralized_policy_maker_twoDBoxes2(terrain1.matrix, individual_decentralized_split_rewards_policy_map1_file, False)
-    peer_aware_decentralized_policy_maker_map1 = MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(terrain1.matrix, peer_aware_decentralized_split_rewards_policy_map1_file, False)
+    # peer_aware_decentralized_policy_maker_map1 = MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(terrain1.matrix, peer_aware_decentralized_split_rewards_policy_map1_file, False)
     # peer_listen_decentralized_policy_maker_map1 = MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(terrain1.matrix, peer_listen_decentralized_split_rewards_policy_map1_file, False)
 
-    quit()
+    # quit()
 
     # centralized_policy_maker_map2 = MDP_Centralized_policy_maker_twoDBoxes2(terrain2.matrix, centralized_policy_map2_file, True)
     # individual_decentralized_policy_maker_map2 = MDP_Individual_Decentralized_policy_maker_twoDBoxes2(terrain2.matrix, individual_decentralized_split_rewards_policy_map2_file, False)
-    # peer_aware_decentralized_policy_maker_map2 = MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(terrain2.matrix, peer_aware_decentralized_split_rewards_policy_map2_file, False)
+    # peer_aware_decentralized_policymaker_map2 = MDP_Peer_Aware_Decentralized_policy_maker_twoDBoxes2(terrain2.matrix, peer_aware_decentralized_split_rewards_policy_map2_file, False)
     # peer_listen_decentralized_policy_maker_map2 = MDP_Peer_Listen_Decentralized_policy_maker_twoDBoxes2(terrain2.matrix, peer_listen_decentralized_split_rewards_policy_map2_file, False)
+
+    # quit()
 
     # centralized_policy_maker_map3 = MDP_Centralized_policy_maker_twoDBoxes2(terrain3.matrix, centralized_policy_map3_file, True)
     # individual_decentralized_policy_maker_map3 = MDP_Individual_Decentralized_policy_maker_twoDBoxes2(terrain3.matrix, individual_decentralized_split_rewards_policy_map3_file, False)
@@ -51,10 +53,15 @@ def main():
 
     # quit()
 
-    scenario1_policies = [centralized_policy_map1_file, individual_decentralized_split_rewards_policy_map1_file, peer_aware_decentralized_split_rewards_policy_map1_file, peer_listen_decentralized_split_rewards_policy_map1_file]
-    scenario2_policies = [centralized_policy_map2_file, individual_decentralized_split_rewards_policy_map2_file, peer_aware_decentralized_split_rewards_policy_map2_file, peer_listen_decentralized_split_rewards_policy_map2_file]
-    scenario3_policies = [centralized_policy_map3_file, individual_decentralized_split_rewards_policy_map3_file, peer_aware_decentralized_split_rewards_policy_map3_file, peer_listen_decentralized_split_rewards_policy_map3_file]
-
+    scenario1_policies = [centralized_policy_map1_file, individual_decentralized_split_rewards_policy_map1_file,
+                          peer_aware_decentralized_split_rewards_policy_map1_file,
+                          peer_listen_decentralized_split_rewards_policy_map1_file]
+    scenario2_policies = [centralized_policy_map2_file, individual_decentralized_split_rewards_policy_map2_file,
+                          peer_aware_decentralized_split_rewards_policy_map2_file,
+                          peer_listen_decentralized_split_rewards_policy_map2_file]
+    scenario3_policies = [centralized_policy_map3_file, individual_decentralized_split_rewards_policy_map3_file,
+                          peer_aware_decentralized_split_rewards_policy_map3_file,
+                          peer_listen_decentralized_split_rewards_policy_map3_file]
 
     # define a variable to control the main loop
     running = True
@@ -71,14 +78,14 @@ def main():
     # create world
     # world = World_twoDBoxes2(terrain1, centralized_policy_map1_file)
     # world = World_twoDBoxes2(terrain1, individual_decentralized_split_rewards_policy_map1_file)
-    world = World_twoDBoxes2(terrain1, peer_aware_decentralized_split_rewards_policy_map1_file)
+    # world = World_twoDBoxes2(terrain1, peer_aware_decentralized_split_rewards_policy_map1_file)
     # world = World_twoDBoxes2(terrain1, peer_listen_decentralized_split_rewards_policy_map1_file)
 
-    # world = World_twoDBoxes2(terrain2, centralized_policy_map2_file)
+    world = World_twoDBoxes2(terrain2, centralized_policy_map2_file)
     # world = World_twoDBoxes2(terrain2, individual_decentralized_split_rewards_policy_map2_file)
     # world = World_twoDBoxes2(terrain2, peer_aware_decentralized_split_rewards_policy_map2_file)
     # world = World_twoDBoxes2(terrain2, peer_listen_decentralized_split_rewards_policy_map2_file)
-    
+
     # world = World_twoDBoxes2(terrain3, centralized_policy_map3_file)
     # world = World_twoDBoxes2(terrain3, individual_decentralized_split_rewards_policy_map3_file)
     # world = World_twoDBoxes2(terrain3, peer_aware_decentralized_split_rewards_policy_map3_file)
@@ -111,10 +118,24 @@ def main():
                         shappy.auto = not shappy.auto
                         shappy.calculate = True
 
-    # analyser_map1 = Analyser_twoDBoxes2(terrain1.matrix, run_states, scenario1_policies)
-    # analyser_map2 = Analyser_twoDBoxes2(terrain2.matrix, run_states, scenario2_policies)
-    # analyser_map3 = Analyser_twoDBoxes2(terrain3.matrix, run_states, scenario3_policies)
+                # analyser_map1 = Analyser_twoDBoxes2(terrain1.matrix, run_states, scenario1_policies)
+                # analyser_map2 = Analyser_twoDBoxes2(terrain2.matrix, run_states, scenario2_policies)
+                # analyser_map3 = Analyser_twoDBoxes2(terrain3.matrix, run_states, scenario3_policies)
 
+    analyser = Analyser_twoDBoxes2()
+    # Analyser_twoDBoxes2.write_shappys_movement(analyser, run_states, "map1_centralized_movement")
+    # Analyser_twoDBoxes2.write_shappys_movement(analyser, run_states, "map1_individual_movement")
+    # Analyser_twoDBoxes2.read_shappys_movement(analyser, "map1_centralized_movement", "map1_individual_movement")
+    
+    Analyser_twoDBoxes2.write_shappys_movement(analyser, run_states, "map2_centralized_movement")
+    # Analyser_twoDBoxes2.write_shappys_movement(analyser, run_states, "map2_individual_movement")
+    Analyser_twoDBoxes2.read_shappys_movement(analyser, "map2_centralized_movement", "map2_individual_movement")
+    
+    # Analyser_twoDBoxes2.write_shappys_movement(analyser, run_states, "map3_centralized_movement")
+    # Analyser_twoDBoxes2.write_shappys_movement(analyser, run_states, "map3_individual_movement")
+    # Analyser_twoDBoxes2.read_shappys_movement(analyser, "map3_centralized_movement", "map3_individual_movement")
+
+    makeHeatMapGraph(world.terrain.matrix, run_states)
 
 if __name__ == "__main__":
     # call the main function

@@ -86,8 +86,7 @@ class MDP_Individual_Decentralized_policy_maker_twoDBoxes2(object):
 
         self.max_epsilon = 0.1
         self.min_epsilon = 0.01
-        self.epsilon = self.max_epsilon
-        self.decay_rate = 0.001
+        self.epsilon = 1
 
         self.Q_table = dict()
         self.Q_tableTwo = dict()
@@ -510,6 +509,8 @@ class MDP_Individual_Decentralized_policy_maker_twoDBoxes2(object):
                 #     self.epsilon = 0.01
 
                 rewards.append(np.mean(episode_rewards))
+
+                self.epsilon -= 1 / total_episodes
 
         # self.plot_an_array(time_array)
         self.plot_an_array(step_array)

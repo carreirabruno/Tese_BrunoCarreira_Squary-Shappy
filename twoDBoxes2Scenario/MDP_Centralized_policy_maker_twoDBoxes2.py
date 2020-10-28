@@ -114,7 +114,7 @@ class MDP_Centralized_policy_maker_twoDBoxes2(object):
 
         self.max_epsilon = 0.1
         self.min_epsilon = 0.01
-        self.epsilon = self.max_epsilon
+        self.epsilon = 1
 
         self.Q_table = dict()
 
@@ -596,7 +596,7 @@ class MDP_Centralized_policy_maker_twoDBoxes2(object):
 
     def create_policy(self):
 
-        total_episodes = 100000
+        total_episodes = 500000
 
         starting_states = [self.start_state]
         starting_maps = [self.start_map]
@@ -689,6 +689,9 @@ class MDP_Centralized_policy_maker_twoDBoxes2(object):
                 # elif episode == int(total_episodes - (total_episodes / 10)):
                 #     self.epsilon = 0.01
                     # print("                                        ", self.epsilon)
+
+                self.epsilon -= 1/total_episodes
+
 
         # self.plot_an_array(time_array)
         self.plot_an_array(step_array)

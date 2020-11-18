@@ -105,75 +105,69 @@ class Analyser_twoDBoxes2(object):
     #     print("Boxes caught by shappy 3 -> ", shappy3_boxes)
     #     print("Boxes caught by shappy 4 -> ", shappy4_boxes)
 
-    def __init__(self, ):
+    def __init__(self, filename_centralized, filename_individual, testRunStates):
+        self.centralized = []
+        self.individual0 = []
+        self.individual1 = []
+        self.runStates = []
 
-        self.run_states = []
+        self.individualActions = ["Nothing", "Left", "Right", "Up", "Down"]
+        self.centralizedActions = [["Nothing", "Left"], ["Nothing", "Right"], ["Nothing", "Up"], ["Nothing", "Down"],
+                              ["Left", "Nothing"], ["Left", "Left"], ["Left", "Right"], ["Left", "Up"],
+                              ["Left", "Down"],
+                              ["Right", "Nothing"], ["Right", "Left"], ["Right", "Right"], ["Right", "Up"],
+                              ["Right", "Down"],
+                              ["Up", "Nothing"], ["Up", "Left"], ["Up", "Right"], ["Up", "Up"], ["Up", "Down"],
+                              ["Down", "Nothing"], ["Down", "Left"], ["Down", "Right"], ["Down", "Up"],
+                              ["Down", "Down"]]
 
-        self.shappys_movement = []
+        self.readPolicies(filename_centralized, filename_individual)
 
-        self.shappys_movement_centralized = []
-        self.shappys_movement_individual = []
+        self.organizeTestRunStates(testRunStates)
 
-    def write_shappys_movement(self, run_states, filename):
-        self.run_states = run_states
+        self.compare()
 
-        self.get_shappys_movement()
+    def readPolicies(self, filename_centralized, filename_individual):
+        cen = open(filename_centralized, 'rb')
+        self.centralized = pickle.load(cen)
+        cen.close()
 
-        for a in self.shappys_movement:
-            print(a[0], " ", a[1])
+        ind = open(filename_individual, 'rb')
+        self.individual0, self.individual1 = pickle.load(ind)
+        ind.close()
 
-        self.write_in_txt(filename)
+    def organizeTestRunStates(self, testRunStates):
+        for index in range(1, len(testRunStates)):
+            centAction = self.getAction(testRunStates[index-1], testRunStates[index])
+            self.runStates.append([testRunStates[index-1], centAction])
 
-    def read_shappys_movement(self, filename_centralized, filename_individual):
-        self.read_from_txt(filename_centralized, filename_individual)
-        self.analyse_shappys_movement()
+    def getAction(self, state0, state1):
+        action = []
+        if self.equalArrays(state0[0], state1[0]):
+            action.append("Stay")
+        elif state0[0][0] > state1[0][0]:
+            action.append("Up")
+        elif state0[0][0] < state1[0][0]:
+            action.append("Down")
+        elif state0[0][1] > state1[0][1]:
+            action.append("Left")
+        elif state0[0][1] < state1[0][1]:
+            action.append("Right")
 
-    def get_shappys_movement(self):
-        for i in range(1, len(self.run_states)):
-            if self.compare_arrays(self.run_states[i][0], self.run_states[i-1][0]):
-                self.shappys_movement.append(["Shappy3", "Stay"])
-            elif self.run_states[i][0][0] > self.run_states[i-1][0][0]:
-                self.shappys_movement.append(["Shappy3", "Down"])
-            elif self.run_states[i][0][0] < self.run_states[i - 1][0][0]:
-                self.shappys_movement.append(["Shappy3", "Up"])
-            elif self.run_states[i][0][1] > self.run_states[i - 1][0][1]:
-                self.shappys_movement.append(["Shappy3", "Right"])
-            elif self.run_states[i][0][1] < self.run_states[i - 1][0][1]:
-                self.shappys_movement.append(["Shappy3", "Left"])
+        if self.equalArrays(state0[1], state1[1]):
+            action.append("Stay")
+        elif state0[1][0] > state1[1][0]:
+            action.append("Up")
+        elif state0[1][0] < state1[1][0]:
+            action.append("Down")
+        elif state0[1][1] > state1[1][1]:
+            action.append("Left")
+        elif state0[1][1] < state1[1][1]:
+            action.append("Right")
 
-            if self.compare_arrays(self.run_states[i][1], self.run_states[i-1][1]):
-                self.shappys_movement.append(["Shappy4", "Stay"])
-            elif self.run_states[i][1][0] > self.run_states[i-1][1][0]:
-                self.shappys_movement.append(["Shappy4", "Down"])
-            elif self.run_states[i][1][0] < self.run_states[i - 1][1][0]:
-                self.shappys_movement.append(["Shappy4", "Up"])
-            elif self.run_states[i][1][1] > self.run_states[i - 1][1][1]:
-                self.shappys_movement.append(["Shappy4", "Right"])
-            elif self.run_states[i][1][1] < self.run_states[i - 1][1][1]:
-                self.shappys_movement.append(["Shappy4", "Left"])
+        return action
 
-    def analyse_shappys_movement(self):
-        longerList = []
-        shorterList = []
-
-        _similarityValue = 0
-
-        if len(self.shappys_movement_centralized) >= len(self.shappys_movement_individual):
-            longerList = self.shappys_movement_centralized
-            shorterList = self.shappys_movement_individual
-        else:
-            longerList = self.shappys_movement_individual
-            shorterList = self.shappys_movement_centralized
-
-        for i in range(len(shorterList)):
-            if self.compare_arrays(longerList[i], shorterList[i]):
-                _similarityValue += 1
-
-        _similarityValue = _similarityValue / len(longerList)
-
-        print("SIMILARITY VALUE = ", _similarityValue)
-
-    def compare_arrays(self, array1, array2):
+    def equalArrays(self, array1, array2):
         if len(array1) != len(array2):
             return False
         else:
@@ -182,16 +176,48 @@ class Analyser_twoDBoxes2(object):
                     return False
         return True
 
-    def write_in_txt(self, filename):
-        with open(filename, "wb") as fp:  # Unpickling
-            pickle.dump(self.shappys_movement, fp)
-            fp.close()
+    def compare(self):
+        centCount = 0
+        indCount = 0
 
-    def read_from_txt(self, filename_centralized, filename_individual):
-        cen = open(filename_centralized, 'rb')
-        self.shappys_movement_centralized = pickle.load(cen)
-        cen.close()
+        for state in self.runStates:
+            if self.equalToCentralized(state):
+                centCount += 1
 
-        ind = open(filename_individual, 'rb')
-        self.shappys_movement_individual = pickle.load(ind)
-        ind.close()
+        print(centCount, " ", len(self.runStates))
+
+        # count = 0
+        # for centralizedObj in self.centralized:
+        #     centralizedAgent0, centralizedAgent1 = self.getIndividualStates(centralizedObj[0])
+        #     centralizedAction = self.centralizedActions[np.argmax(centralizedObj[1])]
+        #     for individualObj0 in self.individual0:
+        #         if centralizedAgent0 == individualObj0[0]:
+        #             for individualObj1 in self.individual1:
+        #                 if centralizedAgent1 == individualObj1[0]:
+        #                     individualAction = [self.individualActions[np.argmax(individualObj0[1])], self.individualActions[np.argmax(individualObj1[1])]]
+        #                     if individualAction == centralizedAction:
+        #                         count += 1
+        #
+        #
+        # print(len(self.centralized))
+        # print(len(self.individual0))
+        # print(len(self.individual1))
+        # print(count)
+
+    def getIndividualStates(self, centralizedState):
+        temp0 = []
+        temp1 = []
+        for i in range(len(centralizedState)):
+            if i != 1:
+                temp0.append(centralizedState[i])
+            if i != 0:
+                temp1.append(centralizedState[i])
+
+        return temp0, temp1
+
+    def equalToCentralized(self, state):
+        for temp in self.centralized:
+            if temp[0] == state[0]:
+                if self.centralizedActions[np.argmax(temp[1])] == state[1]:
+                    return True
+        return False

@@ -125,7 +125,7 @@ class Analyser_twoDBoxes2(object):
 
         self.organizeTestRunStates(testRunStates)
 
-        self.compare()
+        self.compareCombined()
 
     def readPolicies(self, filename_centralized, filename_individual):
         cen = open(filename_centralized, 'rb')
@@ -143,8 +143,8 @@ class Analyser_twoDBoxes2(object):
 
     def getAction(self, state0, state1):
         action = []
-        if self.equalArrays(state0[0], state1[0]):
-            action.append("Stay")
+        if state0[0] == state1[0]:
+            action.append("Nothing")
         elif state0[0][0] > state1[0][0]:
             action.append("Up")
         elif state0[0][0] < state1[0][0]:
@@ -154,8 +154,8 @@ class Analyser_twoDBoxes2(object):
         elif state0[0][1] < state1[0][1]:
             action.append("Right")
 
-        if self.equalArrays(state0[1], state1[1]):
-            action.append("Stay")
+        if state0[1] == state1[1]:
+            action.append("Nothing")
         elif state0[1][0] > state1[1][0]:
             action.append("Up")
         elif state0[1][0] < state1[1][0]:
@@ -167,24 +167,18 @@ class Analyser_twoDBoxes2(object):
 
         return action
 
-    def equalArrays(self, array1, array2):
-        if len(array1) != len(array2):
-            return False
-        else:
-            for i in range(len(array1)):
-                if array1[i] != array2[i]:
-                    return False
-        return True
-
-    def compare(self):
+    def compareCombined(self):
         centCount = 0
         indCount = 0
 
         for state in self.runStates:
             if self.equalToCentralized(state):
                 centCount += 1
+            if self.equalToIndividual(state):
+                indCount += 1
 
-        print(centCount, " ", len(self.runStates))
+        print("Centralized ", centCount, " ", len(self.runStates))
+        print("Individual ", indCount, " ", len(self.runStates))
 
         # count = 0
         # for centralizedObj in self.centralized:
@@ -204,20 +198,26 @@ class Analyser_twoDBoxes2(object):
         # print(len(self.individual1))
         # print(count)
 
-    def getIndividualStates(self, centralizedState):
-        temp0 = []
-        temp1 = []
-        for i in range(len(centralizedState)):
-            if i != 1:
-                temp0.append(centralizedState[i])
-            if i != 0:
-                temp1.append(centralizedState[i])
-
-        return temp0, temp1
-
     def equalToCentralized(self, state):
         for temp in self.centralized:
             if temp[0] == state[0]:
                 if self.centralizedActions[np.argmax(temp[1])] == state[1]:
                     return True
+        return False
+
+    def equalToIndividual(self, state):
+        temp0 = []
+        temp1 = []
+        for i in range(len(state[0])):
+            if i != 1:
+                temp0.append(state[0][i])
+            if i != 0:
+                temp1.append(state[0][i])
+
+        for obj0 in self.individual0:
+            if obj0[0] == temp0:
+                for obj1 in self.individual1:
+                    if obj1[0] == temp1:
+                        if self.individualActions[np.argmax(obj0[1])] == state[1][0] and self.individualActions[np.argmax(obj1[1])] == state[1][1]:
+                            return True
         return False

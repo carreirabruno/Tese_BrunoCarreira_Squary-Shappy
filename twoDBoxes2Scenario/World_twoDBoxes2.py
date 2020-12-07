@@ -27,12 +27,12 @@ class World_twoDBoxes2(object):
 
         if self.type_of_policy == "individual_decentralized_split_rewards" or self.type_of_policy == "individual_decentralized_joint_rewards":
             self.type_of_policy = "individual_decentralized"
-        elif self.type_of_policy == "peer_aware_decentralized_split_rewards" or self.type_of_policy == "peer_aware_decentralized_joint_rewards":
-            self.type_of_policy = "peer_aware_decentralized"
-        elif self.type_of_policy == "peer_communication_decentralized_split_rewards" or self.type_of_policy == "peer_communication_decentralized_joint_rewards":
-            self.type_of_policy = "peer_communication_decentralized"
-        elif self.type_of_policy == "peer_listen_decentralized_split_rewards" or self.type_of_policy == "peer_listen_decentralized_joint_rewards":
-            self.type_of_policy = "peer_listen_decentralized"
+        # elif self.type_of_policy == "peer_aware_decentralized_split_rewards" or self.type_of_policy == "peer_aware_decentralized_joint_rewards":
+        #     self.type_of_policy = "peer_aware_decentralized"
+        # elif self.type_of_policy == "peer_communication_decentralized_split_rewards" or self.type_of_policy == "peer_communication_decentralized_joint_rewards":
+        #     self.type_of_policy = "peer_communication_decentralized"
+        # elif self.type_of_policy == "peer_listen_decentralized_split_rewards" or self.type_of_policy == "peer_listen_decentralized_joint_rewards":
+        #     self.type_of_policy = "peer_listen_decentralized"
 
         self.policy = []
         self.policy2 = []

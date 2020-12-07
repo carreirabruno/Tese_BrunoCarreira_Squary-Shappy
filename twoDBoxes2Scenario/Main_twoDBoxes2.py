@@ -75,8 +75,12 @@ def main():
 
     _testRunStates = visualizeGame(world)
 
-    analyser = Analyser_twoDBoxes2(centralized_policy_file, individual_decentralized_split_rewards_policy_file,
-                                   _testRunStates)
+    if world.type_of_policy == "centralized":
+        analyser = Analyser_twoDBoxes2(centralized_policy_file, individual_decentralized_split_rewards_policy_file,
+                                       _testRunStates, True)
+    else:
+        analyser = Analyser_twoDBoxes2(centralized_policy_file, individual_decentralized_split_rewards_policy_file,
+                                       _testRunStates, False)
 
     # makeHeatMapGraph(world.terrain.matrix, run_states)
 

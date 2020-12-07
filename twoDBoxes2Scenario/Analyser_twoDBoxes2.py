@@ -337,8 +337,6 @@ class Analyser_twoDBoxes2(object):
 
         # return vote
 
-
-
     def getIndividualActionIndex(self, stringAction):
         for i in range(len(self.individualActions)):
             if stringAction == self.individualActions[i]:

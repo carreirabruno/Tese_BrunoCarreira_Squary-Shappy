@@ -58,7 +58,7 @@ def main():
     # initialize the pygame module
     pygame.init()
 
-    terrain = terrain3
+    terrain = terrain1
 
     if terrain == terrain1:
         centralized_policy_file = centralized_policy_map1_file

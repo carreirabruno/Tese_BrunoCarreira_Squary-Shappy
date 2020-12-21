@@ -5,6 +5,8 @@ import pickle
 import copy
 import math
 
+from pip._vendor.urllib3.packages.rfc3986.normalizers import normalize_scheme
+
 
 class Analyser_twoDBoxes2(object):
     # def __init__(self, terrain_matrix, run_states, scenario_policies):
@@ -123,7 +125,6 @@ class Analyser_twoDBoxes2(object):
                                    ["Down", "Nothing"], ["Down", "Left"], ["Down", "Right"], ["Down", "Up"],
                                    ["Down", "Down"]]
 
-
         # indDenominator = 0
         # for i in range(1, len(self.individualActions) + 1):
         #     indDenominator += pow(math.e, -i)
@@ -152,39 +153,9 @@ class Analyser_twoDBoxes2(object):
         ind.close()
 
     def organizeTestRunStates(self, testRunStates, typeCentralized):
-        # for index in range(1, len(testRunStates)):
-        #     centAction = self.getAction(testRunStates[index-1], testRunStates[index])
-        #     self.runStates.append([testRunStates[index-1], centAction])
-
         for index in range(len(testRunStates) - 1):
             centAction = self.getRunActions(testRunStates[index], typeCentralized)
             self.runStates.append([testRunStates[index], centAction])
-
-    # def getAction(self, state0, state1):
-    #     action = []
-    #     if state0[0] == state1[0]:
-    #         action.append("Nothing")
-    #     elif state0[0][0] > state1[0][0]:
-    #         action.append("Up")
-    #     elif state0[0][0] < state1[0][0]:
-    #         action.append("Down")
-    #     elif state0[0][1] > state1[0][1]:
-    #         action.append("Left")
-    #     elif state0[0][1] < state1[0][1]:
-    #         action.append("Right")
-    #
-    #     if state0[1] == state1[1]:
-    #         action.append("Nothing")
-    #     elif state0[1][0] > state1[1][0]:
-    #         action.append("Up")
-    #     elif state0[1][0] < state1[1][0]:
-    #         action.append("Down")
-    #     elif state0[1][1] > state1[1][1]:
-    #         action.append("Left")
-    #     elif state0[1][1] < state1[1][1]:
-    #         action.append("Right")
-    #
-    #     return action
 
     def getRunActions(self, state, typeCentralized):
         if typeCentralized:
@@ -213,89 +184,42 @@ class Analyser_twoDBoxes2(object):
         centCount = 0
         indCount = 0
 
-        # indDenominator = 0
-        # for i in range(1, len(self.individualActions) + 1):
-        #     indDenominator += pow(math.e, -i)
-        #
-        # centDenominator = 0
-        # for i in range(1, len(self.centralizedActions) + 1):
-        #     centDenominator += pow(math.e, -i)
-
         for state in self.runStates:
-            # centCount += self.getVotingValueCentralized(state)/centDenominator
-            # indCount += self.getVotingValueIndividual(state)/(2*indDenominator)
             centCount += self.getVotingValueCentralized(state)
             indCount += self.getVotingValueIndividual(state)
 
-        maxValueCent = len(self.runStates) * (pow(math.e, -1/(len(self.centralizedActions) + 1)))
-        maxValueInd = len(self.runStates) * (pow(math.e, - (1/len(self.individualActions)) * (1/len(self.individualActions))))
+        total = centCount + indCount
+        centCount = centCount / total
+        indCount = indCount / total
 
-        centCount = centCount/maxValueCent
-        indCount = indCount/maxValueInd
-
-        print("Centralized ", "{:0.2f}".format(centCount), " ", len(self.runStates))
-        print("Individual ", "{:0.2f}".format(indCount), " ", len(self.runStates))
-
-        # count = 0
-        # for centralizedObj in self.centralized:
-        #     centralizedAgent0, centralizedAgent1 = self.getIndividualStates(centralizedObj[0])
-        #     centralizedAction = self.centralizedActions[np.argmax(centralizedObj[1])]
-        #     for individualObj0 in self.individual0:
-        #         if centralizedAgent0 == individualObj0[0]:
-        #             for individualObj1 in self.individual1:
-        #                 if centralizedAgent1 == individualObj1[0]:
-        #                     individualAction = [self.individualActions[np.argmax(individualObj0[1])], self.individualActions[np.argmax(individualObj1[1])]]
-        #                     if individualAction == centralizedAction:
-        #                         count += 1
-        #
-        #
-        # print(len(self.centralized))
-        # print(len(self.individual0))
-        # print(len(self.individual1))
-        # print(count)
+        print("Centralized ", centCount)
+        print("Individual ", indCount)
 
     def getVotingValueCentralized(self, state):
-        vote = 0
-
         for temp in self.centralized:
             if temp[0] == state[0]:
-                values = self.getCentralizedActionIndexOrdered(temp[1], state[1])
-                # vote = pow(math.e, -values[0]) + pow(math.e, -values[1])
-                vote = pow(math.e, -values/(len(self.centralizedActions) + 1))
-        return vote
+                index = self.getCentralizedActionIndex(state[1])
+                return self.normalizeActionsAndVote(temp[1], index)
+        return -1
 
-    def getCentralizedActionIndexOrdered(self, actionsQValues, stringActions):
-        # qActionsAgents0 = [1] * len(self.individualActions)
-        # qActionsAgents1 = [1] * len(self.individualActions)
-        #
-        # for i in range(len(actionsQValues)):
-        #     for j in range(len(self.individualActions)):
-        #         if self.centralizedActions[i][0] == self.individualActions[j]:
-        #             qActionsAgents0[j] += actionsQValues[i]
-        #         if self.centralizedActions[i][1] == self.individualActions[j]:
-        #             qActionsAgents1[j] += actionsQValues[i]
-        #
-        # qActionsAgents0[0] = qActionsAgents0[0]/(len(qActionsAgents0)-1)
-        # qActionsAgents1[0] = qActionsAgents1[0]/(len(qActionsAgents1)-1)
-        # for v in range(1, len(self.individualActions)):
-        #     qActionsAgents0[v] = qActionsAgents0[v]/len(qActionsAgents0)
-        #     qActionsAgents1[v] = qActionsAgents1[v]/len(qActionsAgents1)
-        #
-        # return [self.getIndividualActionIndex(qActionsAgents0, stringActions[0]), self.getIndividualActionIndex(qActionsAgents1, stringActions[1])]
+    def normalizeActionsAndVote(self, actionsQValues, actionsIndex):
+        temp = []
 
-        tempActionValues = copy.copy(actionsQValues)
-
-        tempActionValues.sort()
-
-        actionV = -1
+        denominator = 0
 
         for i in range(len(actionsQValues)):
-            if stringActions == self.centralizedActions[i]:
-                actionV = actionsQValues[i]
+            temp.append(actionsQValues[i] / sum(actionsQValues))
+            denominator += math.exp(temp[i])
 
-        for i in range(len(tempActionValues) - 1, -1, -1):
-            if actionV == tempActionValues[i]:
-                return len(tempActionValues) - i
+        if denominator == 0:
+            return -100
+
+        return math.exp(temp[actionsIndex]) / denominator
+
+    def getCentralizedActionIndex(self, stringActions):
+        for i in range(len(self.centralizedActions)):
+            if stringActions == self.centralizedActions[i]:
+                return i
         return -1
 
     def getIndividualStates(self, state):
@@ -309,46 +233,30 @@ class Analyser_twoDBoxes2(object):
         return temp0, temp1
 
     def getVotingValueIndividual(self, state):
-        # vote = 0
-        #
-        # indState = self.getIndividualStates(state)
-        #
-        # for temp in self.individual0:
-        #     if temp[0] == indState[0]:
-        #         vote += pow(math.e, -self.getIndividualActionIndex(temp[1], state[1][0]))
-        #
-        # for temp in self.individual1:
-        #     if temp[0] == indState[1]:
-        #         vote += pow(math.e, -self.getIndividualActionIndex(temp[1], state[1][1]))
-        #
-        # return vote
-
-        vote = 1
-
         indState = self.getIndividualStates(state)
+
+        actionsQagent0 = []
+        actionsQagent1 = []
 
         for temp in self.individual0:
             if temp[0] == indState[0]:
-                vote *= self.getIndividualActionIndex(temp[1], state[1][0])/len(self.individualActions)
+                actionsQagent0 = temp[1]
 
         for temp in self.individual1:
             if temp[0] == indState[1]:
-                vote *= self.getIndividualActionIndex(temp[1], state[1][1])/len(self.individualActions)
+                actionsQagent1 = temp[1]
 
-        return pow(math.e, -vote)
+        array = self.fromIndividualToCentralizedArray(actionsQagent0, actionsQagent1)
+        index = self.getCentralizedActionIndex(state[1])
 
-    def getIndividualActionIndex(self, actionQValues, stringAction):
-        tempActionValues = copy.copy(actionQValues)
+        return self.normalizeActionsAndVote(array, index)
 
-        tempActionValues.sort()
+    def fromIndividualToCentralizedArray(self, array1, array2):
+        temp = []
+        for a in range(len(array1)):
+            for b in range(len(array2)):
+                temp.append(array1[a] * array2[b])
 
-        actionV = -1
+        temp.pop(0)
 
-        for i in range(len(actionQValues)):
-            if stringAction == self.individualActions[i]:
-                actionV = actionQValues[i]
-
-        for i in range(len(tempActionValues) - 1, -1, -1):
-            if actionV == tempActionValues[i]:
-                return len(tempActionValues) - i
-        return -1
+        return temp

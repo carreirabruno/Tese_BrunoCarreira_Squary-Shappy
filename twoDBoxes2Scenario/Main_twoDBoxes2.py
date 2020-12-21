@@ -70,8 +70,8 @@ def main():
         centralized_policy_file = centralized_policy_map3_file
         individual_decentralized_split_rewards_policy_file = individual_decentralized_split_rewards_policy_map3_file
 
-    # world = World_twoDBoxes2(terrain, centralized_policy_file)
-    world = World_twoDBoxes2(terrain, individual_decentralized_split_rewards_policy_file)
+    world = World_twoDBoxes2(terrain, centralized_policy_file)
+    # world = World_twoDBoxes2(terrain, individual_decentralized_split_rewards_policy_file)
 
     _testRunStates = visualizeGame(world)
 
